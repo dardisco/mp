@@ -3,7 +3,7 @@
 ;; Copyright 2015 Chris Dardis
 
 ;; Author: C. Dardis <christopherdardis@gmail.com>
-;; Version: 0.1
+;; Version: 0.2
 ;; Package-Requires: ((org "8.0") (emacs "24.4"))
 ;; Keywords: R, Sweave, knitr, latex, noweb, org
 ;; URL: http://github.com.dardisco/mp
@@ -374,7 +374,7 @@ It is called by `mp-entwine'."
 		   (file-expand-wildcards
 		    (concat "*" ext1))))
 	     (if elem1
-	;	 (when (not (string= "knitr" mp-entwiner)))
+		 ;; (when (not (string= "knitr" mp-entwiner)))
 		   (mp-update
 		    (concat
 		     fileStem ext1)
@@ -425,13 +425,14 @@ This function may be called by `mp-R-nw-or-org'."
 	 (setq preamble1 (assq-delete-all nil preamble1))
         (when (string= mp-latex "pdflatex")
 	  (set 'font1 mp-latex-font)
-	  (setq font1 (rassq-delete-all nil font1)))
+	  (set 'font1 (rassq-delete-all nil font1)))
 	(unless (string= mp-latex "pdflatex")
 	  (set 'font1 mp-xetex-font)
 	  (setq font1 (rassq-delete-all nil font1)))
+	;; insert font
 	;; Org export
 	(when (string= mp-entwiner "Org")
-	 (defun fun1 (STRING)
+	 (defun addHeader (STRING)
 	   (let (list1)
 	     (set 'list1 (split-string STRING "\n"))
 	     (mapc
@@ -446,53 +447,39 @@ This function may be called by `mp-R-nw-or-org'."
 		   (when (equal 'org (cadr x))
 		     (cddr x)))
 		 preamble1 "\n"))
-	   (fun1 head1)
+	   (addHeader head1)
 	   (set 'head1
 		(mapconcat
 		 (lambda (x)
 		   (when (equal 'all (cadr x))
 		     (cddr x)))
 		 preamble1 "\n"))
-	   (fun1 head1)
-	   (if (string= mp-latex "pdflatex")
-	       (mapc (lambda (x) (fun1 (car x))) font1)
-	     (mapc (lambda (x) (fun1 (car x))) font1))))
-       ;; Rnw export
-       (when
-	   (not (string= mp-entwiner "Org"))
+	   (addHeader head1)
+	   (insert "%%% Font settings \n")
+	   (mapc (lambda (x) (addHeader (car x))) font1)))
+	   ;; Rnw export
+       (unless (string= mp-entwiner "Org")
 	 (defun f1 (KEY)
-	 (mapc (lambda (x)
+	   (mapc (lambda (x)
 		 (when (equal KEY (cadr x))
 		   (insert
 		    (concat (cddr x) "\n"))))
 	       preamble1))
 	 (f1 'class)
-	 (when (string= mp-entwiner "knitr")
-	   (f1 'knitr))
-	 (when (string= mp-entwiner "Sweave")
+	 (if (string= mp-entwiner "knitr")
+	     (f1 'knitr)
 	   (f1 'sweave))
-	 (if (string= mp-latex "pdflatex")
-	     (mapc (lambda (x) (insert (car x))) font1)
-	   (mapc (lambda (x) (insert (car x))) font1))
-	 (when (string= mp-entwiner "knitr")
-	   ;; delete monospace font as doesn't look with knitr
-	   (kill-whole-line 0))
-	 (f1 'all)
-	 (insert "
-%
-%----------------------------------------
-%
-\\begin{document}
-%"))
-       ;; knitr defaults
+       (insert "%%% Font settings \n")
+       (mapc (lambda (x) (insert (car x))) font1)
        (when (string= mp-entwiner "knitr")
-	 (insert mp-knitr-opts)
-	 (insert "
-% knitr read chunks
-<<readChunks, include=FALSE>>=\n")
-	 (insert (concat "read_chunk('" fileStem ".R')"))
-	 (insert "
-@\n"))
+	   ;; delete monospace font as doesn't look good with knitr
+	   (kill-whole-line 0))
+       (f1 'all)
+	 (insert "%%%
+%----------------------------------------
+%%%
+\\begin{document}
+"))
        ;; title + author
        (insert (if (string= mp-entwiner "Org")
 		   (concat "#+TITLE: " fileStem)
@@ -506,18 +493,58 @@ This function may be called by `mp-R-nw-or-org'."
 	 (insert (if (string= mp-entwiner "Org")
 		     (concat "#+AUTHOR: " author1)
 		   (concat "\\author{" author1 "}"))))
-       (insert "\n\n")
        ;; maketitle
        (when (not (string= mp-entwiner "Org"))
 	 (insert "
 \\maketitle
 % page numbers appear top-right
 \\pagestyle{headings}
-\\tableofcontents
-\n\n"))
-       ;;
-       (let ( (i 0) (elem1 nil) beg1 end1)
-	 (while (< i (length listOfChunks))
+\\tableofcontents"))
+       ;; knitr defaults
+       (when (string= mp-entwiner "knitr")
+	 (insert mp-knitr-opts)
+	 (insert "
+%%% Read chunks (for knitr)
+<<knitrReadChunks, include=FALSE>>=\n")
+	 (insert (concat "read_chunk('" fileStem ".R')"))
+	 (insert "
+@
+%----------------------------------------
+"))
+       ;; Sweave defaults
+       (when (string= mp-entwiner "Sweave")
+	 (let (sweave1)
+	   (set 'sweave1 mp-Sweave-opts)
+	   (set 'sweave1 (rassq-delete-all nil sweave1))
+	   (insert
+	    (concat "
+% default chunk options for Sweave
+% "
+		    (mapconcat
+		     'car sweave1 ", ")
+		    "\n"))))
+       ;; Org-mode defaults
+       (when (string= mp-entwiner "Org")
+	    (let (org1)
+	      (set 'org1 mp-org-header-args)
+	      (set 'org1
+		    (assq-delete-all nil org1))
+	      (set 'org1  (mapconcat (lambda (x)
+				       (concat
+					(cadr x)
+					" "
+					(cddr x)))
+				     org1 " "))
+	      (insert
+	       (concat "
+% default chunk options for Org
+% "
+		       org1
+		       "\n"))))
+       ;; other chunks
+       (let ((i 0) (elem1 nil) beg1 end1)
+	 (while
+	     (< i (length listOfChunks))
 	   (set 'elem1 (nth i listOfChunks))
 	   (mp-insert-chunk elem1)
 	   (incf i)))
@@ -528,11 +555,11 @@ This function may be called by `mp-R-nw-or-org'."
 % \\bibliographystyle{plain}
 % \\bibliography{" fileStem "}
 % \\begin{thebibliography}{99}
-%  \\bibitem{Smith1900}
-%     John A. Smith and Terry Jones,
-%     \emph{An article}.
-%     Journal of Things, 
-%     1994.
+%  \\bibitem{Almeida1990}
+%     Larry Almeida,
+%     \\emph{Morphological differences between American and Brazilian Pig Latin constructions}.
+%     Piggiotica, 
+%     1990.
 % \\end{thebibliography}
 %
 \\end{document}"))
@@ -564,8 +591,12 @@ will also be added as needed."
 	   (nth 3 mp-chunk-brackets)
 	 (nth 1 mp-chunk-brackets)))
   (insert (concat beg1
-		  (prin1-to-string (first CHUNK) t)
+		  (prin1-to-string
+		   (substring
+		    (first CHUNK) 0
+		    (string-match ", " (first CHUNK))) t)
 		  end1 "\n\n"))
+  ;; define opening and closing for code chunk
   (set 'beg1
        (if (string= mp-entwiner "Org")
 	   "#+NAME: "
@@ -577,10 +608,15 @@ will also be added as needed."
   (insert (concat
 	   beg1
 	   (prin1-to-string (first CHUNK) t)))
-  (when (string= mp-entwiner "Sweave")
+  (when
+      (and
+       (string= mp-entwiner "Sweave")
+       (not
+	(string-match-p ", " (first CHUNK))))
     (let (sweave1)
       (set 'sweave1 mp-Sweave-opts)
-    (setq sweave1 (rassq-delete-all nil sweave1))
+      (setq sweave1
+	   (rassq-delete-all nil sweave1))
     (insert
      (concat ", "
 	     (mapconcat
@@ -590,17 +626,22 @@ will also be added as needed."
   (when (string= mp-entwiner "Org")
     (let (org1)
       (set 'org1 mp-org-header-args)
-    (setq org1 (assq-delete-all nil org1))
-    (set 'end1  (mapconcat (lambda (x)
-			     (concat (cadr x) " "
-				     (cddr x) ))
+      (setq org1
+	    (assq-delete-all nil org1))
+      (set 'end1  (mapconcat (lambda (x)
+			     (concat
+			      (cadr x)
+			      " "
+			      (cddr x)))
 			   org1 " ")))
     (insert
      (concat "#+begin_src R "
 	     end1 " \n")))
   (when
       (not (string= mp-entwiner "knitr"))
-    (insert (prin1-to-string (second CHUNK) t) "\n"))
+    (insert
+     (prin1-to-string
+      (second CHUNK) t) "\n"))
   (set 'end1
        (if (string= mp-entwiner "Org")
 	   "#+end_src"
@@ -635,44 +676,49 @@ If `mp-entwiner' is set to 'Sweave' or 'Org', this function is called by `mp-R-n
 			 "<<"))
 	 (set 'suffix1 (if (string= "Org" mp-entwiner)
 			   "$"
-			 ".,"))
-	 (save-excursion
-	   (goto-char (point-min))
-	   (while (re-search-forward prefix1 (point-max) t)
-	     (save-excursion
-	       ;; assumes first match is name
-	       (set 'beg1 (point))
-	       (search-forward-regexp suffix1 nil t)
-	       (set 'end1 (point))
-	       (set 'chunk1
-		    (buffer-substring-no-properties beg1 end1))
-	       (add-to-list 'namesCurrChunks chunk1 t))))
-	 (search-forward-regexp prefix1)
-	 (move-beginning-of-line -2)
+			 ">>"))
+	 (goto-char (point-min))
+	 (while (re-search-forward prefix1 (point-max) t)
+	   (save-excursion
+	     ;; assumes first match is name
+	     (set 'beg1 (point))
+	     (search-forward-regexp suffix1 nil t)
+	     (set 'end1
+		  (- (point) 2))
+	     (set 'chunk1
+		  (buffer-substring-no-properties beg1 end1))
+	     (add-to-list 'namesCurrChunks chunk1 t)))
+	 (when (string= "knitr" mp-entwiner)
+	   (setq namesCurrChunks
+		 (delete "knitrChunkDefaults, include=FALSE"
+			 namesCurrChunks))
+	   (setq namesCurrChunks
+		 (delete "knitrReadChunks, include=FALSE"
+			 namesCurrChunks)))
 	 ;;
 	 (let ((i 0) (elem1 nil))
 	 (while (< i (length listOfChunks))
 	   (set 'elem1 (nth i listOfChunks))
-	   (unless (set 'old1
-			(member
-			 (car elem1)
-			 namesCurrChunks))
-	     (mp-insert-chunk elem1))
-	   (when old1
-	     (set 'chunkName1 (first elem1))
-	     (set 'chunkValue1 (second elem1))
-	     (goto-char (point-min))
-	     (search-forward-regexp
-	      (concat prefix1 chunkName1)
-	      (point-max) t)
-	     (move-beginning-of-line
-	      (if (string= "Org" mp-entwiner)
-		  3
-		2))
+	   (when
+	       (set 'old1
+		    (member
+		     (car elem1) namesCurrChunks))
+	     (search-forward
+	      (car elem1) nil t)
+	     (search-forward "@" nil t)
+	     (forward-line 2))
+	   (unless old1
+	     (set 'old1 (car elem1))
+	     (mp-insert-chunk elem1)
 	     (set 'suffix1
 		  (if (string= "Org" mp-entwiner)
 		      "#+end_src"
 		    "@"))
+	     (search-backward suffix1 nil t)
+	     (move-beginning-of-line
+	      (if (string= "Org" mp-entwiner)
+		  3
+		2))
 	     (insert (prin1-to-string  chunkValue1 t))
 	     (set 'beg1 (point))
 	     (search-forward suffix1 nil t)
@@ -903,9 +949,7 @@ View FILENAME with `mp-pdf-viewer'."
 (defcustom mp-preamble
   '((t . (class . "%
 \\documentclass{article}"))
-    (t . (knitr . "%
-% modified from default setup for knitr
-%
+    (t . (knitr . "%%% knitr defaults
 \\usepackage[]{graphicx}
 \\usepackage[]{color}
 \\usepackage{framed}
@@ -915,7 +959,7 @@ View FILENAME with `mp-pdf-viewer'."
 \\usepackage[sc]{mathpazo}
 \\usepackage{geometry}
 \\geometry{verbose, tmargin=2.5cm, bmargin=2.5cm,
-  lmargin=2.5cm, rmargin=2.5cm}
+  lmargin=2.5cm, rmargin=3cm}
 \\setcounter{secnumdepth}{2}
 \\setcounter{tocdepth}{2}
 \\usepackage{url}
@@ -930,19 +974,16 @@ View FILENAME with `mp-pdf-viewer'."
 \\hypersetup{linkcolor=myDarkBlue}
 \\hypersetup{citecolor=myDarkBlue}
 \\hypersetup{pdfstartview={XYZ null null 1}}"))
-    (t . (sweave . "%
-% these are required for Sweave
+    (t . (sweave . "%%% Sweave defaults
 \\usepackage{Sweave}
 \\usepackage{lmodern}
-% hyperref
 \\usepackage{color}
 \\usepackage{hyperref}
 \\hypersetup{colorlinks=true}
 \\definecolor{myDarkBlue}{rgb}{0, 0, 0.5}
 \\hypersetup{linkcolor=myDarkBlue}
-\\hypersetup{citecolor=myDarkBlue}
-"))
-    (t . (org . "%
+\\hypersetup{citecolor=myDarkBlue}"))
+    (t . (org . "%%% Org-mode defaults
 % for multiple plots per .pdf
 \\usepackage{pdfpages}
 % recommended for Org mode export
@@ -969,9 +1010,7 @@ View FILENAME with `mp-pdf-viewer'."
 \\hypersetup{colorlinks=true}
 \\hypersetup{linkcolor=myDarkBlue}
 \\hypersetup{citecolor=myDarkBlue}"))
-    (t . (all . "%
-% other useful additions
-%
+    (t . (all . "%%% Additional default preamble
 % for rerunfilecheck:
 % no need to rerun to get outlines right
 \\usepackage{bookmark}
@@ -992,7 +1031,12 @@ View FILENAME with `mp-pdf-viewer'."
 % to keep floats in same section
 \\usepackage[section]{placeins}
 % for tables > 1 page
-\\usepackage{longtable}"))) "
+\\usepackage{longtable}
+% for table entries spanning rows
+\\usepackage{multirow}
+% suppress most error messages
+\\hbadness=15000
+\\vbadness=15000"))) "
 This is the preamble for documents created with `mp-skeleton-nw'.
 
 It is an alist in the form (KEY1. (KEY2 . VALUE)). If KEY1 is non-nil, the list is included. 
@@ -1025,8 +1069,8 @@ See `TeX-doc' i.e. (TeX-doc packageName) for more details on particular packages
 
 
 (defcustom mp-knitr-opts "
-% knitr chunks
-<<setup, include=FALSE>>=
+%%% Defaults for chunks typeset with knitr
+<<knitrChunkDefaults, include=FALSE>>=
 library(knitr)
 ### Set global chunk options
 opts\_chunk$set(
@@ -1063,8 +1107,8 @@ knit_hooks$set(inline = function(x) {
 ## opts_knit$set(out.format='latex')
 ## thm1 <- knit_theme$get('acid')
 ## knit_theme$set(thm1)
-@"
- "
+@
+" "
 Default setup options for 'knitr'.
 
 This is passed to 'chunks' in 'knitr' by `mp-R-nw-or-org'.
@@ -1086,7 +1130,7 @@ Common options are given as vectors with a choice indicated by the index, in squ
 (defcustom mp-bib "
 @Comment @Comment Example of a comment.
 @Comment @Comment % can also be used, as with .tex files.
-@Comment % An article from a magazine or a journal.
+@Comment % Article from a magazine or a journal.
 @Comment @article{Xarticle,
 @Comment     author    = {Smith, John A. and Jones, Terry},
 @Comment     title     = {Something about things},
@@ -1098,7 +1142,7 @@ Common options are given as vectors with a choice indicated by the index, in squ
 @Comment     %note     = {},
 @Comment     year      = {1900}
 @Comment }
-@Comment % alternative format using quotation marks
+@Comment % Alternative format, using quotation marks
 @Comment @article{Xarticle,
 @Comment     author    = \"\",
 @Comment     title     = \"\",
@@ -1260,7 +1304,7 @@ Common options are given as vectors with a choice indicated by the index, in squ
 @Comment 	%note		= {},
 @Comment 	year		= {XXXX}
 @Comment }
-@Comment % Technical report from educational,
+@Comment % Technical report from an educational,
 @Comment % commercial or standardization institution.
 @Comment @techreport{Xtreport,
 @Comment     author    = {},
@@ -1485,28 +1529,23 @@ There is a link to help on the customize screen."
 
 
 
-(defcustom mp-latex-font '(("%
-% Palatino family
+(defcustom mp-latex-font '(("% Palatino family
 \\usepackage[T1]{fontenc}
 \\usepackage{mathpazo}
 \\linespread{1.05}
 \\usepackage[scaled]{helvet}
-\\usepackage{courier}" . t) ("%
-% Times family
+\\usepackage{courier}" . t) ("% Times family
 \\usepackage[T1]{fontenc}
 \\usepackage{mathptmx}
 \\usepackage[scaled=.90]{helvet}
-\\usepackage{courier}" . nil) ("%
-% Garamond family
+\\usepackage{courier}" . nil) ("% Garamond family
 \\usepackage[T1]{fontenc}
 \\usepackage[urw-garamond]{mathdesign}
 \\usepackage{lmodern}
 \\usepackage{courier}
-\\linespread{1.0609}" . nil) ("%
-% KP (Kepler) family; displays math
+\\linespread{1.0609}" . nil) ("% KP (Kepler) family; displays math
 \\usepackage[T1]{fontenc}
-\\usepackage{kpfonts}" . nil) ("%
-% Nimbus family
+\\usepackage{kpfonts}" . nil) ("% Nimbus family
 \\usepackage[T1]{fontenc}
 \\usepackage{tgtermes}
 \\usepackage[scale=.85]{tgheros}
@@ -1530,9 +1569,7 @@ Some common options are given in the form:
 	  :value-type (boolean :tag "Activate" :value nil)))
 
 
-(defcustom mp-xetex-font '(("%
-% Allows the use of OpenType fonts
-% Needs to be placed after maths font packages
+(defcustom mp-xetex-font '(("% This needs to be placed after maths font packages,
 % particularly 'euler'
 \\usepackage{fontspec}
 \\defaultfontfeatures{Mapping=tex-text}
@@ -1552,7 +1589,7 @@ It specifies the default font(s) to use when
  * setmonofont
 
 - Some common fonts and their
-  TeX Gyre equivalents include:
+  TeX Gyre (opentype) equivalents include:
  | Origin                 | TeX Gyre |
  |------------------------+----------|
  | Palatino               | Pagella  |
@@ -1598,7 +1635,7 @@ It specifies the default font(s) to use when
 
 
 
-(defcustom mp-chunk-brackets '("\\subsection{" "}" "** " "") "
+(defcustom mp-chunk-brackets '("\\section{" "}" "* " "") "
 Brackets placed before and after each chunkName.
 Specify these in the form of a list of strings as follows:
  (openingForLaTeX closingForLaTeX openingForOrg closingForOrg)
@@ -1614,15 +1651,15 @@ Org uses up to 8 headline levels.
 See also `org-level-faces' and `org-heading-components'."
   :type '(choice
 	  :tag ""
-	 (list :tag "subsection"
-	       (string :tag "LaTeX" "\\subsection{")
-	       (string :tag "LaTeX" "}")
-	       (string :tag "org" :value "** ")
-	       (string :tag "org" :value ""))
 	 (list :tag "section"
 	       (string :tag "LaTeX" :value "\\section{")
 	       (string :tag "LaTeX" :value "}")
 	       (string :tag "org" :value "* ")
+	       (string :tag "org" :value ""))
+	 (list :tag "subsection"
+	       (string :tag "LaTeX" "\\subsection{")
+	       (string :tag "LaTeX" "}")
+	       (string :tag "org" :value "** ")
 	       (string :tag "org" :value ""))
 	 (list :tag "subsubsection"
 	       (string :tag "LaTeX" :value "\\subsubsection{")
