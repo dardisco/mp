@@ -1,16 +1,18 @@
-;;; mp.el --- Make pdfs
+;;; mp.el --- Make pdfs. -*- lexical-binding:t -*-
 
-;; Copyright 2015 Chris Dardis
+;; Copyright 2018-2022 - Chris Dardis
 
 ;; Author: C. Dardis <christopherdardis@gmail.com>
+
 ;; Version: 0.2
-;; Package-Requires: ((org "8.0") (emacs "24.4"))
+
 ;; Keywords: R, Sweave, knitr, latex, noweb, org
-;; URL: http://github.com.dardisco/mp
+;; URL: http://github.com/dardisco/mp
+;; Package-Requires: ((ess) (org) (org-element) (tex))
 
 ;; This program is free software: you can redistribute
 ;;  it and/or modify it under the terms of the
-;;  GNU General Public License as published by
+;;  GNU General Public License as publishe
 ;;  the Free Software Foundation, either version 3
 ;;  of the License, or (at your option) any later version.
 ;; This program is distributed in the hope that it will be useful,
@@ -21,1058 +23,921 @@
 ;;  General Public License along with this program.
 ;; If not, see <http://www.gnu.org/licenses/>.
 ;;
-;;; Commentary
+;;; Commentary:
 ;;
-;; Makes a pdf from the materials in the `default-directory' (or
-;; will search up the directory tree
-;; for the appropriate file type).
+;; Makes a pdf from the materials in the `default-directory'
+;; (or will search up the directory tree for
+;;  the appropriate file type).
 ;;
-;; These may include .R, .tex, .Rnw, .org and .bib files.
-;; Indexes, glossaries and table of contents are supported.
+;; These may include .R, .tex, .Rnw, .org, .Rmd and .bib files.
+;; Support is provided for indexes, glossaries and table of contents.
+;; 
+;; Installation:
 ;;
-;; Place the folliwng in your init.el file:
+;; This package can be installed using
 ;;
-;;   (add-to-list 'load-path "~/path/to/directory")
-;;   (require 'mp)
+;; (package-install-from-file "/path/to/mp.el")
 ;;
-;; and, optionally,
-;; For HTML export of .org files:
+;; Or place the folliwng in your init.el file
 ;;
-;;   (require 'htmlize)
+;; (add-to-list 'load-path "~/path/to/directory")
+;; (require 'mp)
 ;;
-;; Define f8 as prefix for code chunk in ESS, as
-;; there are 8 characters in the prefix:
+;;; Usage:
 ;;
-;;   (fset 'chunk1 "## ---- ")
-;;   (add-hook 'ess-mode-hook
-;;          (lambda ()
-;;            (local-set-key (kbd "<f8>") 'chunk1)))
+;; To generate a .pdf file use the `mp-mp' command.
+;;     `M-x mp-mp RET'
+;; This command can be called within the directory used to produce
+;; the .pdf. It can also be called from one of the files used to
+;; produce the .pdf. In the latter case, the file will first be
+;; saved if there are any changes.
 ;;
+;; There are a number of addition commands which you may wish
+;; to call independently:
+;; - `mp-customize-common' - Set common customizable variables
+;; - `mp-example' - Generate an example .pdf
+;; - `mp-custom-example' - Call both commands above, in sequence
+;; - `mp-customize-all' - Set all customizable variables
+;; - `mp-customize-skeleton-string' - Set all customizable
+;;     skeleton strings for the package (strings used by skeletons)
+;; - `mp-clean' - Delete files in which have `mp-clean-extensions'
+;; - `mp-tex-new' - Make a new .tex file
+;; - `mp-chunk-new' - Insert a new chunk
 ;;
-;; There is also a simple function for producing .pdf's
-;; from an .el package file.
+;; You may wish to define a shortcut for calling
+;;  `mp-chunk-new'.
+;; `f8' is suggested as there are 8 characters in these prefixes.
+;; That is, "## ---- " is 8 characters in length.
+;; The prefixes follow the conventions established by knitr.
+;; If so, also place something like this in your init.el file:
+;; ```
+;; (global-set-key
+;;  (kbd "<f8>")
+;;  (lambda ()
+;;    (interactive)
+;;    (mp-chunk-new)))
+;; ```   
+;;  
+;; or, for example, if using ESS and `bind-key':
+;; 
+;; ```
+;; (bind-key
+;;  (kbd "<f8>")
+;;  (lambda ()
+;;    (interactive)
+;;    (mp-chunk-new))
+;;  ess-mode-map)
+;; ```
 ;;
+;; Details:
+;;
+;; The purpose of `mp-mp' is to move from an R file or an
+;; intermediary file (.Rnw, .Rmd, .org, .bib, .tex) to a .pdf
+;; with a single command. This is done by selecting an entwiner
+;; (named after the conventions of 'weaving' with Sweave or 'knitting'
+;; with knitr; the default is knitr).
+;;
+;; The simplest way to see this in action is to call `mp-example'.
+;; This will generate a new directory in the current
+;; `default-directory' for the files used to generate the final .pdf.
+;; This may also be a good way to start a new project.
+;; 
+;; Assuming we start with an .R file, `mp-mp' generates an
+;; intermediary file, as appropriate, then uses the entwiner to
+;; generate a .tex file from the intermediary, then uses latexmk
+;; to generate a .pdf from the .tex file, which is then displayed.
+;; 
+;; Alternatively, we may start with an intermediary e.g. a .Rnw file.
+;; A .R file is generated from this before making the .tex file,
+;; as above.
+;; We may also start directly with a .tex file. In this case,
+;; no intermediary or .R file is created; we proceed directly
+;; to .pdf. Similarly in the case of a .bib file. Note that
+;; a .pdf will *not* be generated from a .bib file without a
+;; corresponding .tex file in the same directory.
+;;
+;; Output from the various steps in compiling the .pdf appears in
+;; the '*make-pdf*' buffer, which (by default) will by used to
+;; display the .pdf once complete. Alternative .pdf viewers are
+;; supported. If another viewer is used, this output will remain
+;; visible in the '*make-pdf*' buffer.
+;;
+;; Note that all code in the .R file is run via Rscript, to ensure
+;; there are no errors with this and in case this modifies another
+;; file in the workign directory e.g. a .bib file as is the case
+;; when running `mp-example'.
+;;
+;; Updating R code chunks:
+;;
+;; An advantage of `mp-mp' is that code can be updated in either
+;; the .R file or the intermediary. Whichever has been more recently
+;; modified will be used as the source and the other as the destination.
+;; This allows for editing of code in either the .R file or the
+;; intermediary.
+;;
+;; That is, when `mp-mp' is called from an .R file or an intermediary,
+;; a corresponding .R or intermediary will be created or
+;; updated, as appropriate.
+;;
+;; This starts by reading the chunks from the working file.
+;; This is the buffer currently open (if it has unsaved changes).
+;; This will be an .R file, or an entwiner file (.Rnw, .Rmd, .org).
+;;
+;; For example, when working with an .R file, if there is *no*
+;; entwiner file (.Rnw, .org) with the same file name prefix in
+;; the same directory, this file will be *created* before generating
+;; a .tex file from this entwiner.
+;;
+;; If an entwiner file *already exists*, this is *deleted*.
+;; A new entwiner file is created after reading the code chunks
+;; in the .R file.
+;;
+;; As above, note that changes to a .tex file do *not* update the
+;; corresponding intermediary. Thus free text (outside .R code chunks)
+;; should generally be updated in the intermediary file, unless
+;; no further changes to the .R code is planned.
+;;
+;; Customization:
+;;
+;; To avoid errors, it is best to set the following customizable
+;; variables once at the start of a project:
+;; - `mp-entwiner'
+;; - `mp-latex'
+;; - `mp-bib'
+;;
+;; If these are changed mid-way through, it may be necessary to
+;; first delete the intermediary, .tex and .pdf files before starting
+;; afresh from the .R file in the directory.
+;;
+;; This package contains a variety of defaults which may be modified.
+;; For example, the preamble for a LaTeX document, which varies
+;; depending on whether LaTeX or XeTeX/LuaLaTeX is used to generate
+;; the .pdf.
+;;
+;; Multiple plots per chunk:
+;;
+;; All of the entwiners will save graphical output in one or more
+;; separate files, then include some these in the final .pdf.
+;;
+;; Only knitr supports multiple plots per chunk by default.
+;;
+;; By default, both Sweave and Org will include only the first
+;; plot/graph/figure produced.
+;; They both use the TeX command `\includegraphics' for this.
+;; The function `mp-tex-to-pdf' will replace instances of this
+;; command with `\includepdf[pages=-, width=0.9\linewidth]',
+;; so that all plots/pages are included.
+;;
+;; An alternative is to save each plot as a separate
+;; file and then output the TeX command to include all of them.
+;;
+;; An example of a code block using this approach follows below.
+;; ```
+;; for(i in 1:4){
+;; file=paste("f", i, ".eps", sep="")
+;; postscript(file=file, paper="special", width=8, height=8)
+;; plot(rnorm(100)+i)
+;; dev.off()
+;; cat(" \\includegraphics{", file, "}\n", sep="")
+;; }
+;; ```
+;; In Sweave, we would wrap the code above in:
+;; ```
+;; <<plots, results=tex, strip.white=false>>=
+;; **code**
+;; @
+;; ```
+;; In Org, we would wrap the code above in:
+;; ```
+;; #+NAME: plots2
+;; #+begin_src R :session *org-R-session* :exports both :results output :results verbatim :results latex
+;; **code**
+;; #+end_src
+;; ```
+;;
+;; History/goals:
+;;
+;; This package was initially developed in 2012 to help to
+;; speed up the process of scientific writing. At that time,
+;; there was no easy was to tranistion quickly from a .R file to
+;; a .pdf and knitr was relatively new and was not being used
+;; routinely e.g. to generate package documentation.
+;;
+;; The range of options has expanded dramatically since.
+;; In particulary, .Rmd appears to have become the most popular
+;; choice for performing this type of work.
+;;
+;; Dependencies:
+;;
+;; The following should be installed and on your path:
+;; - R, including the packages knitr and rmarkdown
+;; - LaTeX
+;; - pandoc
+;; - bash commands: locate, grep
+;;
+;; The following emacs packages are also recommended:
+;; - org
+;; - ess
+;; - tex, bibtex
+;; - doc-view
+;; - markdown-mode
+;; - polymode, poly-R
+;;
+;; This is designed for Emacs on debian linux with bash.
+;; It has not been evaluated on other systems.
+;;
+;;; For developers:
+;; 
 ;; Function-local/temporary variables are named using
-;; the camelCase convention or, for single words,
-;; as e.g. variable1.
+;; as name1 e.g. `v1', `buffer1'.
+;;
 
-;;;### autoload
+;;; Code:
 
-;;; Code
+(mapc #'require
+      '(org ess tex bibtex
+	    doc-view ibuffer
+	    autorevert cl calendar timer))
+;; in case org not set up to fontify R code blocks
+(setq org-src-fontify-natively nil)
 
-(require 'org)
-
-
-
-(defvar mp-minor-mode-map
-  (let ((map (make-sparse-keymap)))
-    (if (fboundp 'read-kbd-macro)
-	(define-key map (read-kbd-macro "C-M-|") 'mp-mp)
-      (define-key map [(control meta ?|)] 'dot-mode-override))
-    map) "
-Defines the keymap for this minor mode.
-
-The only keymap used by default is 'C-M-|' for `mp-mp'.")
-
-
-(define-minor-mode mp-mode  "
-Define mp mode to make .pdfs.
-
-Mp mode is a global minor mode.
-
-It's LIGHTER (displayed on the mode line) is ' mp '."
-  t " mp " mp-minor-mode-map
-  :group 'mp
-  :global t
-  :version 0.1
-  (message "mp mode toggled"))
-
-
-
-(defgroup mp nil "
-This group consists of the elements of 'make-pdf'.
-This is a series of variables and functions to simplity the process of pdf creation using R, LaTeX and the intermediaries (entwiners) knitr, Sweave and Org (`org-mode')."
-  :prefix 'mp
-  :version 0.1)
-
-
-
-(defgroup mp-files nil "
-This group is part of `mp'.
-These custom variables are whole files, which are stored as strings in elisp."
+(defgroup mp nil
+  "Make Pdf.
+This is a series of variables and functions to simplity
+ the process of pdf creation using R, LaTeX and
+ the intermediaries (entwiners)
+ knitr, Sweave and Org (`org-mode')."
+  :prefix "mp-"
+  :version 0.2
   :group 'mp)
 
+(defgroup mp-common nil
+  "Options that the user is most likely to wish to change.
+This group is part of `mp'."
+  :group 'mp)
 
-
-(defun mp-mp (&optional FILENAME) "
-'Entwine' elements in a directory to produce and view a .pdf.
-
-If no FILENAME is supplied, it will try to find the most recently modified of the following file types (in the order below) and pass this to the appropriate method.
-
-There are two special cases, which are single character responses:
-
-- If 'p' is entered, it will try to open the appropriate .pdf file directly.
-- If 'c' is entered, it will call `mp-restart''.
-
-- .R   --> `mp-R-nw-or-org'
-- .Rnw --> `mp-nw-tex'
-- .tex --> `mp-latexmk'
-- .org --> `mp-org-tex'
-- .el  --> `mp-el-tex'
-- .pdf --> `mp-view-pdf'"
-       (interactive "F FILENAME: ")
-       (let (df1)
-	 (when (equal FILENAME "c")
-	   (mp-clean))
-       (when FILENAME
-	 (setq FILENAME (file-name-nondirectory FILENAME)))
-    ;; if e.g. in dired mode
-       (when (equal FILENAME "")
-	 (setq FILENAME nil))
-       (when (and FILENAME
-		  (equal "p"
-			 (substring FILENAME
-				    (- (length FILENAME) 1)
-				    (length FILENAME))))
-	 (when (buffer-file-name)
-	   (setq FILENAME
-		 (car (file-expand-wildcards
-		       (concat
-			(file-name-sans-extension
-			 (file-name-nondirectory
-			  (buffer-file-name))) ".pdf")))))
-	 (unless (buffer-file-name)
-	   (set 'df1 (directory-files default-directory
-				      nil ".*.pdf" t))
-	   (set 'df1 (sort df1 'file-newer-than-file-p))
-	   (setq FILENAME (car df1))))
-       (unless FILENAME
-	   (setq df1
-		 (directory-files
-		  default-directory
-		  nil
-		  "\\.R$\\|\\.Rnw$\\|\\.tex$\\|\\.org$\\|\\.el$\\|\\.pdf$"))
-	   ;; get most recently modified
-	   (set 'df1 (sort df1 'file-newer-than-file-p))
-	   (setq FILENAME (car df1)))
-       (when buffer-file-name (save-buffer))
-       (let (ext1)
-	 (set 'ext1 (file-name-extension FILENAME))
-	 (cond
-	  ((string= ext1 'R) (mp-R-nw-or-org FILENAME))
-	  ((string= ext1 'Rnw) (mp-nw-tex FILENAME))
-	  ((string= ext1 'tex) (mp-latexmk FILENAME))
-	  ((string= ext1 'org) (mp-org-tex FILENAME))
-	  ((string= ext1 'el) (mp-el-tex FILENAME))
-	  ((string= ext1 'pdf) (mp-view-pdf FILENAME))))))
-
-(defun mp-clean () "
-Delete all files in the `default-directory' with the following extensions:
--.Rnw
--.tex
--.log
--.org
--.fls
--.aux"
+(defun mp-custom-example ()
+  "Run `mp-customize-common' then `mp-example'."
   (interactive)
-  (let (df1)
-    (set 'df1
-	 (directory-files
-	  default-directory
-	  nil
-	  "\\.Rnw$\\|\\.tex$\\|\\.log$\\|\\.org$\\|\\.fls$\\|\\.aux$"))
-	 (mapc 'delete-file df1)
-	 (mp-mp)))
+  (mp-customize-common)
+  (mp-example))
 
+(defun mp-example ()
+  "Generate and run an example.
+Calls `mp-mp', in the subdirectory `mp-example-file-name'."
+  (interactive)
+  (mp-set-mp-dd)
+  (let ((d1 (concat mp-dd mp-example-file-name "/")))
+    (delete-directory d1 t)
+    (mkdir d1 t)
+    (cd d1)
+    (setq mp-dd d1
+	  mp-fnb mp-example-file-name
+	  mp-fne "R")
+    (mp-initialize)
+    (message
+     (concat "mp-example ... running in " (print mp-dd))))
+  (mp-run mp-fne))
 
+(defun mp-initialize ()
+  "Set the following `defvar's to their staring value:
+- `mp-df'
+- `mp-fn'
+- `mp-chunks'
+Called by `mp-example' and `mp-mp'."
+  (while (get-buffer-window "*make-pdf*")
+    (delete-window
+     (get-buffer-window "*make-pdf*")))
+  (when (get-buffer "*make-pdf*")
+    (kill-buffer "*make-pdf*"))
+  (balance-windows)
+  (setq mp-df (sort
+	       ;; (directory-files DIRECTORY &optional FULL MATCH NOSORT)
+	       (directory-files mp-dd nil
+				(mapconcat
+				 (lambda (x) (concat "\\." x "$"))
+				 mp-file-name-extensions
+				 "\\|") t)
+	       #'file-newer-than-file-p)
+	mp-fn (car mp-df)
+	mp-chunks '()
+	mp-exiting nil))
 
-(defcustom mp-entwiner "knitr" "
-The method to 'entwine' files in a directory.
+(defvar mp-dd ""
+  "The `default-directory'; set when `mp-set-mp-dd' is run.
+Defined here as a dynamicaly-bound variable so that
+various functions can refer to this value.")
 
-One of: 'knitr', 'Sweave' or 'Org' (see `org-mode')."
+(defvar mp-fnb ""
+  "The `file-name-base' (a string) for the working file in `mp-dd'.
+Set when `mp-mp' is run.
+Defined here as a dynamic variable so that
+various functions can use this value.")
+
+(defvar mp-fne ""
+  "The `file-name-extension' (a string) for the working file in `mp-dd'.
+This is set when `mp-mp' is run.
+Defined here as a dynamic variable so that
+various functions can use this value.")
+
+(defvar mp-chunks '(("" "" ""))
+  "Stores value for code chunks as a list of strings.
+The value should be a `list' of 3 elements where
+the first is the name of the chunk,
+the second provides formattinhg information
+the third is the content of the chunk.
+
+The second element, chunk formatting should
+reflect the entwiner in use; see also
+`mp-sweave-opts' and `mp-org-opts'.")
+
+(defun mp-set-mp-dd ()
+  "Set the value of `mp-dd'.
+If `mp-fnb' is an empty string, also set this to the same
+value as `mp-dd'."
+  (setq mp-dd
+	(cond ((buffer-file-name)
+	       (file-name-directory buffer-file-name))
+	      ((equal major-mode 'dired-mode)
+	       dired-directory)
+	      (t (shell-command-to-string "printf '%s' $HOME/")))
+	default-directory mp-dd)
+  (message
+   (concat "mp-set-mp-dd ... mp-dd set to " (print mp-dd)))
+  (when (equalp "" mp-fnb)
+    (setq mp-fnb
+	  (file-name-nondirectory
+	   (directory-file-name mp-dd)))
+  (message
+   (concat "mp-set-mp-dd ... mp-fnb set to " (print mp-fnb)))))
+
+(defcustom mp-example-file-name "mp-example"
+  "Name of directory and of `file-name-base' to use for an example.
+Used by `mp-example'.
+Avoid using special characters in this string.
+See also `mp-valid-file-name-p'."
+  :type '(string)
+  :safe 'mp-valid-file-name-p
+  :group 'mp)
+;; (put 'mp-example-file-name 'safe-local-variable 'mp-valid-file-name-p)
+
+(defun mp-valid-file-name-p (STRING)
+  "Return t is STRING is a valid filename.
+Uses `file-name-invalid-regexp', which depends on the `system-type'.
+An example of an invalid filename is \"\\0\".
+See also the following for additional restrictions on Windows:
+URL `https://docs.microsoft.com/en-us/windows/win32/fileio/naming-a-file'."
+  (interactive "FFilename: ")
+  (not
+   (string-match file-name-invalid-regexp STRING)))
+;; (mp-valid-file-name-p "\0")
+
+(defvar mp-df '()
+  "A list of the `directory-files' in `mp-dd'.
+Defined here as a dynamicaly-bound variable so that
+ various functions can refer to this value.")
+
+(defcustom mp-timeout 0.2
+  "Seconds to wait for user input when calling interactive functions.
+A low value will not give the user time to respond to prompts.
+In this case, the default values are used.
+See the functions `with-timeout' and `y-or-n-p-with-timeout'.
+Used by:
+- `mp-find-file-name-interactive'"
+  :type '(number)
   :group 'mp
-  :type '(radio (const :doc "Default" :value "knitr")
-		(const :doc "Sweave with .nw" :value "Sweave")
-		(const :doc "Weave with .org" :value "Org")))
+  :group 'mp-common)
 
-
-
-(defcustom mp-latex "pdflatex" "
-This is the command for generating a .pdf from a .tex (TeX) file.
-Other options are also possible."
-  :group 'mp
-  :type '(radio (const
-		 :doc "pdfTeX. The default." "pdflatex")
-		(const
-		 :doc "XeTeX. For use with OpenType fonts." "xelatex")
-		(const
-		 :doc "LuaTeX. For use with 'lua' scripts." "lualatex")))
-
-
-
-(defcustom mp-args-latex '(("-interaction=nonstopmode" . t)) "
-Alist of command-line arguments to be added to `mp-latex'.
-
-If non-nil, the argument will be added."
-  :type '(alist :key-type
-		(choice :tag "other"
-			(string :tag "other"))
-		:value-type (boolean :tag "Activate" :value nil))
-  :options '("-interaction=nonstopmode"
-	     "-shell-escape"
-	     "-8bit"
-	     "-interaction=errorstopmode"
-	     "-enc"
-	     "-etex"
-	     "-mltex"
-	     "-output-format=pdf")
+(defcustom mp-file-name-extensions
+  '("R" "Rnw" "org" "Rmd" "md" "tex" "bib" "pdf")
+  "The `file-name-extension's (as strings) with which `mp' works.
+These age given as a list of strings.
+They are not case sensitive (see `case-fold-search')."
+  :type '(repeat (string :tag "extension"))
   :group 'mp)
 
+(defvar mp-fn ""
+  "The file-name i.e. `mp-fnb'.`mp-fne'.
+Defined here as a dynamicaly-bound variable so that
+ various functions can refer to this value.")
 
+(defcustom mp-function-sequence
+  '(("R" . 
+     (cond
+      ((equalp "Rnw" (car mp-entwiner))
+       '(mp-R-entwiner mp-Rnw-to-tex mp-tex-to-pdf mp-view-pdf))
+      ((equalp "org" (car mp-entwiner))
+       '(mp-R-entwiner mp-org-to-tex mp-tex-to-pdf mp-view-pdf))
+      ((equalp "Rmd" (car mp-entwiner))
+       '(mp-R-entwiner mp-Rmd-to-pdf mp-view-pdf))))
+    ("Rnw" .
+     '(mp-R-entwiner mp-Rnw-to-tex mp-tex-to-pdf mp-view-pdf))
+    ("org" .
+     '(mp-R-entwiner mp-org-to-tex mp-tex-to-pdf mp-view-pdf))
+    ("Rmd" . 
+     '(mp-R-entwiner mp-Rmd-to-pdf mp-view-pdf))
+    ("tex\\|bib" .
+     '(mp-tex-to-pdf mp-view-pdf))
+    ("pdf" .
+     '(mp-view-pdf)))
+  "An alist where:
+The key is the file name extension, a regular expression.
+The value is list of functions to run.
+Used by `mp-run' as the overall control flow."
+  :type '(alist
+	  :key-type (string :format "\n %t \n %v"
+			    :tag "            file extension, a string")
+	  :value-type (sexp :format "%t \n %v"
+			    :tag " sexp: a list, or function returning a list"))
+  :group 'mp)
 
-(defcustom mp-pdf-viewer "evince" "
-This is the command line/ shell command to view a .pdf file.
+(defun mp-run ()
+  "Run the appropriate list of functions from `mp-function-sequence'.
+This is given by `mp-fne'."
+  (let ((seq1 (block nil
+		(dolist (x mp-function-sequence)
+		  (when (string-match (car x) mp-fne)
+		    (return (eval (cdr x))))))))
+    (message
+     (concat
+      "mp-run, with " (car mp-entwiner) " and " (cdr mp-entwiner)
+      ", starting with ." mp-fne " file ..."))
+    (dolist (x seq1)
+      (funcall x)))
+  (mp-exit "mp-run... done"))
 
-It is used by the functions `mp-latex-pdf' and `mp-latexmk'.
+(defun mp-R-entwiner ()
+  "Convert R to an entwiner or vice versa.
+Calls `mp-chunks-read' to get code chunks from the current file.
+If this is an .R file and an 'entwiner' file already exists,
+ this is deleted and replaced.
+ update the *least recently used* file
+ i.e. the .R or the entwiner, using, as appropriate 
+ `mp-update-entwiner-from-R' or `mp-update-R-from-entwiner'.
+If no such file exists, make one with `mp-entwiner-new'."
+  ;; rf1 = .R file
+  ;; ef1 = entwiner file
+  (let ((rf1 (car (cl-member (concat mp-fnb ".R")
+			     mp-df :test #'equalp)))
+	(ef1 (car (cl-member (concat mp-fnb "." (car mp-entwiner))
+			     mp-df :test #'equalp))))
+    (message "mp-R-entwiner ...")
+    (if (not rf1)
+	(progn
+	  (mp-R-new)
+	  (unless (mp-empty-string-to-nil ef1) 
+	    (mp-entwiner-new)))
+      (if ef1
+	  (if (file-newer-than-file-p rf1 ef1)
+	      (mp-update-entwiner-from-R)	 
+	    (mp-update-R-from-entwiner))
+	(progn
+	  (mp-file-display (concat mp-fnb ".R"))
+	  (mp-chunks-read)
+	  (mp-entwiner-new)))))
+  (when mp-bib
+    (mp-bib))
+    ;; run mp-fnb.R in case this affects mp.bib
+    (mp-shell-sentinel "mp-Rscript-run")
+    (message "mp-R-entwiner ... done"))
 
-The executable needs to be in your `exec-path'.
+(defun mp-bib ()
+  "Check if there is a file named `mp-fnb'.bib in `mp-dd'.
+If not, make one by calling `mp-bib-skeleton'.
+See also the variable `mp-bib'."
+  (unless (directory-files
+	   mp-dd nil (concat mp-fnb ".bib$"))
+    (mp-file-display (concat mp-fnb ".bib"))
+    (mp-bib-skeleton)
+    (save-buffer)
+    (kill-buffer)
+    (delete-window)))
 
-Some useful URLs for downloads are given in the `custmomize' help."
+(defcustom mp-entwiner '("Rnw" . "R-pkg-knitr")
+  "How to 'entwine' the files in `mp-dd'.
+Given in the form of a cons, where:
+- key-type   = `file-name-extension' (a string)
+- value-type = method (a string)
+
+The 'entwiner' is an intermediary/ bridging file, 
+ which acts as a 'go-between' for .R and .tex files.
+
+\"R-pkg-knitr\" and \"Sweave\" use an .Rnw file (see `Rnw-mode').
+\"Org\" uses an .org file (see `org-mode')
+See also info node `(org)LaTeX export'.
+\"R-pkg-rmarkdown\" uses an .Rmd file (see `poly-markdown+r-mode')
+ and an .md file (see `markdown-mode')."
+  :type '(radio (const :doc "Rnw with knitr (the default)"
+		       :value ("Rnw" . "R-pkg-knitr"))
+		(const :doc "Rnw with Sweave"
+		       :value ("Rnw" . "Sweave"))
+		(const :doc "Org (uses .org file)"
+		       :value ("org" . "Org"))
+		(const :doc " md with knitr"
+		       :value ("Rmd" . "R-pkg-rmarkdown")))
   :group 'mp
-  :type
-  '(radio (const :doc "Default. Cross platform." "evince")
-	  (const :doc "Alternative for Windows." "sumatrapdf")
-	  (const :doc "Good for Linux/Ubuntu." "xpdf")
-	  (const :doc "Adobe Acrobat Reader." "acrord32")
-	  (string :tag "Enter an alternative program here." ""))
-  :link '(url-link
-	  :tag "evince"
-	  "https://wiki.gnome.org/Apps/Evince")
-  :link '(url-link
-	  :tag "sumatra"
-	  "http://www.sumatrapdfreader.org/free-pdf-reader.html")
-  :link '(url-link
-	  :tag "xpdf"
-	  "http://www.foolabs.com/xpdf/")
-  :link '(url-link
-	  :tag "Adobe Acrobat Reader"
-	  "https://get.adobe.com/reader/"))
-
-
-
-(defun mp-get-file (&optional NAMESTEM EXTENSION) "
-Find the appropriate file based on the namestem and extension provided (as strings).
-
-The function searches in the current `default-directory'.
-If no matching file is found, it will search up the directory tree."
-       (interactive "s NAMESTEM: \ns EXTENSION: ")
-       (message "mp-get-file...")
-       (let (fileName df1)
-	 (setq fileName (buffer-name))
-	 ;; no fileName if in dired mode
-	 (when (and
-		(not fileName)
-		(or (not (string= NAMESTEM ""))
-		    (not (equal nil NAMESTEM))
-		    (not (string= NAMESTEM
-				  (file-name-sans-extension
-				   fileName)))))
-	   (setq fileName
-		 (member (concat
-			  NAMESTEM "." EXTENSION)
-			 (file-expand-wildcards
-			  (concat
-			   "*." EXTENSION)))))
-	 (unless fileName
-	   ;; df1 = (current) directory files
-	   (set 'df1 (file-expand-wildcards
-		      (concat "\\." EXTENSION)))
-	   ;; get most recently modified
-	   (setq fileName (car
-			   (sort
-			    df1 'file-newer-than-file-p))))
-	 (unless fileName
-	   ;; df1 = dominating file directory
-	   (set 'df1 (locate-dominating-file
-		      default-directory
-		      (lambda (x)
-			(directory-files x nil NAMESTEM))))
-	   (setq default-directory df1)
-	   (setq fileName
-		 (car
-		  (directory-files
-		   default-directory nil NAMESTEM))))
-	 (unless fileName
-	   (error
-	    (concat "No ." EXTENSION
-		    " file found in "
-		    default-directory)))
-	 (when (string-match-p
-		(concat "\\." EXTENSION "$")
-		(buffer-name))
-	   (save-buffer))
-	 (message "mp-get-file...done")
-	 (message fileName)
-	 fileName))
-
-
-
-(defun mp-R-nw-or-org (&optional FILENAME) "
-Generate an .Rnw or .org file from an .R file with code chunks.
-
-If no FILENAME is supplied, it will try to find the appropriate .R file in the curren directory with `mp-get-file'.
-
-If there is no .Rnw or .org file in the corresponding directory, it will generate one with `mp-skeleton'.
-
-If such a file already exists, it will update it with `mp-update'.
-
-It is called by `mp-entwine'."
-       (interactive "F FILENAME: ")
-	 (if FILENAME
-	     (setq FILENAME (file-name-nondirectory FILENAME))
-	   (setq FILENAME (mp-get-file "" "R")))
-	 (message "mp-R-nw-or-org...")
-	 (let (beg1 end1 elem1 elem2
-		    (listOfChunks '()))
-	   ;; listOfChunks = empty list,
-	   ;; elem1 = element (of listOfChunks)
-	   (save-excursion
-	     (goto-char (point-min))
-	     (while (re-search-forward "## ---- " (point-max) t)
-	       (save-excursion
-		 (set 'beg1 (point))
-		 (move-end-of-line 1)
-		 (set 'end1 (point))
-		 (set 'elem1
-		      (buffer-substring-no-properties beg1 end1)))
-	       (if (string= mp-entwiner "knitr")
-		   (set 'elem2 nil)
-		 (progn
-		   (move-beginning-of-line 2)
-		   (set 'beg1 (point))
-		   (set 'end1
-			(save-excursion
-			  (search-forward "## ---- " (point-max) t)))
-		   (if end1
-		       (set 'end1 (- end1 (length " ## ---- ")))
-		     ;; "## ---- " is 8 characters long
-		     (set 'end1 (point-max)))
-		   (set 'elem2
-			(buffer-substring-no-properties beg1 end1))))
-	       (add-to-list 'listOfChunks (list elem1 elem2) t)))
-	   (let ( (fileStem
-		   (file-name-sans-extension
-		    (file-name-nondirectory FILENAME)))
-		  ext1)
-	     (set 'ext1
-		  (if (string= "Org" mp-entwiner)
-		      ".org"
-		    ".Rnw"))
-	     (set 'elem1
-		  (member
-		   (concat fileStem ext1)
-		   (file-expand-wildcards
-		    (concat "*" ext1))))
-	     (if elem1
-		 ;; (when (not (string= "knitr" mp-entwiner)))
-		   (mp-update
-		    (concat
-		     fileStem ext1)
-		    listOfChunks)
-	       (mp-skeleton
-		(concat
-		 fileStem ext1)
-		listOfChunks))
-	     (message "mp-R-nw-or-org...done")
-	     (if (string= "Org" mp-entwiner)
-		 (mp-org-tex (concat fileStem ".org"))
-	       (mp-nw-tex (
-			   concat fileStem ".Rnw"))))))
-
-
-
-(defun mp-skeleton (FILENAME listOfChunks) "
-Generate an .Rnw or a .org file from a `list' of chunks of 'R' code.
-
-If no FILENAME is supplied, it will try to find the appropriate .R file in the curren directory with `mp-get-file'.
-
-This will read all 'chunks' (specified by '## ---- chunkName') from the current .R file.
-
-It makes a basic .Rnw or .org file from the chunks.
-The preamble for .Rnw files is `mp-preamble'.
-
-The chunkName is inserted above each chunk, with an optional prefix and suffix.
-This is \subsection{chunkName} by default; see `mp-chunk-brackets'.
-
-If `mp-entwiner' is set to 'Sweave', packages 'Sweave' and 'lmodern' are also added.
-
-If `mp-latex' is set to 'xelatex', package 'fontspec' with font settings is added (see `mp-xetex-font').
-
-The preamble for .org files in `mp-org-latex-header'.
-The author is given by `user-full-name', if available, otherwise by `user-login-name'.
-
-The file will be saved with the same name as the associated .R file.
-Buffer options for Org export are set with `mp-ox-settings'.
-
-This function may be called by `mp-R-nw-or-org'."
-       (interactive "F FILENAME: X listOfChunks: " )
-       (if FILENAME
-	   (setq FILENAME (file-name-nondirectory FILENAME))
-	 (setq FILENAME (mp-get-file "" "Rnw")))
-       (find-file FILENAME)
-       (let (preamble1 font1)
-	 (set 'preamble1 mp-preamble)
-	 (setq preamble1 (assq-delete-all nil preamble1))
-        (when (string= mp-latex "pdflatex")
-	  (set 'font1 mp-latex-font)
-	  (set 'font1 (rassq-delete-all nil font1)))
-	(unless (string= mp-latex "pdflatex")
-	  (set 'font1 mp-xetex-font)
-	  (setq font1 (rassq-delete-all nil font1)))
-	;; insert font
-	;; Org export
-	(when (string= mp-entwiner "Org")
-	 (defun addHeader (STRING)
-	   (let (list1)
-	     (set 'list1 (split-string STRING "\n"))
-	     (mapc
-	      (lambda (x)
-		(insert
-		 (format "#+LATEX_HEADER: %s \n" x)))
-	      list1)))
-	 (let (head1)
-	   (set 'head1
-		(mapconcat
-		 (lambda (x)
-		   (when (equal 'org (cadr x))
-		     (cddr x)))
-		 preamble1 "\n"))
-	   (addHeader head1)
-	   (set 'head1
-		(mapconcat
-		 (lambda (x)
-		   (when (equal 'all (cadr x))
-		     (cddr x)))
-		 preamble1 "\n"))
-	   (addHeader head1)
-	   (insert "%%% Font settings \n")
-	   (mapc (lambda (x) (addHeader (car x))) font1)))
-	   ;; Rnw export
-       (unless (string= mp-entwiner "Org")
-	 (defun f1 (KEY)
-	   (mapc (lambda (x)
-		 (when (equal KEY (cadr x))
-		   (insert
-		    (concat (cddr x) "\n"))))
-	       preamble1))
-	 (f1 'class)
-	 (if (string= mp-entwiner "knitr")
-	     (f1 'knitr)
-	   (f1 'sweave))
-       (insert "%%% Font settings \n")
-       (mapc (lambda (x) (insert (car x))) font1)
-       (when (string= mp-entwiner "knitr")
-	   ;; delete monospace font as doesn't look good with knitr
-	   (kill-whole-line 0))
-       (f1 'all)
-	 (insert "%%%
-%----------------------------------------
-%%%
-\\begin{document}
-"))
-       ;; title + author
-       (insert (if (string= mp-entwiner "Org")
-		   (concat "#+TITLE: " fileStem)
-		 (concat "\\title{" fileStem "}")))
-       (insert "\n")
-       (let (author1)
-	 (set 'author1
-	      (if (equal user-full-name "")
-		  user-login-name
-		user-full-name))
-	 (insert (if (string= mp-entwiner "Org")
-		     (concat "#+AUTHOR: " author1)
-		   (concat "\\author{" author1 "}"))))
-       ;; maketitle
-       (when (not (string= mp-entwiner "Org"))
-	 (insert "
-\\maketitle
-% page numbers appear top-right
-\\pagestyle{headings}
-\\tableofcontents"))
-       ;; knitr defaults
-       (when (string= mp-entwiner "knitr")
-	 (insert mp-knitr-opts)
-	 (insert "
-%%% Read chunks (for knitr)
-<<knitrReadChunks, include=FALSE>>=\n")
-	 (insert (concat "read_chunk('" fileStem ".R')"))
-	 (insert "
-@
-%----------------------------------------
-"))
-       ;; Sweave defaults
-       (when (string= mp-entwiner "Sweave")
-	 (let (sweave1)
-	   (set 'sweave1 mp-Sweave-opts)
-	   (set 'sweave1 (rassq-delete-all nil sweave1))
-	   (insert
-	    (concat "
-% default chunk options for Sweave
-% "
-		    (mapconcat
-		     'car sweave1 ", ")
-		    "\n"))))
-       ;; Org-mode defaults
-       (when (string= mp-entwiner "Org")
-	    (let (org1)
-	      (set 'org1 mp-org-header-args)
-	      (set 'org1
-		    (assq-delete-all nil org1))
-	      (set 'org1  (mapconcat (lambda (x)
-				       (concat
-					(cadr x)
-					" "
-					(cddr x)))
-				     org1 " "))
-	      (insert
-	       (concat "
-% default chunk options for Org
-% "
-		       org1
-		       "\n"))))
-       ;; other chunks
-       (let ((i 0) (elem1 nil) beg1 end1)
-	 (while
-	     (< i (length listOfChunks))
-	   (set 'elem1 (nth i listOfChunks))
-	   (mp-insert-chunk elem1)
-	   (incf i)))
-       ;; end of file
-       (when (not (string= mp-entwiner "Org"))
-	 (insert "
-% 
-% \\bibliographystyle{plain}
-% \\bibliography{" fileStem "}
-% \\begin{thebibliography}{99}
-%  \\bibitem{Almeida1990}
-%     Larry Almeida,
-%     \\emph{Morphological differences between American and Brazilian Pig Latin constructions}.
-%     Piggiotica, 
-%     1990.
-% \\end{thebibliography}
-%
-\\end{document}"))
-       (write-region
-	(point-min)
-	(point-max)
-	(buffer-name))
-       (set-visited-file-name (buffer-name) t)
-       (save-buffer)
-       (when (string= mp-entwiner "Org")
-	 (mp-ox-settings))))
-
-
-
-(defun mp-insert-chunk (CHUNK) "
-Insert a CHUNK into an existing .Rnw or .org file.
-
-The CHUNK is given as a list, where the `car' is the name of the chunk and the `cdr' is the chunk contents.
-
-The CHUNK is enclosed in by `mp-chunk-brackets'.
-`mp-Sweave-opts' or `mp-org-header-args'
-will also be added as needed."
-  (set 'beg1
-       (if (string= mp-entwiner "Org")
-	   (nth 2 mp-chunk-brackets)
-	 (nth 0 mp-chunk-brackets)))
-  (set 'end1
-       (if (string= mp-entwiner "Org")
-	   (nth 3 mp-chunk-brackets)
-	 (nth 1 mp-chunk-brackets)))
-  (insert (concat beg1
-		  (prin1-to-string
-		   (substring
-		    (first CHUNK) 0
-		    (string-match ", " (first CHUNK))) t)
-		  end1 "\n\n"))
-  ;; define opening and closing for code chunk
-  (set 'beg1
-       (if (string= mp-entwiner "Org")
-	   "#+NAME: "
-	 "<<"))
-  (set 'end1
-       (if (string= mp-entwiner "Org")
-	   ""
-	 ">>="))
-  (insert (concat
-	   beg1
-	   (prin1-to-string (first CHUNK) t)))
-  (when
-      (and
-       (string= mp-entwiner "Sweave")
-       (not
-	(string-match-p ", " (first CHUNK))))
-    (let (sweave1)
-      (set 'sweave1 mp-Sweave-opts)
-      (setq sweave1
-	   (rassq-delete-all nil sweave1))
-    (insert
-     (concat ", "
-	     (mapconcat
-	      'car sweave1 ", ")))))
-  (insert
-   (concat end1 "\n"))
-  (when (string= mp-entwiner "Org")
-    (let (org1)
-      (set 'org1 mp-org-header-args)
-      (setq org1
-	    (assq-delete-all nil org1))
-      (set 'end1  (mapconcat (lambda (x)
-			     (concat
-			      (cadr x)
-			      " "
-			      (cddr x)))
-			   org1 " ")))
-    (insert
-     (concat "#+begin_src R "
-	     end1 " \n")))
-  (when
-      (not (string= mp-entwiner "knitr"))
-    (insert
-     (prin1-to-string
-      (second CHUNK) t) "\n"))
-  (set 'end1
-       (if (string= mp-entwiner "Org")
-	   "#+end_src"
-	 "@"))
-  (insert (concat end1 "\n\n")))
-
-
-
-(defun mp-update (&optional FILENAME listOfChunks) "
-Update an .Rnw or .org file with a `list' of chunks.
-
-If no FILENAME is supplied, it will try to find the appropriate .R file in the curren directory with `mp-get-file'.
-
-The `list' should be in the form of a value-pair, indicating the name and contents of each chunk e.g. ('foo' 'barbarbar').
-
-If `mp-entwiner' is set to 'Sweave' or 'Org', this function is called by `mp-R-nw-or-org'."
-       (interactive "F FILENAME: X listOfChunks: " )
-       (if FILENAME
-	   (setq FILENAME (file-name-nondirectory FILENAME))
-	 (if (string= mp-entwiner "Org")
-	     (setq FILENAME (mp-get-file "" "org"))
-	   (setq FILENAME (mp-get-file "" "Rnw"))))
-       (setq org-startup-folded nil)
-       (find-file FILENAME)
-       (message "mp-update...")
-       (let ((namesCurrChunks nil)
-	     prefix1 suffix1 beg1 end1 old1
-	     chunk1 chunkName1 chunkValue1)
-	 ;; get chunk names
-	 (set 'prefix1 (if (string= "Org" mp-entwiner)
-			   "#[+]NAME: "
-			 "<<"))
-	 (set 'suffix1 (if (string= "Org" mp-entwiner)
-			   "$"
-			 ">>"))
-	 (goto-char (point-min))
-	 (while (re-search-forward prefix1 (point-max) t)
-	   (save-excursion
-	     ;; assumes first match is name
-	     (set 'beg1 (point))
-	     (search-forward-regexp suffix1 nil t)
-	     (set 'end1
-		  (- (point) 2))
-	     (set 'chunk1
-		  (buffer-substring-no-properties beg1 end1))
-	     (add-to-list 'namesCurrChunks chunk1 t)))
-	 (when (string= "knitr" mp-entwiner)
-	   (setq namesCurrChunks
-		 (delete "knitrChunkDefaults, include=FALSE"
-			 namesCurrChunks))
-	   (setq namesCurrChunks
-		 (delete "knitrReadChunks, include=FALSE"
-			 namesCurrChunks)))
-	 ;;
-	 (let ((i 0) (elem1 nil))
-	 (while (< i (length listOfChunks))
-	   (set 'elem1 (nth i listOfChunks))
-	   (when
-	       (set 'old1
-		    (member
-		     (car elem1) namesCurrChunks))
-	     (search-forward
-	      (car elem1) nil t)
-	     (search-forward "@" nil t)
-	     (forward-line 2))
-	   (unless old1
-	     (set 'old1 (car elem1))
-	     (mp-insert-chunk elem1)
-	     (set 'suffix1
-		  (if (string= "Org" mp-entwiner)
-		      "#+end_src"
-		    "@"))
-	     (search-backward suffix1 nil t)
-	     (move-beginning-of-line
-	      (if (string= "Org" mp-entwiner)
-		  3
-		2))
-	     (insert (prin1-to-string  chunkValue1 t))
-	     (set 'beg1 (point))
-	     (search-forward suffix1 nil t)
-	     (end-of-line 0)
-	     (set 'end1 (point))
-	     (delete-region beg1 end1)
-	     (move-beginning-of-line 4))
-	   (incf i))))
-       (save-buffer)
-       (when (string= mp-entwiner "Org")
-	 (mp-ox-settings))
-       (message "mp-update...done"))
-
-
-
-(defun mp-ox-settings ()"
-Set `org-mode' export settings.
-All variables are set as buffer-only (see `make-local-variable').
-
-Adds support for 'R', 'latex' and 'emacs-lisp' to `org-babel-load-languages'.
-Sets the following to 'nil': `org-confirm-babel-evaluate' and `org-latex-with-hyperref' and `org-latex-table-caption-above'.
-Sets `org-latex-listings' to 't'.
-Adds 'listings' and 'color' to `org-latex-packages-alist'."
-       (interactive)
-       ;; org-export latex
-       (require 'ox-latex)
-       ;; org-babel language support
-       (require 'ob-R)
-       (require 'ob-emacs-lisp)
-       (require 'ob-latex)
-       (set 'org-startup-folded nil)
-       (set 'org-latex-table-caption-above nil)
-       (org-babel-do-load-languages
-	'org-babel-load-languages
-	'((R . t) (latex . t) (emacs-lisp . t)))
-       (set (make-local-variable
-	     'org-confirm-babel-evaluate) nil)
-       (set (make-local-variable
-	     'org-latex-with-hyperref) nil)
-       (set (make-local-variable
-	     'org-latex-listings) t)
-       (add-to-list 'org-latex-packages-alist
-		    '("" "listings"))
-       (add-to-list 'org-latex-packages-alist
-		    '("" "color")))
-
-
-(defun mp-org-tex (&optional FILENAME) "
-Use an .org file to make a .tex (TeX) file.
-
-If no FILENAME is supplied, it will try to find the appropriate .R file in the curren directory with `mp-get-file'.
-"
-       (interactive "F FILENAME: ")
-       (if FILENAME
-	   (setq FILENAME (file-name-nondirectory FILENAME))
-	 (setq FILENAME (mp-get-file "" "org")))
-
-       (mp-ox-settings)
-       (message "mp-org-tex...")
-       (find-file FILENAME)
-       (save-buffer)
-       (org-latex-export-to-latex)
-       	 (let ((fileStem
-		(file-name-sans-extension
-		 (file-name-nondirectory FILENAME))))
-	   (message "mp-org-tex...done")
-	   (mp-latexmk (concat fileStem ".tex"))))
-
-
-
-(defun mp-nw-tex (&optional FILENAME) "
-Generate a .tex (TeX) file from an .Rnw file.
-Add `mp-sweaveSty' and `mp-upquoteSty' to the current directory if required.
-
-If no FILENAME is supplied, it will try to find the appropriate .R file in the curren directory with `mp-get-file'.
-
-Once complete, `mp-latex-pdf' will be run on the output."
-       (interactive "F FILENAME: ")
-       (if FILENAME
-	   (setq FILENAME (file-name-nondirectory FILENAME))
-	 (setq FILENAME (mp-get-file "" "Rnw")))
-       (message "mp-nw-tex...")
-       (unless (directory-files
-		default-directory nil "upquote.sty")
-	 (when (assoc t mp-upquoteSty)
-	   (with-temp-file "upquote.sty"
-	     (insert (cdr (assoc t mp-upquoteSty))))))
-       (let ( (fileStem
-	       (file-name-sans-extension
-		(file-name-nondirectory FILENAME)))
-	      procRes
-	      defDir)
-	 (set 'defDir default-directory)
-	 (unless (directory-files
-		  default-directory nil
-		  (concat fileStem ".Rnw"))
-	   (mp-R-nw-or-org (concat fileStem ".R")))
-	 ;; knitr
-	 (when (string= mp-entwiner "knitr")
-	   (with-temp-file "knit.R"
-	     (insert
-	      (concat "knitr::knit('" fileStem ".Rnw')")))
-	   (pop-to-buffer "*make-pdf*")
-	   (setq default-directory defDir)
-	   (goto-char (point-max))
-	   (set 'procRes
-		(call-process "Rscript" nil t t "knit.R"))
-	   (unless (= procRes 0)
-	     (error (concat "Error with knitr"))))
-	 ;; sweave
-	 (when (string= mp-entwiner "Sweave")
-	   (when (assoc t mp-sweaveSty)
-	   (unless (directory-files
-		    default-directory nil "Sweave.sty")
-	     (with-temp-file "Sweave.sty"
-	       (insert
-		(cdr (assoc t mp-sweaveSty))))))
-	   (pop-to-buffer "*make-pdf*")
-	   (setq default-directory defDir)
-	   (set 'procRes (call-process
-			  "R" nil t t "CMD"
-			  "Sweave" (concat fileStem ".Rnw")))
-	   (unless (= procRes 0)
-	     (error (concat "Error with Sweave"))))
-	 (mp-latexmk (concat fileStem ".tex")))
-       (message "mp-nw-tex...done"))
-
-
-
-(defun mp-latexmk (&optional FILENAME) "
-Use a .tex (LaTeX, XeTeX) file to make a .pdf file, using the method given by `mp-latex' and 'latexmk'.
-Add a `latexmkrc' file to the `default-directory' to help with this.
-If another 'latexmkrc' is on your path, the local copy will override this.
-
-If no FILENAME is supplied, it will try to find the appropriate .tex file in the curren directory with `mp-get-file'.
-
-Once complete it will open the file with `mp-view-pdf'.
-It is called by the functions `mp-nw-tex' and `mp-org-tex'.
-
-See the manual for details:
-URL `http://ctan.mackichan.com/support/latexmk/latexmk.pdf'."
-       (interactive "F FILENAME: ")
-       (unless FILENAME
-	 (setq FILENAME (mp-get-file "" "tex")))
-       (message "mp-latexmk...")
-       (let (bibBuf
-	     extraArgs
-	     defDir
-	     (fileStem
-	      (file-name-sans-extension
-	       (file-name-nondirectory FILENAME))))
-	 (when (assoc t mp-latexmkrc)
-	   (unless (directory-files
-		    default-directory nil "^.latexmkrc$")
-	     (with-temp-file ".latexmkrc"
-	       (insert (cdr (assoc t mp-latexmkrc)))
-	       (insert
-		"$pdf_mode = 1;
-$postscript_mode = $dvi_mode = 0; \n")
-	       (insert
-		(concat
-		 "$pdflatex = '" mp-latex " %O %S ';\n")))))
-	 ;; save .bib if open
-	 (when (set 'bibBuf
-		    (find-buffer-visiting
-		     (concat fileStem ".bib")))
-	   (with-current-buffer bibBuf (save-buffer)))
-	 (set 'extraArgs (mapconcat 'car mp-args-latex " "))
-	 (set 'defDir default-directory)
-	 (pop-to-buffer "*make-pdf*")
-	 (setq default-directory defDir)
-	 (goto-char (point-max))
-	 (insert "\n\n\n\nRUNNING LATEXMK\n\n")
-	 (lexical-let ((fileStem fileStem))
-	   (set-process-sentinel
-	    (start-process-shell-command
-	     "async-pdf" "*make-pdf*"
-	     (concat "latexmk " fileStem " " extraArgs))
-	    (lambda (process event)
-	      (message "mp-latexmk...done")
-	      (mp-highlight "*make-pdf*")
-	      (mp-view-pdf (concat fileStem ".pdf"))
-	      (when (not (string-match-p "finished" event))
-		(error "Error in latexmk")))))))
-
-
-
-(defun mp-highlight (BUFFER) "
-Highlight important words in output when generating .pdf files.
-
-Runs in the current buffer."
-       (interactive "B Buffer: ")
-       (unless BUFFER
-	 (setq BUFFER (current-buffer)))
-       (pop-to-buffer BUFFER)
-       (defun fun1 (REGEXP FACE)
-	 (save-excursion
-	   (while (re-search-forward REGEXP nil t)
-	     (set-text-properties
-	      (match-beginning 0)
-	      (match-end 0)
-	      FACE))))
-       (save-excursion
-	 (goto-char (point-min))
-	 (fun1 "^Run.*$" '(face highlight))
-	 (fun1 ".arning.*$" '(face holiday))
-	 (fun1 ".itation.*$" '(face holiday))
-	 (fun1 ".eference.*$" '(face holiday))
-	 (fun1 "Error.*$" '(face holiday))
-	 (fun1 "Fatal.*$" '(face holiday))
-	 (fun1 "ignored" '(face warning))
-	 (fun1 "..+?erfull.*$" '(face error))
-	 (fun1 "You can't.*$" '(face error))))
-
-
-
-(defun mp-view-pdf (&optional FILENAME) "
-View FILENAME with `mp-pdf-viewer'."
-       (interactive "F FILENAME: ")
-       (if FILENAME
-	   (setq FILENAME (file-name-nondirectory FILENAME))
-	 (setq FILENAME (mp-get-file "" "pdf")))
-       (start-process-shell-command
-	"mp-view" nil
-	(concat mp-pdf-viewer " " FILENAME)))
-
-
-(defcustom mp-preamble
-  '((t . (class . "%
-\\documentclass{article}"))
-    (t . (knitr . "%%% knitr defaults
-\\usepackage[]{graphicx}
-\\usepackage[]{color}
-\\usepackage{framed}
-% recommended with 'knitr'
-\\usepackage{alltt}
-\\usepackage{mathtools}
-\\usepackage[sc]{mathpazo}
-\\usepackage{geometry}
-\\geometry{verbose, tmargin=2.5cm, bmargin=2.5cm,
-  lmargin=2.5cm, rmargin=3cm}
-\\setcounter{secnumdepth}{2}
-\\setcounter{tocdepth}{2}
-\\usepackage{url}
-\\usepackage{hyperref}
-\\hypersetup{unicode=true, pdfusetitle}
-\\hypersetup{bookmarks=true, bookmarksnumbered=true}
-\\hypersetup{bookmarksopen=true, bookmarksopenlevel=2}
-\\hypersetup{breaklinks=false, pdfborder={0 0 1}}
-\\hypersetup{backref=false}
-\\hypersetup{colorlinks=true}
-\\definecolor{myDarkBlue}{rgb}{0, 0, 0.5}
-\\hypersetup{linkcolor=myDarkBlue}
-\\hypersetup{citecolor=myDarkBlue}
-\\hypersetup{pdfstartview={XYZ null null 1}}"))
-    (t . (sweave . "%%% Sweave defaults
-\\usepackage{Sweave}
-\\usepackage{lmodern}
-\\usepackage{color}
-\\usepackage{hyperref}
-\\hypersetup{colorlinks=true}
-\\definecolor{myDarkBlue}{rgb}{0, 0, 0.5}
-\\hypersetup{linkcolor=myDarkBlue}
-\\hypersetup{citecolor=myDarkBlue}"))
-    (t . (org . "%%% Org-mode defaults
-% for multiple plots per .pdf
-\\usepackage{pdfpages}
-% recommended for Org mode export
-\\definecolor{myGrey}{gray}{0.95}
-\\definecolor{myDarkBlue}{rgb}{0, 0, 0.5}
-\\definecolor{myOrange}{rgb}{0.85, 0.23, 0}
-\\definecolor{darkSkyBlue}{rgb}{0.0, 0.636, 0.85}
-\\definecolor{steelBlue}{rgb}{0.233, 0.433, 0.6}
-\\lstloadlanguages{[Auto]Lisp}
-\\lstloadlanguages{R}
-\\lstloadlanguages{[LaTeX]TeX}
-\\lstset{frame=single}
-\\lstset{framerule=0pt}
-\\lstset{backgroundcolor=\\color{myGrey}}
-\\lstset{basicstyle=\\ttfamily\\small}
-\\lstset{columns=fullflexible}
-\\lstset{keywordstyle=\\color{myOrange}}
-\\lstset{commentstyle=\\color{steelBlue}}
-\\lstset{stringstyle=\\color{darkSkyBlue}\\sffamily}
-\\lstset{showstringspaces=false}
-\\lstset{breaklines=true}
-\\lstset{texcl=true}
-\\lstset{upquote=true}
-\\hypersetup{colorlinks=true}
-\\hypersetup{linkcolor=myDarkBlue}
-\\hypersetup{citecolor=myDarkBlue}"))
-    (t . (all . "%%% Additional default preamble
-% for rerunfilecheck:
-% no need to rerun to get outlines right
-\\usepackage{bookmark}
-% for nice tables
-\\usepackage{booktabs}
-% for e.g. \\formatdate
-\\usepackage{datetime}
-% for SI units
-\\usepackage{siunitx}
-\\sisetup{per-mode=symbol}
-% for chemical symbols
-\\usepackage[version=3]{mhchem}
-% to use forced 'here'
-% e.g. \\begin{figure}[H]
-\\usepackage{float}
-% for large numbers of floats
-\\usepackage{morefloats}
-% to keep floats in same section
-\\usepackage[section]{placeins}
-% for tables > 1 page
-\\usepackage{longtable}
-% for table entries spanning rows
-\\usepackage{multirow}
-% suppress most error messages
-\\hbadness=15000
-\\vbadness=15000"))) "
-This is the preamble for documents created with `mp-skeleton-nw'.
-
-It is an alist in the form (KEY1. (KEY2 . VALUE)). If KEY1 is non-nil, the list is included. 
-
-KEY2 is a symbol indicating when to include. This may depend on the value of `mp-entwiner' (knitr, Sweave or Org). If KEY2 is 'class' or 'all' it will be always be included.
-
-VALUE is a string.
-
-The preamble inserted depends on the value of `mp-entwiner'.
-For example, when `mp-entwiner' is set to 'knitr' all elements of the list with KEY1 non-nil and KEY2='knitr' will be added to the preamble.
-
-When editing this with `customize', Use 'C-j' for carraige return.
-
-See `TeX-doc' i.e. (TeX-doc packageName) for more details on particular packages."
-:type '(alist
-	:tag "\n"
-	:key-type (boolean :tag "Activate" :value nil)
-	:value-type (cons
-		     :tag "Cons-cell"
-		     (choice
-		      :tag "KEY2. Include in..."
-		      (sexp :tag "knitr" :value knitr)
-		      (sexp :tag "sweave" :value sweave)
-		      (sexp :tag "org" :value org)
-		      (sexp :tag "all" :value all)
-		      (sexp :tag "class" :value class))
-		     (string :tag "VALUE")))
-:group 'mp)
-
-
-
-(defcustom mp-knitr-opts "
-%%% Defaults for chunks typeset with knitr
-<<knitrChunkDefaults, include=FALSE>>=
-library(knitr)
-### Set global chunk options
+  :group 'mp-common)
+
+(defun mp-R-new ()
+  "Make an .R file.
+If `mp-chunks' is not an empty list, use these,
+otherwise use `mp-R-chunks-new-R'.
+Called by `mp-R-entwiner' and `mp-update-R-from-entwiner'."
+  (when (equalp '() mp-chunks)
+    (when mp-bib
+      (push
+       (list "R citations" "" (funcall #'mp-R-chunk-R-citations))
+       mp-chunks))
+    (dolist (x (reverse (copy-tree mp-R-chunks-new-R)))
+      (push x mp-chunks))
+    (when (string-match "^R-pkg-" (cdr mp-entwiner))
+      (push (copy-tree mp-R-chunk-defaults-R-pkg) mp-chunks)))
+  (dolist (x mp-chunks)
+    (mp-chunk-update-format x))
+  (setq mp-fne "R")
+  (let ((fn1 (concat mp-fnb ".R")))
+    (unless (get-buffer fn1)
+      (mp-file-display fn1))
+    (with-current-buffer fn1
+      (goto-char (point-min))
+      (mapc #'mp-chunk-insert mp-chunks)
+      (goto-char (point-max)))
+    (save-buffer)
+    (kill-buffer)
+    (delete-window)))
+
+(defun mp-chunk-update-format (CHUNK)
+  "Update the format of a CHUNK, per the value of `mp-entwiner'.
+The format is the second element of CHUNK, a string."
+  (when (equalp "" (cadr CHUNK))
+    (setcar (cdr CHUNK) (mp-chunk-format))))
+
+(defcustom mp-R-chunks-new-R
+  '(("Hello world" ""
+     "print('Hello, World!')")
+    ("Plots"
+     (cond ((string-match "R-pkg-" (cdr mp-entwiner))
+	    "results='asis'")
+	   ((equalp "Sweave" (cdr mp-entwiner))
+	    "results=verbatim, fig=TRUE, pdf=TRUE")
+	   ((equalp "Org" (cdr mp-entwiner))
+	    ":session *org-R-session* :exports both :results output :results graphics :file \"p1.pdf\""))
+      "## The examples below are taken from ?graphics::plot
+require('stats') # for lowess, rpois, rnorm
+plot(cars)
+lines(lowess(cars))
+plot(sin, -pi, 2*pi) # see ?plot.function
+## Discrete Distribution Plot:
+plot(table(rpois(100, 5)), type='h', col='red', lwd=10,
+     main='rpois(100, lambda=5)')
+## Simple quantiles/ECDF, see ecdf() {library(stats)} for a better one:
+plot(x <- sort(rnorm(47)), type='s', main='plot(x, type=\\\'s\\\')')
+points(x, cex=0.5, col='dark red')")
+    ("R session information"
+     (cond ((string-match "R-pkg-" (cdr mp-entwiner))
+	    "results='asis'")
+	   ((equalp "Sweave" (cdr mp-entwiner))
+	    "results=tex")
+	   ((equalp "Org" (cdr mp-entwiner))
+	    ":session *org-R-session* :exports both :results output :results verbatim :results latex"))
+     (if (equalp "Rmd" (car mp-entwiner))
+	 "utils::sessionInfo()"
+     "utils::toLatex(utils::sessionInfo())")))
+  "A `list' of chunks for a new .R file.
+Each element is a list with 3 elements.
+- first element  = chunk name, a string
+- second element = chunk format, a string or
+   a symbolic expression which evaluates to a string
+- third element  = chunk content, a string or
+   a symbolic expression which evaluates to a string
+The second and third elements may e.g. be conditional,
+e.g. depending on the value of `mp-entwiner'.
+Be sure to escape:
+- double quotes i.e. \"\"
+- single quotes within single quotes e.g. 'abc \'def\' ghi'
+When editing this with `customize', use
+`electric-newline-and-maybe-indent' for carraige return."
+  :type '(alist
+	  :key-type (string :format "\n %t \n %v"
+			    :tag "           Chunk name")
+	  :value-type
+	  (group
+	   (sexp :format "%t \n %v" :tag "Chunk format")
+	   (sexp :format "%t \n %v" :tag "Chunk content")))
+  :group 'mp
+  :group 'mp-skeleton-string)
+ 
+(defun mp-R-chunk-R-citations ()
+  "Return a string which is R code that writes a bibliography file.
+This file is named '`mp-fnb'.bib.'.
+A citation appears therein for each loaded R package.
+Adds a handle to each citation, if necessary.
+This is added to `mp-chunks' when `mp-bib' is non-nil.
+Called by `mp-R-new'."
+  (concat
+   "print(.packages())
+## vector for citations
+vc1 <- unlist(sapply(X=rev(.packages()),
+                     FUN=function(x)
+                         utils::toBibtex(utils::citation(x))))
+vc1 <- vc1[!vc1=='']
+## names for citations
+n1 <- vc1[which(grepl(pattern='.year', x=vc1))]
+n1  <- paste0(
+    sub(pattern='\\\\.year$', replacement='', x=names(n1)),
+    regmatches(x=n1, m=regexpr(pattern='[0123456789]+', text=n1)))
+## group as list
+l1 <- vector(mode='list', length=length(n1))
+names(l1) <- n1
+end1 <- which(grepl(pattern='\\\\}$', x=vc1))
+## remove trailing comma from last item in .bib entry, if necessary
+vc1[end1-1] <- sub(pattern=',$', replacement='', x=vc1[end1-1])
+end1 <- c(0, end1)
+for (i in seq.int(length.out=length(l1)))
+    l1[[i]] <- unname(vc1[seq.int(from=(end1[i] + 1L), to=end1[i+1])])
+l1 <- l1[!duplicated(l1)]
+## add a handle, if necessary
+for (i in seq.int(length.out=length(l1)))
+    if (grepl(pattern='\\\\\{,$', x=l1[[i]][1]))
+        l1[[i]][1] <- sub(pattern=',$', 
+                          replacement=paste0(names(l1[i]), ','),
+                          x=l1[[i]][1])
+if (!'mp-example.bib' %in% dir())
+    write(x='', file='" mp-dd mp-fnb ".bib')
+bib1 <- readLines('" mp-dd mp-fnb ".bib')
+for (i in seq.int(length.out=length(l1)))
+    if (!(l1[[i]][1] %in% bib1))
+        write(x=l1[[i]], file='" mp-dd mp-fnb ".bib', append=TRUE)"))
+
+(defun mp-file-display (FILE-NAME)
+  "Displays FILE-NAME.
+If the file is already open if a buffer, calls `pop-to-buffer'.
+If not, calls `mp-file-open'.
+Finally, calls `mp-set-mode' and `mp-chunk-set-adfixes'."
+  (setq mp-fne (file-name-extension FILE-NAME))
+  (let ((default-directory mp-dd)
+	(bn1 (car
+	      (member FILE-NAME
+		      (mapcar 'buffer-name (buffer-list))))))
+    (if bn1
+	(pop-to-buffer bn1)
+      (mp-file-open FILE-NAME)))
+  (mp-set-mode)
+  (mp-chunk-set-adfixes))
+
+(defun mp-file-open (FILE-NAME)
+  "Open FILE-NAME in a buffer; set buffer to appropriate mode.
+Return buffer.
+This function is derived from a combination of the functions
+ `find-file-noselect' and `find-file-noselect-1'.
+Called by `mp-file-display'."
+  (let* (;; as file-truename below uses default-directory
+	 (default-directory mp-dd)
+	 (truename1 (abbreviate-file-name
+		     (file-truename FILE-NAME)))
+	 (buf1 nil))
+    (if (featurep 'uniquify)
+	;; buffer names created using uniquify can be ugly
+	(let ((uniquify-managed
+	       (progn
+		 (make-local-variable 'uniquify-managed)
+		 nil)))
+	  (setq buf1 (create-file-buffer FILE-NAME)))
+      (setq buf1 (create-file-buffer FILE-NAME)))
+    (pop-to-buffer buf1 nil t)
+    (set-buffer buf1)
+    (set-buffer-multibyte t)
+    (when (and (= (buffer-size buf1) 0)
+	       (directory-files
+		mp-dd nil
+		(concat "^" FILE-NAME "$")))
+      (insert-file-contents-literally truename1 t))
+    (setq buffer-file-truename truename1
+	  buffer-file-name (expand-file-name buffer-file-truename)
+	  buffer-file-number
+	  ;; inode number
+	  (nthcdr
+	   10
+	   (file-attributes truename1)))))
+
+(defun mp-chunk-set-adfixes ()
+  "Set the prefixes and suffixes for chunks.
+These depend on the `file-name-extension' of the curent buffer,
+if applicable,  otherwise on `mp-fne'.
+The following file-local variables are set:
+ - `mp-chunk-heading-level-prefix'
+ - `mp-chunk-heading-level-suffix'
+ - `mp-chunk-name-prefix'
+ - `mp-chunk-name-suffix'
+ - `mp-chunk-format-prefix'
+ - `mp-chunk-content-suffix'
+Called by `mp-file-display'."
+  ;; fe1 = file extension
+  (let ((fe1 (car (cl-member (file-name-extension (buffer-file-name))
+		     '("R" "Rnw" "org" "Rmd") :test #'equalp))))
+    (unless fe1
+      (setq fe1 mp-fne))
+    (cond
+     ((equalp "R" fe1)
+      (setq mp-chunk-name-prefix mp-chunk-name-prefix-R
+	    mp-chunk-format-prefix mp-chunk-format-prefix-R
+	    mp-chunk-name-suffix ""
+	    mp-chunk-content-suffix mp-chunk-content-suffix-R))
+     ((equalp "Rnw" fe1)
+      (setq mp-chunk-heading-level-prefix (elt mp-chunk-heading-level 0)
+	    mp-chunk-heading-level-suffix "}"
+	    mp-chunk-name-prefix mp-chunk-name-prefix-Rnw
+	    mp-chunk-name-suffix mp-chunk-name-suffix-Rnw
+	    mp-chunk-format-prefix mp-chunk-format-prefix-Rnw
+	    mp-chunk-content-suffix mp-chunk-content-suffix-Rnw))
+     ((equalp "org" fe1)
+      (setq mp-chunk-heading-level-prefix (elt mp-chunk-heading-level 1)
+	    mp-chunk-heading-level-suffix ""
+	    mp-chunk-name-prefix mp-chunk-name-prefix-org
+	    mp-chunk-format-prefix mp-chunk-format-prefix-org
+	    mp-chunk-name-suffix ""
+	    mp-chunk-content-suffix mp-chunk-content-suffix-org))
+     ((equalp "Rmd" fe1)
+      (setq mp-chunk-heading-level-prefix (elt mp-chunk-heading-level 2)
+	    mp-chunk-heading-level-suffix ""
+	    mp-chunk-name-prefix mp-chunk-name-prefix-Rmd
+	    mp-chunk-name-suffix mp-chunk-name-suffix-Rmd
+	    mp-chunk-format-prefix mp-chunk-format-prefix-Rmd
+	    mp-chunk-content-suffix mp-chunk-content-suffix-Rmd)))
+    (message (concat "mp-chunk-set-adfixes... set per for ."
+		     fe1 " file extension"))))
+
+(defcustom mp-chunk-name-prefix-R "## ---- "
+  "Prefix for the chunk name in an .R file.
+The default value follows the convention used by 'knitr'."
+  :type '(string)
+  :group 'mp)
+
+(defcustom mp-chunk-format-prefix-R ", "
+  "Prefix for the chunk format in an .R file.
+The default value follows the convention used by 'knitr'."
+  :type '(string)
+  :group 'mp)
+
+(defcustom mp-chunk-content-suffix-R "\n"
+    "Suffix for the chunk content in an .R file."
+  :type '(sexp)
+  :group 'mp)
+
+(defcustom mp-chunk-heading-level '("\\section{" "*** " "### ")
+  "Prefixes indicating the heading level for a chunk.
+Specify these in the form of a list of two in the form:
+ '(heading-level-for-LaTeX heading-for-Org)
+
+The value is used to prior to a chunk-name.
+As a TeX command, a closing \"}\" is added e.g. 
+'\\subsection{'chunk-name'}'.
+
+Regarding levels of depth:
+- LaTeX uses 7 heading levels by default
+- `org-mode' supports up to 8 heading levels
+  (only 7, * to *******, are provided as options here)
+- markdown uses 6 heading levels, # to ######
+Thus, we here restrict outselves to 7, bearing in mind that other 
+formats can be more restrictive e.g. markdown supports 6.
+This is not meant to indicate a direct correspondance between 
+heading levels in org-mode and LaTeX.
+
+These values are used by `mp-chunk-insert'.
+
+For org-mode, see also `org-level-faces', `org-heading-components' and
+`org-element-headline-parser'.
+For markdown-mode, see also `markdown-regex-header'."
+  :type '(choice
+	  :tag ""
+	  (list :tag "level 1 = part"
+		(string :tag "LaTeX" :value "\\part{")
+		(string :tag "org" :value "* ")
+		(string :tag "Rnw" :value "# "))
+	  (list :tag "level 2 = chapter
+  [LaTeX - only for \\documentclass{book} or {report}]"
+		(string :tag "LaTeX" :value "\\chapter{")
+		(string :tag "org" :value "** ")
+		(string :tag "Rnw" :value "## "))
+	  (list :tag "level 3 = section"
+		(string :tag "LaTeX" :value "\\section{")
+		(string :tag "org" :value "*** ")
+		(string :tag "Rnw" :value "# "))
+	  (list :tag "level 4 = subsection"
+		(string :tag "LaTeX" "\\subsection{")
+		(string :tag "org" :value "**** ")
+		(string :tag "Rnw" :value "## "))
+	  (list :tag "level 5 = subsubsection"
+		(string :tag "LaTeX" :value "\\subsubsection{")
+		(string :tag "org" :value "***** ")
+		(string :tag "Rnw" :value "### "))
+	  (list :tag "level 6 = paragraph"
+		(string :tag "LaTeX" :value "\\paragraph{")
+		(string :tag "org" :value "****** ")
+		(string :tag "Rnw" :value "###### "))
+	  (list :tag "level 7 = sub-paragraph
+  [markdown - not applicable]"
+		(string :tag "LaTeX" :value "\\subparagraph{")
+		(string :tag "org" :value "******* ")
+		(string :tag "Rnw" :value ""))
+	  (list :tag "none"
+		(const :tag "LaTeX" :value "")
+		(const :tag "org" :value "")
+		(const :tag "Rnw" :value ""))
+	  (list :tag "custom"
+		(string :tag "LaTeX" :value "prefix-for-LaTeX")
+		(string :tag "org " :value "prefix-for-org")
+		(string :tag "Rnw" :value "prefix-for-Rnw")))
+  :group 'mp
+  :group 'mp-common)
+
+(defvar-local mp-chunk-heading-level-prefix ""
+  "Value of chunk heading level prefix.
+Set with `mp-chunk-set-adfixes'.")
+
+(defvar-local mp-chunk-heading-level-suffix ""
+  "Value of chunk heading level suffix.
+Set with `mp-chunk-set-adfixes'.")
+
+(defvar-local mp-chunk-name-prefix ""
+  "Value of chunk name prefix.
+Set with `mp-chunk-set-adfixes'.")
+
+(defvar-local mp-chunk-name-suffix ""
+  "Value of chunk name suffix.
+Set with `mp-chunk-set-adfixes'.")
+
+(defvar-local mp-chunk-format-prefix ""
+  "Value of chunk format prefix.
+Set with `mp-chunk-set-adfixes'.")
+
+(defvar-local mp-chunk-content-suffix ""
+  "Value of chunk content suffix.
+Set with `mp-chunk-set-adfixes'.")
+
+(defconst mp-chunk-name-prefix-Rnw "<<"
+  "Prefix for the chunk name in an .Rnw file.")
+
+(defconst mp-chunk-name-prefix-org "#+NAME: "
+  "Prefix for the chunk name in an .org file.
+See also `mp-org-opts'.")
+
+(defconst mp-chunk-name-prefix-Rmd "```{r "
+  "Prefix for the chunk name in an .Rmd file.")
+
+(defconst mp-chunk-format-prefix-Rnw ", "
+  "Prefix for the chunk format in an .Rnw file.")
+
+(defconst mp-chunk-format-prefix-org "\n#+begin_src R "
+  "Prefix for the chunk format in an .org file.")
+
+(defconst mp-chunk-format-prefix-Rmd ", "
+  "Prefix for the chunk format in an .Rmd file.
+Note that this is not essential i.e. a code chunk could begin
+```{r chunk-name, echo=TRUE
+rather than
+```{r, chunk-name, echo=TRUE
+The convention of an extra comma follows that used by knitr.")
+
+(defconst mp-chunk-name-suffix-Rnw ">>="
+  "Suffix for the chunk name in an .Rnw file.")
+
+(defconst mp-chunk-name-suffix-Rmd "}"
+  "Suffix for the chunk name in an .Rmd file.")
+
+(defconst mp-chunk-content-suffix-Rnw "@"
+  "Suffix for the chunk content in an .Rnw file.")
+
+(defconst mp-chunk-content-suffix-Rmd "```"
+  "Suffix for the chunk content in an .Rmd file.")
+
+(defconst mp-chunk-content-suffix-org "#+end_src"
+  "Suffix for the chunk content in an .org file.")
+
+(defun mp-set-mode ()
+  "Set the appropriate mode for a file."
+  (cond ((equalp "R" mp-fne)
+	 (R-mode))
+	((equalp "Rnw" mp-fne)
+	 (Rnw-mode))
+	((equalp "org" mp-fne)
+	 (org-mode))
+	((equalp "Rmd" mp-fne)
+	 (markdown-mode)
+	 (unless poly-markdown+r-mode
+	   (poly-markdown+r-mode)))
+	((equalp "tex" mp-fne)
+	 (tex-mode))
+	((equalp "bib" mp-fne)
+	 (bibtex-mode))
+	(t (fundamental-mode))))
+
+(defcustom mp-R-chunk-defaults-R-pkg
+  '("Default options for knitr and rmarkdown"
+  ""
+  "### Defaults for chunks typeset with knitr
+library('knitr')
+### defaults for all chunks
 opts\_chunk$set(
     eval=TRUE,
     ## text results
@@ -1096,500 +961,800 @@ opts\_chunk$set(
     fig.width=7, fig.height=7, #inches
     fig.env=c('figure', 'marginfigure')[1],
     fig.pos=c('', 'h', 't', 'b', 'p', 'H')[1])
+opts_knit$set(out.format='latex')
+knit_theme$set('biogoo')
 ### Set R options
 options(formatR.arrow=TRUE, width=60)
 knit_hooks$set(inline = function(x) {
-## if (is.numeric(x)) return(knitr:::format_sci(x, 'latex'))
+    ## if (is.numeric(x)) return(knitr:::format_sci(x, 'latex'))
     highr::hi_latex(x)
 })
-## uncomment below to change theme
+### uncomment below to change theme
 ## knit_theme$get()
 ## opts_knit$set(out.format='latex')
 ## thm1 <- knit_theme$get('acid')
-## knit_theme$set(thm1)
-@
-" "
-Default setup options for 'knitr'.
-
-This is passed to 'chunks' in 'knitr' by `mp-R-nw-or-org'.
+## knit_theme$set(thm1)")
+  "Default setup options for 'knitr'.
+Used by `mp-R-new'.
 This list is not exhaustive.
-
-Common options are given as vectors with a choice indicated by the index, in square brackets."
-  :group 'mp
+Common options are given as vectors, with a choice indicated by
+the index, in square brackets."
   :link '(url-link
 	  :tag "Hooks - knitr documentation"
 	  "http://yihui.name/knitr/hooks")
   :link '(url-link
 	  :tag "Code chunks and package options"
 	  "http://yihui.name/knitr/options")
-  :type '(choice
-	  (string :format "%v" :value "")))
-
-
-
-(defcustom mp-bib "
-@Comment @Comment Example of a comment.
-@Comment @Comment % can also be used, as with .tex files.
-@Comment % Article from a magazine or a journal.
-@Comment @article{Xarticle,
-@Comment     author    = {Smith, John A. and Jones, Terry},
-@Comment     title     = {Something about things},
-@Comment     journal   = {The Journal of Things},
-@Comment     %volume   = {},
-@Comment     %number   = {},
-@Comment     %pages    = {10--20},
-@Comment     %month    = {},
-@Comment     %note     = {},
-@Comment     year      = {1900}
-@Comment }
-@Comment % Alternative format, using quotation marks
-@Comment @article{Xarticle,
-@Comment     author    = \"\",
-@Comment     title     = \"\",
-@Comment     journal   = \"\",
-@Comment     %volume   = \"\",
-@Comment     %number   = \"\",
-@Comment     %pages    = \"\",
-@Comment     %month    = \"\",
-@Comment     %note     = \"\",
-@Comment     year      = {XXXX},
-@Comment }
-@Comment % A published book.
-@Comment @book{Xbook,
-@Comment     author    = {},
-@Comment     title     = {},
-@Comment     publisher = {},
-@Comment     %volume   = {},
-@Comment     %number   = {},
-@Comment     %series   = {},
-@Comment     %address  = {},
-@Comment     %edition  = {},
-@Comment     %month    = {},
-@Comment     %note     = {},
-@Comment     year      = {XXXX}
-@Comment }
-@Comment % A bound work without a named publisher or sponsor.
-@Comment @booklet{Xbooklet,
-@Comment     %author   = {},
-@Comment     title     = {},
-@Comment     %howpublished   = {},
-@Comment     %address  = {},
-@Comment     %month    = {},
-@Comment     %note     = {},
-@Comment     year      = {XXXX}
-@Comment }
-@Comment % An article in a conference proceedings.
-@Comment % Same fields as to @inproceedings below.
-@Comment @conference{Xconference,
-@Comment     author    = {},
-@Comment     title     = {},
-@Comment     booktitle = {},
-@Comment     %editor   = {},
-@Comment     %volume   = {},
-@Comment     %number   = {},
-@Comment     %series   = {},
-@Comment     %pages    = {},
-@Comment     %address  = {},
-@Comment     %month    = {},
-@Comment     %publisher= {},
-@Comment     %note     = {},
-@Comment     year      = {XXXX}
-@Comment }
-@Comment % A section of a book *without* its own title.
-@Comment @inbook{Xinbook,
-@Comment 	author	= {},
-@Comment 	editor	= {},
-@Comment 	title	= {},
-@Comment 	chapter	= {},
-@Comment 	pages	= {},
-@Comment 	publisher= {},
-@Comment 	%volume	= {},
-@Comment 	%number	= {},
-@Comment 	%series	= {},
-@Comment 	%type	= {},
-@Comment 	%address= {},
-@Comment 	%edition= {},
-@Comment 	%month	= {},
-@Comment 	%note	= {},
-@Comment 	year	= {XXXX}
-@Comment }
-@Comment % A section of a book having its own title.
-@Comment @incollection{Xincollection,
-@Comment 	author	= {},
-@Comment 	title	= {},
-@Comment 	booktitle= {},
-@Comment 	publisher= {},
-@Comment 	%editor	= {},
-@Comment 	%volume	= {},
-@Comment 	%number	= {},
-@Comment 	%series	= {},
-@Comment 	%type	= {},
-@Comment 	%chapter= {},
-@Comment 	%pages	= {},
-@Comment 	%address= {},
-@Comment 	%edition= {},
-@Comment 	%month	= {},
-@Comment 	%note	= {},
-@Comment 	year	= {XXXX}
-@Comment }
-@Comment % An article in a conference proceedings.
-@Comment @inproceedings{Xinproceedings,
-@Comment 	author		= {},
-@Comment 	title		= {},
-@Comment 	booktitle	= {},
-@Comment 	%editor		= {},
-@Comment 	%volume		= {},
-@Comment 	%number		= {},
-@Comment 	%series		= {},
-@Comment 	%pages		= {},
-@Comment 	%address	= {},
-@Comment 	%organization	= {},
-@Comment 	%publisher	= {},
-@Comment 	%month		= {},
-@Comment 	%note		= {},
-@Comment 	year		= {XXXX}
-@Comment }
-@Comment % Technical manual.
-@Comment @manual{Xmanual,
-@Comment 	title		= {},
-@Comment 	%author		= {},
-@Comment 	%organization	= {},
-@Comment 	%address	= {},
-@Comment 	%edition	= {},
-@Comment 	%month		= {},
-@Comment 	%note		= {},
-@Comment 	year		= {XXXX}
-@Comment }
-@Comment % Masters thesis.
-@Comment @mastersthesis{Xthesis,
-@Comment     author    = {},
-@Comment     title     = {},
-@Comment     school    = {},
-@Comment     %type     = {diploma thesis},
-@Comment     %address  = {},
-@Comment     %month    = {},
-@Comment     %note     = {},
-@Comment     year      = {XXXX}
-@Comment }
-@Comment % Miscellaneous.
-@Comment @misc{Xmisc,
-@Comment     %author    = {},
-@Comment     %title     = {},
-@Comment     %howpublished = {},
-@Comment     %month    = {},
-@Comment     %note     = {},
-@Comment     %year     = {XXXX}
-@Comment }
-@Comment % PhD thesis.
-@Comment @phdthesis{Xphdthesis,
-@Comment 	author		= {},
-@Comment 	title		= {},
-@Comment 	school		= {},
-@Comment 	%address	= {},
-@Comment 	%month		= {},
-@Comment 	%keywords	= {},
-@Comment 	%note		= {},
-@Comment 	year		= {XXXX}
-@Comment }
-@Comment @proceedings{Xproceedings,
-@Comment 	title		= {},
-@Comment 	%editor		= {},
-@Comment 	%volume		= {},
-@Comment 	%number		= {},
-@Comment 	%series		= {},
-@Comment 	%address	= {},
-@Comment 	%organization	= {},
-@Comment 	%publisher	= {},
-@Comment 	%month		= {},
-@Comment 	%note		= {},
-@Comment 	year		= {XXXX}
-@Comment }
-@Comment % Technical report from an educational,
-@Comment % commercial or standardization institution.
-@Comment @techreport{Xtreport,
-@Comment     author    = {},
-@Comment     title     = {},
-@Comment     institution = {},
-@Comment     %type     = {}, 
-@Comment     %number   = {},
-@Comment     %address  = {},
-@Comment     %month    = {},
-@Comment     %note     = {},
-@Comment     year      = {XXXX}
-@Comment }
-@Comment % An unpublished article, book, thesis, etc.
-@Comment @unpublished{Xunpublished,
-@Comment 	author	= {},
-@Comment 	title	= {},
-@Comment 	%year	= {},
-@Comment 	%month	= {},
-@Comment 	note	= {}
-@Comment }
-"
- "
-Standard BibTeX entries. May be useful when editing .bib files.
-
-When editing this with `customize', Use 'C-j' for carraige return.
-
-"
+  :type '(string)
   :group 'mp
-  :link '(url-link
-	  :tag "Wikibooks - LaTeX/Bibliography Management"
-	  "http://en.wikibooks.org/wiki/LaTeX/Bibliography_Management")
-  :type '(choice
-	  (string :format "%v" :value "")))
+  :group 'mp-skeleton-string)
 
+(defun mp-chunk-insert (CHUNK)
+  "Insert CHUNK, a list of the form (NAME FORMAT CONTENT).
+Each element of CHUNK is a string.
+No heading level is included when
+- `mp-fne' is \".R\"
+- `mp-chunk-heading-level' is 'none'."
+  ;; heading
+  (unless (or (equalp "R" mp-fne)
+	      (equalp '("" "" "") mp-chunk-heading-level))
+    (insert (concat
+	     "\n"
+	     mp-chunk-heading-level-prefix
+	     (car CHUNK)
+	     mp-chunk-heading-level-suffix "\n\n")))
+  ;; name and format
+  (insert (concat
+	   mp-chunk-name-prefix
+	   (car CHUNK)))
+  ;; format
+  (unless (equalp "" (cadr CHUNK))
+    (insert (concat
+	     mp-chunk-format-prefix
+	     ;; enclose format in quotes if has comma and using Sweave
+	     ;; (if (and (string-match "," (cadr CHUNK))
+	     ;; 	      (equalp "Sweave" (cdr mp-entwiner)))
+	     ;; 	 (concat "\"" (cadr CHUNK) "\"")
+	       (eval (cadr CHUNK)))))
+  (insert (concat mp-chunk-name-suffix "\n"))
+  ;; content
+  (insert (concat
+	   (eval (car (cddr CHUNK)))
+	   (unless (equalp "R" mp-fne)
+	     "\n")
+	   mp-chunk-content-suffix))
+  (unless (or (equalp "R" mp-fne)
+	      (looking-at "\n\n"))
+    (insert "\n\n")))
 
+(defun mp-chunk-format ()
+  "Make a string for the default chunk format.
+Depends on `mp-entwiner' as follows:
+- 'R-pkg-knitr' or 'R-pkg-rmarkdown'
+           --> `mp-chunk-format-default-R-pkg'
+- 'Sweave' --> `mp-chunk-format-default-sweave'
+- 'Org'    --> `mp-chunk-format-default-org'"
+  (let ((v1 (cond ((string-match "R-pkg-" (cdr mp-entwiner))
+		   mp-chunk-format-default-R-pkg)
+		  ((equalp "Sweave" (cdr mp-entwiner))
+		   mp-chunk-format-default-sweave)
+		  ((equalp "Org" (cdr mp-entwiner))
+		   mp-chunk-format-default-org))))
+    (if (equalp "Org" (cdr mp-entwiner))
+	(mapconcat
+	 (lambda (x) (concat (cadr x) " " (cddr x)))
+	 (assq-delete-all nil (copy-tree v1))
+	 " ")
+      (progn
+	(setq v1 (rassq-delete-all
+		  nil
+		  (copy-tree v1)))
+	(setq v1 (mapconcat (lambda (x) (car x)) v1 ", "))
+	v1))))
 
-(defcustom mp-Sweave-opts
-  '(("results=verbatim" . t )
-    ("results=tex" . nil)
-    ("echo=TRUE" . t )
-    ("fig=FALSE" . t )
-    ("png=TRUE" . t )
-    ("strip.white=false" . t)) "
-These options will be added to all code 'chunks' generated with 'Sweave'.
-The value is used by `mp-insert-chunk'.
+(defcustom mp-chunk-format-default-R-pkg
+  '(("results='markup'" . t)
+    ("comment='##'" . nil))
+  "Default format for code chunks with knitr or rmarkdown.
+Used for all chunks when `mp-entwiner' is set to one of these.
+See also the function `mp-chunk-format'.
 
 Options are given as a list of (KEY . VALUE) pairs.
-Non-nil for the VALUE means the argument will be added.
+Non-nil (for the KEY) means the argument will be added.
 
-See the manual for more details
-at URL `http://www.statistik.lmu.de/~leisch/Sweave/Sweave-manual.pdf'.
+There are too many possible options to include here for
+customizing this variable.
+For more options, see `mp-R-chunk-defaults-R-pkg'."
+   :type '(alist 
+	  :key-type (string :format "%t\n%v"
+			    :tag "Option for formatting "
+			    :value "")
+	  :value-type (boolean :tag "Activate?"
+			       :value nil))
+  :options '("results='markup'"
+	     "comment='##'"
+	     "eval=TRUE"
+	     "echo=TRUE"
+	     "collapse=FALSE"
+	     "warning=TRUE"
+	     "message=TRUE"
+	     "error=TRUE")
+  :group 'mp
+  :group 'mp-skeleton-string)
 
-Only one plot per chunk is supported by 'Sweave'.
+(defcustom mp-chunk-format-default-sweave
+  '(("results=verbatim" . t)
+    ("results=tex" . nil)
+    ("echo=TRUE" . nil)
+    ("fig=FALSE" . t)
+    ("pdf=TRUE" . t)
+    ("strip.white=false" . t))
+  "Default Sweave format for code chunks.
+Used for all chunks when `mp-entwiner' is set to 'Sweave'.
+See also the function `mp-chunk-format'.
+
+Options are given as a list of (KEY . VALUE) pairs.
+Non-nil (for the KEY) means the argument will be added.
+
+See the manual for more details, at URL
+`http://stat.ethz.ch/R-manual/R-devel/library/utils/doc/Sweave.pdf'.
+
+Only *one* plot per chunk is supported by 'Sweave'.
 Manually changing to fig=TRUE in the .Rnw file generated
 is one simple approach to including plots.
 
 Other possible options include:
 
-- results=tex
-  * if set to 'tex', results will be read as TeX
-- echo=TRUE
-  * if =FALSE, no R code is included in output
-- fig=FALSE
-  * if TRUE, a figure for graphics is included
+- results
+  * results=verbatim - results will be read as R code
+    (this is equivalent to the option in knitr: results='markup')
+  * results=tex - results will be read as TeX
+    (this is equivalent to the option knitr results='asis')
+- echo
+  * echo=TRUE - include R code in output
+  * echo=FALSE - no R code is included in output
+- fig
+  * fig=TRUE - _one_ graphical figure is included
 - png=TRUE
-  * if =FALSE, no .png graphics are generated
-- strip.white=false
-  * If =all, *all* blank lines are removed;
-  * If =true, blank lines removed from top and bottom
+  * if png=FALSE, no .png graphics are generated
+- strip.white
+  * strip.white=false - no not strip blank lines
+  * strip.white=all - *all* blank lines are removed
+  * strip.white=true - blank lines are removed from top and bottom
 - width=6
 - height=6
   * inches, for figures
-- print=FALSE
-  * If =TRUE, wrap all expressions in print()
-- EPS=TRUE
-  * If =FALSE, no EPS figures are produced.
+- print
+  * print=TRUE - wrap all expressions in print()
+- EPS
+  * EPS=FALSE - no EPS (.eps) figures are produced.
     EPS figures are required for LaTeX but not PDFLaTeX
-- keep.source=FALSE
-  * If =TRUE, do *not* deparse source before 'echo'ing
+- keep.source
+  * keep.source=TRUE, do *not* deparse source before 'echo'ing
     i.e. include original source 'as-is'
-- quiet=FALSE
-  * If =TRUE, *all* progress messages are suppressed
+  * keep.source=FALSE
+- quiet
+  * quiet=TRUE - *all* progress messages are suppressed
+  * quiet=FALSE
 - split=FALSE
   * If =TRUE, split over multiple files
 - term=TRUE
   * If =FALSE, only output from print() and cat() is 'echo'ed"
-    :type '(alist
-	    :key-type
-	    (choice :tag "other"
-		    (string :tag "other"))
-	    :value-type (boolean :tag "Activate" :value nil))
-    :options '("results=verbatim"
-	       "results=tex"
-	       "echo=TRUE"
-	       "fig=FALSE"
-	       "png=TRUE"
-	       "strip.white=false"
-	       "strip.white=all"
-	       "strip.white=true"
-	       "width=6"
-	       "height=6"
-	       "print=FALSE"
-	       "EPS=TRUE"
-	       "keep.source=FALSE"
-	       "quiet=TRUE"
-	       )
-    :group 'mp)
+  :type '(alist
+	  :key-type (string :format "%t\n%v"
+			    :tag "Option for formatting "
+			    :value "")
+	  :value-type (boolean :tag "Activate?"
+			       :value nil))
+  :options '("results=verbatim"
+	     "results=tex"
+	     "echo=TRUE"
+	     "fig=FALSE"
+	     "png=TRUE"
+	     "strip.white=false"
+	     "strip.white=all"
+	     "strip.white=true"
+	     "width=6"
+	     "height=6"
+	     "print=FALSE"
+	     "EPS=TRUE"
+	     "keep.source=FALSE"
+	     "quiet=TRUE")
+  :group 'mp
+  :group 'mp-skeleton-string)
 
-
-
-(defcustom mp-org-header-args
-  '((t . (":session" . "*session*"))
+(defcustom mp-chunk-format-default-org
+  '((t . (":session" . "*org-R-session*"))
     (t . (":exports" . "both"))
     (t . (":results" . "output"))
     (t . (":results" . "verbatim"))
-    (t . (":results" . "code"))) "
-These options will be added to all code 'chunks' when `mp-entwiner' is set to 'Org'.
-The value is used by `mp-insert-chunk'.
+    (t . (":results" . "code")))
+  "Default knitr format for code chunks.
+Used for all chunks when `mp-entwiner' is set to 'Org'.
+See also the function `mp-chunk-format'.
 
 Options are given as a list of (KEY1 . (KEY2 . VALUE)) pairs.
-Non-nil for KEY1 means the argument will be added.
+For KEY1, a non-nil value means the argument will be added when
+combinig these to string form with `mp-chunk-format'.
 
-For multiple plots per chunk, export the results to 'x.pdf'
-then in the .tex docuement change 'includegraphics'
-to 'includepdf' (from the LaTeX package 'pdfpages').
+\":results\" appears multiple times as the options for results
+ actually represent four sub-classes:
+- collection e.g. \":results output\"
+- type e.g. \":results verbatim\", \":results graphics\"
+- format e.g. \":results code\", \":results latex\"
+- handling e.g. \":results replace\", \":results append\"
 
-There is a link to help on the customize screen."
+For multiple plots per chunk, export the results to e.g. 'p1.pdf'
+with the following chunk format options
+\":results graphics\", \":file \"p1.pdf\"\".
+Then in the .tex docuement change '\\includegraphics{p1.pdf}'
+to '\\includepdf[pages=-]{p1.pdf}'.
+The command '\\includepdf' is defined in
+the LaTeX package 'pdfpages'.
+
+See also info node `(org)Specific header arguments'."
   :type '(alist
 	  :key-type (boolean :tag "Activate" :value nil)
 	  :value-type
-	  (choice :tag "header"
+	  (choice :tag "Choose header"
 		  (cons
-		   :tag ":session"
-		   (const :value ":session")
-		   (string :value "*session*"
-			   :doc "name of process in which to run code; if absent then chunks will be run in independent sessions"))
+		   :tag "Session"
+		   (const :tag "Key" :value ":session" :format "%t %v \n")
+		   (string :tag "Value" :value "*org-R-session*"
+			   :doc "Name of process in which to run code.
+If absent, then code chunks will be run in independent R sessions"
+			   :format "%t %v %h \n"))
 		  (cons
-		   :tag ":file"
-		   (const ":file")
-		   (string :value "\"f1.pdf\""
-			   :doc "Use double quotes around name"))
+		   :tag "File"
+		   (const :tag "Key" :value ":file" :format "%t %v \n")
+		   (string :tag "Value" :value "\"f1.pdf\""
+			   :doc "Use double quotes around file name"
+			   :format "%t %v %h \n"))
 		  (cons
-		   :tag ":exports"
-		   (const :value ":exports")
+		   :tag "Exports"
+		   (const :tag "Key" :value ":exports" :format "%t %v \n")
 		   (choice
-		    :tag "Export what?"
+		    :tag "Value = export what ? "
 		    (const :value "both"
-			   :doc "code and results")
+			   :doc "code and results"
+			   :format "%v - %d")
 		    (const :value "code")
 		    (const :value "results")
 		    (const :value "none")))
 		  (cons
-		   :tag ":results, class = 'collection'"
-		   (const ":results")
-		   (choice :tag "Collect what?"
-			   (const "value" :doc "final value")
-			   (const "output" :doc "all ouput")))
+		   :tag "Results, class = 'collection'"
+		   (const :tag "Key" :value ":results" :format "%t %v \n")
+		   (choice :tag "Value = collect what?"
+			   (const :value "value"
+				  :doc "final value"
+				  :format "%v - %d")
+			   (const :value "output"
+				  :doc "all ouput"
+				  :format "%v - %d")))
 		  (cons
-		   :tag ":results, class='type'"
-		   (const ":results")
+		   :tag "Results, class='type'"
+		   (const :tag "Key" :value ":results" :format "%t %v \n")
 		   (choice
-		    :tag "Convert to..."
-		    (const :value "table" :doc "table/ vector")
-		    (const :value "list" :doc "org-mode list")
+		    :tag "Value = convert to..."
+		    (const :value "table"
+			   :doc "table/ vector"
+			   :format "%v - %d")
+		    (const :value "list"
+			   :doc "org-mode list"
+			   :format "%v - %d")
 		    (const :value "verbatim"
-			   :doc "verbatim/ scalar")
-		    (const :value "file" :doc "path/to/file")
+			   :doc "verbatim/ scalar"
+			   :format "%v - %d")
+		    (const :value "file"
+			   :doc "path/to/file"
+			   :format "%v - %d")
 		    (const :value "graphics"
-			   :doc "need to specify :file also")))
+			   :doc "need to specify :file also"
+			   :format "%v - %d")))
 		  (cons
-		   :tag ":results, class='format'"
-		   (const ":results")
+		   :tag "Results, class='format'"
+		   (const :tag "Key" :value ":results" :format "%t %v \n")
 		   (choice
-		    :tag "Wrap in..."
+		    :tag "Value = wrap chunk in what?"
 		    (const :value "raw"
-			   :doc "nothing; insert as-is")
+			   :doc "nothing; insert as-is"
+			   :format "%v - %d")
 		    (const :value "org"
-			   :doc "BEGIN_SRC org block")
+			   :doc "BEGIN_SRC org block"
+			   :format "%v - %d")
 		    (const :value "html"
-			   :doc "BEGIN_HTML block")
+			   :doc "BEGIN_HTML block"
+			   :format "%v - %d")
 		    (const :value "latex"
-			   :doc "BEGIN_LaTeX block")
+			   :doc "BEGIN_LaTeX block"
+			   :format "%v - %d")
 		    (const :value "code"
-			   :doc "parsable code block")
+			   :doc "parsable code block"
+			   :format "%v - %d")
 		    (const :value "pp"
-			   :doc "code block for pretty printing; elisp, python, ruby")
+			   :doc "code block for pretty printing
+Used for elisp, python, ruby"
+			   :format "%v - %d")
 		    (const :value "drawer"
-			   :doc "a RESULTS drawer")))
-		   (cons
-		    :tag ":results, class = 'collection'"
-		    (const ":results")
-		    (choice
-		     :tag "Collect what?"
-		     (const :value "value"
-			    :doc "final value")
-		     (const :value "output"
-			    :doc "all ouput")))
-		   (cons
-		    :tag ":results, class='handling'"
-		    (const ":results")
-		    (choice
-		     :tag "What happens"
-		     (const :value "replace" :doc "overwrite")
-		     (const :value "silent"
-			    :doc "echo in minibuffer")
-		     (const :value "append")
-		     (const :value "prepend" )))
-		   (cons
-		    :tag ":cache"
-		    (const :value ":cache")
-		    (choice
-		     (const :value "yes")
-		     (const :value "no")))
-		   (cons
-		    :tag "other"
-		    (string ":other")
-		    (string "other"))))
-  :group 'mp
+			   :doc "a RESULTS drawer"
+			   :format "%v - %d\n")))
+		  (cons
+		   :tag "Results, class='handling'"
+		   (const :tag "Key"
+			  :value ":results"
+			  :format "%t %v \n")
+		   (choice
+		    :tag "Value = what happens ?"
+		    (const :value "replace"
+			   :doc "overwrite"
+			   :format "%v - %d")
+		    (const :value "silent"
+			   :doc "echo in minibuffer"
+			   :format "%v - %d")
+		    (const :value "append")
+		    (const :value "prepend")))
+		  (cons
+		   :tag "Cache"
+		   (const :tag "Key"
+			  :value ":cache"
+			  :format "%t %v \n")
+		   (choice
+		    :tag "Value = use cache ?"
+		    (const :value "yes")
+		    (const :value "no")))
+		  (cons
+		   :tag "Other"
+		   (string ":other")
+		   (string "other"))))
   :link '(url-link
 	  :tag "orgmode manual - header arguments"
-	  "http://orgmode.org/manual/Specific-header-arguments.html"))
+	  "http://orgmode.org/manual/Specific-header-arguments.html")
+  :group 'mp
+  :group 'mp-skeleton-string)
 
+(defcustom mp-bib "bibtex"
+  "When non-nil, indicates type of bibliography to use.
+If 'none' when calling `mp-example',
+no .bib file will be generated in `mp-dd'.
+See also `bibtex-mode' for editing .bib files."
+  :type '(radio 
+	  (const :doc "BibTex (the default)" :value "bibtex")
+	  (const :doc "biblatex" :value "biblatex")
+	  (const :doc "None" :value nil))
+  :group 'mp
+  :group 'mp-common)
+ 
+(defun mp-empty-string-to-nil (STRING)
+  "Return STRING; if STRING is empty (i.e. \"\", ), return nil.
+Called by `mp-find-file-name-interactive' and `mp-R-to-tex'."
+  (if (equalp "" STRING)
+      nil
+    STRING))
 
+(defun mp-entwiner-new ()
+  "Make an .Rnw, .org or .Rmd file, as per the value of `mp-entwiner'.
+Calls `mp-entwiner-skeleton'.
+Called by `mp-R-to-tex'."
+  (setq mp-fne (car mp-entwiner))
+  (mp-file-display (concat mp-fnb "." mp-fne))
+  (mp-entwiner-skeleton)
+  (save-buffer)
+  (kill-buffer)
+  (delete-window))
 
-(defcustom mp-latex-font '(("% Palatino family
-\\usepackage[T1]{fontenc}
-\\usepackage{mathpazo}
+(define-skeleton mp-entwiner-skeleton
+  "Insert contents for an .Rnw or .org file, as per `mp-entwiner'.
+Called by `mp-entwiner-new'."
+  nil
+  (when (equalp "Rmd" (car mp-entwiner))
+     "---\n")
+  '(mp-doc-class-tex-skeleton)
+  (when (equalp "Rmd" (car mp-entwiner))
+     "header-includes:\n")
+  '(cond
+    ((equalp "R-pkg-knitr" (cdr mp-entwiner))
+     (mp-preamble-skeleton mp-preamble-knitr))
+    ((equalp "Sweave" (cdr mp-entwiner))
+     (mp-preamble-skeleton mp-preamble-sweave))
+    ((equalp "Org" (cdr mp-entwiner))
+     (mp-preamble-skeleton mp-preamble-org)))
+  '(mp-preabmle-tex-skeleton)
+  '(when (equalp "Rmd" (car mp-entwiner))
+     (mp-yaml-end-skeleton mp-fnb))
+   ;; after headers
+  '(mp-entwiner-beginning-skeleton mp-fnb)
+  ;; body of document
+  '(goto-char (point-max))
+  '(mapc #'mp-chunk-insert mp-chunks)
+  \n
+  '(when mp-bib
+     (mp-insert-bib))
+  \n
+  '(when (equalp "Rnw" (car mp-entwiner))
+     (goto-char (buffer-end 1))
+     (mp-tex-end-skeleton))
+  \n)
+
+(define-skeleton mp-yaml-end-skeleton
+  "Insert end of yaml metadata for an .Rmd file.
+The string variable STR is used as the title for the document.
+Called by `mp-entwiner-skeleton'."
+  "Type title: "
+  '(setq str (eval str))
+
+  "\noutput: 
+ pdf_document:
+  keep_tex: true
+  latex_engine: " mp-latex "
+  citation_package: " (if (equalp "biblatex" mp-bib)
+			  "biblatex"
+			"default") "
+title: " str \n
+  "author: " (mp-author) \n
+  "date: '`r format(Sys.Date(), \"%d %B, %Y\")`'
+---"
+  \n)
+
+(define-skeleton mp-doc-class-tex-skeleton
+  "Insert `mp-doc-class-tex' into an file.
+Depends on the value of `mp-entwiner'."
+  nil
+  (cond ((equalp "org" (car mp-entwiner))
+	 (concat "#+LATEX_CLASS: " mp-doc-class-tex "\n"))
+	 ((or (equalp "Rnw" (car mp-entwiner))
+	      (equalp "tex" mp-fne))
+	  (concat "\\documentclass{" mp-doc-class-tex "}\n"))
+	 ((equalp "Rmd" (car mp-entwiner))
+	  (concat "documentclass: " mp-doc-class-tex "\n"))))
+
+(define-skeleton mp-preamble-skeleton
+  "Insert preamble, STR.
+The string variable STR should be given as latex code.
+This may be modified, depending on the value of `mp-entwiner':
+Org --> adds `mp-org-latex-header'
+Rmd --> changes the formatting so that latex can be interpreted
+         as yaml frontmatter."
+  "Type a line of latex code: "
+  '(setq str (eval str))
+  (cond ((equalp "org" (car mp-entwiner))
+	 ;; add mp-org-latex-header as prefix to each line
+	(concat
+	 mp-org-latex-header
+	 (replace-regexp-in-string
+	  "\n"
+	  mp-org-latex-header
+	  str "\n")))
+	((equalp "Rmd" (car mp-entwiner))
+	 (concat
+	  (mapconcat (lambda (x)
+		       ;; format for yaml
+		       (if (string-match "^#" x)
+			   (concat " " x)
+			 (concat " - '" x "'")))
+		     (mapcar (lambda (x)
+			       ;; change to yaml-style comments
+			       (replace-regexp-in-string
+				"^%+" "#" x))
+			     (split-string str "\n"))
+		     "\n")
+	  "\n"))
+	((equalp "Rnw" (car mp-entwiner))
+	 (concat "\n" str))))
+
+(define-skeleton mp-preabmle-tex-skeleton
+  "Insert preamble for tex documents.
+Called by `mp-entwiner-new' and `mp-tex-new'."
+  nil
+  '(mp-preamble-skeleton
+    (if (equalp "pdflatex" mp-latex)
+       (concat "%%% LaTeX font\n\\usepackage[T1]{fontenc}\n"
+	       (string-trim-left mp-latex-font))
+      mp-xetex-font))
+  '(mp-preamble-skeleton mp-preamble-tex) 
+  '(when mp-add-preamble-tex-extra
+     (mp-preamble-skeleton mp-preamble-tex-extra))
+  '(when mp-bib
+     (mp-preamble-skeleton mp-preamble-bib))
+  '(when (equalp "biblatex" mp-bib)
+     (mp-preamble-biblatex-skeleton mp-fnb))
+  \n)
+
+(defcustom mp-preamble-bib
+  "% for bibliography
+\\usepackage{url}
+\\usepackage{doi}
+% ensure special characters like underscore appear unchanged in bibliography
+% the starred form of renewcommand forbids the arguments from containing multiple paragraphs of text
+\\renewcommand*{\\doi}[1]{\\href{https://doi.org/\\detokenize{#1}}{ \\detokenize{#1}}}
+\\renewcommand*{\\doiurl}[1]{\\href{https://doi.org/\\detokenize{#1}}{ \\detokenize{#1}}}
+\\renewcommand*{\\url}[1]{\\href{https://doi.org/\\detokenize{#1}}{ \\detokenize{#1}}}"
+  "Preamble when using a bibliography.
+Called by `mp-preabmle-tex-skeleton'."
+  :type '(string)
+  :group 'mp
+  :group 'mp-skeleton-string)
+
+(defcustom mp-preamble-biblatex
+  "\\usepackage[backend=biber, bibstyle=numeric-verb]{biblatex}
+\\ExecuteBibliographyOptions{maxnames=99}
+\\ExecuteBibliographyOptions{sorting=ydnt, block=space}
+\\ExecuteBibliographyOptions{giveninits=true, terseinits=true}
+\\ExecuteBibliographyOptions{defernumbers=true}"
+  "Additional preamble when `mp-bib' is \"biblatex\".
+Caled by `mp-preabmle-tex-skeleton'.
+The options available are too numerous to provide here in detail.
+See the biblatex manual for more.
+See `TeX-doc' i.e. (TeX-doc packageName) for
+more details on particular packages.
+
+When editing this with `customize', use
+`electric-newline-and-maybe-indent' for carraige return."
+  :type '(string)
+  :link '(url-link
+	  :tag "biblatex manual on CTAN"
+	  "http://mirrors.ibiblio.org/CTAN/macros/latex/contrib/biblatex/doc/biblatex.pdf")
+  :group 'mp
+  :group 'mp-skeleton-string)
+
+(define-skeleton mp-preamble-biblatex-skeleton
+  "Insert `mp-preamble-biblatex'.
+The string variable STR is the `file-name-base' for the .bib file.
+Called by `mp-preabmle-tex-skeleton'."
+  "Type file-name-base: "
+  '(setq str (eval str))
+  '(mp-preamble-skeleton mp-preamble-biblatex)
+  '(mp-preamble-skeleton
+    (concat "\\addbibresource{" str ".bib}")))
+
+(defcustom mp-doc-class-tex "article"
+  "The 'documentclass' used by tex."
+  :type  '(radio 
+	   (const :value "article"
+		  :doc "The default.")
+	   (const :value "ltxdoc"
+		  :doc "Loads article class.")
+	   (const :value "proc"
+		  :doc "For poceedings; based on the article class.")
+	   (const :value "minimal"
+		  :doc "Only sets page size and base font.")
+	   (const :value "standalone")
+	   (const :value "report"
+		  :doc "Can contain chapters.")
+	   (const :value "book")
+	   (const :value "novel"
+		  :doc "Printed novels & short story collections.
+Needs lualatex.")
+	   (const :value "memoir"
+		  :doc "Can contain chapters.")
+	   (const :value "letter")
+	   (const :value "slides"
+		  :doc "Uses big sans serif letters.")
+	   (const :value "beamer")
+	   (string :value ""
+		   :doc "Enter class below:"
+		   :format "%d %v"))
+  :link '(url-link
+	  :tag "Packages with alternative LaTeX class(es)."
+	  "http://ctan.org/topic/class")
+  :link '(url-link
+	  :tag "What are the available 'documentclass' types and their uses?\n"
+	  "http://tex.stackexchange.com/questions/782")
+  :group 'mp
+  :group 'mp-skeleton-string)
+
+(defcustom mp-preamble-knitr
+  "%%% knitr defaults
+\\usepackage[]{graphicx}
+\\usepackage[]{color}
+\\usepackage{framed}
+% recommended with 'knitr'
+\\usepackage{alltt}
+\\usepackage{mathtools}
+\\usepackage[sc]{mathpazo}
+\\usepackage{geometry}
+\\geometry{verbose, tmargin=2.5cm, bmargin=2.5cm,
+  lmargin=2.5cm, rmargin=3cm}
+\\setcounter{secnumdepth}{2}
+\\setcounter{tocdepth}{2}
+\\usepackage{url}
+\\usepackage{hyperref}
+\\hypersetup{unicode=true, pdfusetitle}
+\\hypersetup{bookmarks=true, bookmarksnumbered=true}
+\\hypersetup{bookmarksopen=true, bookmarksopenlevel=2}
+\\hypersetup{breaklinks=false, pdfborder={0 0 1}}
+\\hypersetup{backref=false}
+\\hypersetup{colorlinks=true}
+\\definecolor{myDarkBlue}{rgb}{0, 0, 0.5}
+\\hypersetup{linkcolor=myDarkBlue}
+\\hypersetup{citecolor=myDarkBlue}
+\\hypersetup{pdfstartview={XYZ null null 1}}"
+  "Default preamble when `mp-entwiner' is 'knitr'.
+
+When editing this with `customize', use
+`electric-newline-and-maybe-indent' for carraige return."
+  :type '(string)
+  :group 'mp
+  :group 'mp-skeleton-string)
+
+(defcustom mp-preamble-sweave
+  "%%% Sweave defaults
+\\usepackage{Sweave}
+\\usepackage{lmodern}
+% for multiple plots per .pdf
+% with e.g. \includepdf[pages=-]{p1.pdf}
+\\usepackage{pdfpages}
+\\usepackage{color}
+\\usepackage{hyperref}
+\\hypersetup{colorlinks=true}
+\\definecolor{myDarkBlue}{rgb}{0, 0, 0.5}
+\\hypersetup{linkcolor=myDarkBlue}
+\\hypersetup{citecolor=myDarkBlue}"
+  "Default preamble when `mp-entwiner' is 'Sweave'.
+
+Note that the file 'Sweave.sty' needs to be on the path
+ used by TeX e.g. run the shell command
+kpsewhich 'Sweave.sty'.
+If not, see `mp-add-sweave-to-TeX-path'.
+
+When editing this with `customize', use
+`electric-newline-and-maybe-indent' for carraige return."
+  :type '(string)
+  :group 'mp
+  :group 'mp-skeleton-string)
+
+(defun mp-add-sweave-to-TeX-path ()
+    "Add 'Sweave.sty' to the search path used by 'kpsewhich'."
+    (start-process-shell-command
+     "Add Sweave to TeX path" "*make-pdf*"
+     "cp --recursive $(locate Sweave.sty | grep --only-matching .*texmf/) ~/; texhash"))
+
+(defconst mp-org-latex-header "\n#+LATEX_HEADER: "
+  "Prefix used when insterting latex preamble into an .org file.")
+
+(defcustom mp-preamble-org
+  "%%% Org-mode defaults
+% for multiple plots per .pdf
+% with e.g. \includepdf[pages=-]{p1.pdf}
+\\usepackage{pdfpages}
+% listings package
+\\lstloadlanguages{[Auto]Lisp}
+\\lstloadlanguages{R}
+\\lstloadlanguages{[LaTeX]TeX}
+\\lstset{frame=single}
+\\lstset{framerule=0pt}
+\\lstset{basicstyle=\\ttfamily\\small}
+\\lstset{columns=fullflexible}
+\\lstset{showstringspaces=false}
+\\lstset{breaklines=true}
+\\usepackage{textcomp} % for upquote option, below
+\\lstset{upquote=true}
+% custom colors (from package{color})
+\\definecolor{myGrey}{gray}{0.95}
+\\lstset{backgroundcolor=\\color{myGrey}}
+\\definecolor{myOrange}{rgb}{0.85, 0.23, 0}
+\\lstset{keywordstyle=\\color{myOrange}}
+\\definecolor{mySteelBlue}{rgb}{0.233, 0.433, 0.6}
+\\lstset{commentstyle=\\color{mySteelBlue}}
+\\definecolor{myDarkSkyBlue}{rgb}{0.0, 0.636, 0.85}
+\\lstset{stringstyle=\\color{myDarkSkyBlue}\\sffamily}
+% hyperref package
+\\definecolor{myDarkBlue}{rgb}{0, 0, 0.5}
+\\hypersetup{colorlinks=true}
+\\hypersetup{linkcolor=myDarkBlue}
+\\hypersetup{citecolor=myDarkBlue}"
+  "Default preamble when `mp-entwiner' is Org.
+
+When editing this with `customize', use
+`electric-newline-and-maybe-indent' for carraige return."
+  :type '(string)
+  :group 'mp
+  :group 'mp-skeleton-string)
+
+(defcustom mp-latex "pdflatex"
+  "Type of latex to use.
+Given as shell commend (a string),
+that generates a .pdf from a .tex (TeX) file.
+Options are \"pdflatex\", \"xelatex\" and \"lualatex\".
+Used by `mp-shell-sentinel'."
+  :type '(radio
+	  (const
+	   :doc "pdfTeX. The default."
+	   :value "pdflatex")
+	  (const
+	   :doc "XeTeX. For use with OpenType fonts."
+	   :value "xelatex")
+	  (const
+	   :doc "LuaTeX. For use with 'lua' scripts."
+	   :value "lualatex"))
+  :group 'mp)
+
+(defcustom mp-latex-font
+  "\\usepackage{mathpazo}
 \\linespread{1.05}
 \\usepackage[scaled]{helvet}
-\\usepackage{courier}" . t) ("% Times family
-\\usepackage[T1]{fontenc}
-\\usepackage{mathptmx}
-\\usepackage[scaled=.90]{helvet}
-\\usepackage{courier}" . nil) ("% Garamond family
-\\usepackage[T1]{fontenc}
-\\usepackage[urw-garamond]{mathdesign}
-\\usepackage{lmodern}
-\\usepackage{courier}
-\\linespread{1.0609}" . nil) ("% KP (Kepler) family; displays math
-\\usepackage[T1]{fontenc}
-\\usepackage{kpfonts}" . nil) ("% Nimbus family
-\\usepackage[T1]{fontenc}
-\\usepackage{tgtermes}
-\\usepackage[scale=.85]{tgheros}
-\\usepackage{tgcursor}" . nil)) "
-This variable is used by `mp-skeleton-nw'.
+\\usepackage{courier}"
+  "Font(s) to use when `mp-latex' is \"pdflatex\".
+Value used by Called by `mp-entwiner-new'
+when `mp-latex' is \"pdflatex\".
 
-It specifies the default font(s) to use when
-`mp-latex' is set to 'pdflatex' (XeTeX) or 'lualatex'.
+Many font options are specified successively as:
+ 1. serif
+ 2. sans-serif
+ 3. monospace font
 
-Some common options are given in the form:
- - serif
- - sans-serif
- - monospace font
-" :group 'mp
+When editing this with `customize', use
+`electric-newline-and-maybe-indent' for carraige return."
   :link '(url-link
 	  :tag
-	  "Font combinations per Org manual"
+	  "'Fonts' in 'LaTeX Export for Org Mode'"
 	  "http://orgmode.org/worg/org-tutorials/org-latex-export.html")
-  :type '(alist
-	  :key-type (string :tag "value")
-	  :value-type (boolean :tag "Activate" :value nil)))
+  :type '(radio
+	  (string
+	   :tag "Palatino family. The default.
+An old-style serif font.\n" 
+	   :value "\\usepackage{mathpazo}
+\\linespread{1.05}
+\\usepackage[scaled]{helvet}
+\\usepackage{courier}")
+	  (string
+	   :tag "Bera family.
+Bitstream's Vera family of fonts.\n"
+	   :value "\\usepackage[scaled]{beraserif}
+\\usepackage[scaled]{berasans}
+\\usepackage[scaled]{beramono}")
+	  (string
+	   :tag "Charter family.\n"
+	   :value "\\usepackage[bitstream-charter]{mathdesign}
+\\usepackage[scaled=.9]{helvet}
+\\usepackage{courier} % tt")
+	  (string
+	   :tag "Garamond family.
+Elegant, old-style serif.\n"
+	   :value"\\usepackage[urw-garamond]{mathdesign}
+\\usepackage{lmodern}
+\\usepackage{courier}
+\\linespread{1.0609}")
+	  (string
+	   :tag "Kepler family.
+Recommended for displaying math.\n"
+	   :value "\\usepackage{kpfonts}")
+	  (string
+	   :tag "Libertine family.
+A replacement for Times New Roman.\n"
+	   :value "\\usepackage{libertine}
+\\renewcommand*\\oldstylenums[1]{{\\fontfamily{fxlj}\selectfont #1}}
+\\usepackage{lmodern}")
+	  (string
+	   :tag "Nimbus family.
+Elegant, old-style serif.\n"
+	   :value "\\usepackage{tgtermes}           % for Times New Roman
+\\usepackage[scale=.85]{tgheros} % for Helvetica
+\\usepackage{tgcursor}           % for Courier")
+	  (sexp :tag "Custom"
+		:value ""))
+  :group 'mp
+  :group 'mp-skeleton-string) 
 
-
-(defcustom mp-xetex-font '(("% This needs to be placed after maths font packages,
+(defcustom mp-xetex-font 
+  "%%% XeTeX font 
+% This needs to be placed after maths font packages,
 % particularly 'euler'
 \\usepackage{fontspec}
 \\defaultfontfeatures{Mapping=tex-text}
 % Main text font
 \\setmainfont[Ligatures={Rare, TeX, NoCommon}, Numbers={Lowercase}]{Linux Libertine O}
 \\fontsize{12 pt}{16 pt}
-\\selectfont
-" . t)) "
-This variable is used by `mp-skeleton-nw'.
+\\selectfont"
+  "Font(s) to use when `mp-latex' is \"xelatex\" or \"lualatex\".
+See also `mp-xetex-font-skeleton'.
+Takes the form '\\setmainfont[options]{font}'.
+- Common TeX commands include:
+ * \\setmainfont{}
+ * \\setsansfont{}
+ * \\setmonofont{}
 
-It specifies the default font(s) to use when
-`mp-latex' is set to 'xelatex' (XeTeX) or 'lualatex'.
-
-- Some common commands include:
- * setmainfont
- * setsansfont
- * setmonofont
-
-- Some common fonts and their
-  TeX Gyre (opentype) equivalents include:
+- TeX Gyre (opentype) equivalents for some
+ common fonts include:  
  | Origin                 | TeX Gyre |
  |------------------------+----------|
  | Palatino               | Pagella  |
@@ -1605,8 +1770,8 @@ It specifies the default font(s) to use when
   - Rare/Discretionary,
   - Historic, TeX
  * Letters
-  | Uppercase | SmallCaps | UppercaseSmallCaps |
-  | PetiteCaps | UppercasePetiteCaps | Unicase |
+  | Uppercase  | SmallCaps | UppercaseSmallCaps |
+  | PetiteCaps | UppercasePetiteCaps | Unicase  |
  * Numbers
   - Uppercase, Lowercase
   - Proportional, Monospaced
@@ -1617,7 +1782,6 @@ It specifies the default font(s) to use when
  * Style
   | Alternate | Italic | Swash |
   | Historic  | TitlingCaps   ||"
-  :group 'mp
   :link '(url-link
 	  :tag
 	  "Fontspec documentation"
@@ -1625,143 +1789,427 @@ It specifies the default font(s) to use when
   :link '(url-link
 	  :tag "Free fonts at fontsquirrel"
 	  "http://www.fontsquirrel.com/")
-  :type '(alist
-	  :key-type
-	  (choice :tag "other"
-		  (string :tag "other"
-			  	   :format
-				   "\nTakes the form \\setfont[options]{font} %v"))
-	  :value-type (boolean :tag "Activate" :value nil)))
+  :type '(string)
+  :group 'mp
+  :group 'mp-skeleton-string)
 
+(defcustom mp-preamble-tex
+  "%%% Default preamble for tex
+% for nice tables
+\\usepackage{booktabs}
+% force floats to appear here with e.g.
+% \\begin{figure}[H]
+\\usepackage{float}
+% for tables > 1 page
+\\usepackage{longtable}
+% for table entries spanning rows
+\\usepackage{multirow}
+% for command \setstretch{}
+\\usepackage{setspace}
+\\usepackage[math]{blindtext}
+% page numbers appear in top-right corner
+\\pagestyle{headings}
+% suppress most error messages
+\\hbadness=15000
+\\vbadness=15000"
+  "Default preamble for documents created with `mp-entwiner-new'.
 
+See `TeX-doc' i.e. (TeX-doc packageName) for
+more details on particular packages.
 
-(defcustom mp-chunk-brackets '("\\section{" "}" "* " "") "
-Brackets placed before and after each chunkName.
-Specify these in the form of a list of strings as follows:
- (openingForLaTeX closingForLaTeX openingForOrg closingForOrg)
+When editing this with `customize', use
+`electric-newline-and-maybe-indent' for carraige return."
+  :type '(string)
+  :group 'mp
+  :group 'mp-skeleton-string)
 
-This variable is used by `mp-insert-chunk'.
+(defcustom mp-add-preamble-tex-extra nil
+  "Insert `mp-preamble-tex-extra' ?"
+  :type '(boolean)
+  :group 'mp
+  :group 'mp-skeleton-string)
 
-The names are specified in the corresponding .R file by '## ---- chunkName'.
+(defcustom mp-preamble-tex-extra
+  "%%% Additional default preamble
+% for e.g. \\formatdate
+\\usepackage{datetime}
+% for command  \\setstretch{}
+\\usepackage{setspace}
+% for SI units
+\\usepackage{siunitx}
+\\sisetup{per-mode=symbol}
+% for chemical symbols
+\\usepackage[version=3]{mhchem}
+% to use forced 'here'
+% e.g. \\begin{figure}[H]
+\\usepackage{float}
+% for large numbers of floats
+\\usepackage{morefloats}
+% to keep floats in same section
+\\usepackage[section]{placeins}"
+  "Extra TeX preamble.
+This is added when `mp-add-preamble-tex-extra' is t.
 
-This may be used to enclose chunkName in a TeX command e.g. 'subsection{'chunkName'}'.
-The corresponding Org headline or level prefix, '* ', is used when generating a skeleton .org file.
-Org uses up to 8 headline levels.
+Some additional useful TeX packages.
+Used by `mp-preamble-tex-extra-skeleton'.
 
-See also `org-level-faces' and `org-heading-components'."
-  :type '(choice
-	  :tag ""
-	 (list :tag "section"
-	       (string :tag "LaTeX" :value "\\section{")
-	       (string :tag "LaTeX" :value "}")
-	       (string :tag "org" :value "* ")
-	       (string :tag "org" :value ""))
-	 (list :tag "subsection"
-	       (string :tag "LaTeX" "\\subsection{")
-	       (string :tag "LaTeX" "}")
-	       (string :tag "org" :value "** ")
-	       (string :tag "org" :value ""))
-	 (list :tag "subsubsection"
-	       (string :tag "LaTeX" :value "\\subsubsection{")
-	       (string :tag "LaTeX" :value "}")
-	       (string :tag "org" :value "*** ")
-	       (string :tag "org" :value ""))
-	 (list :tag "paragraph/list item"
-	       (string :tag "LaTeX" :value "\\paragraph{")
-	       (string :tag "LaTeX" :value "}")
-	       (string :tag "org" :value "**** ")
-	       (string :tag "org" :value ""))
-	 (list :tag "no section"
-	       (string :tag "LaTeX" :value "")
-	       (string :tag "LaTeX" :value "")
-	       (string :tag "org" :value "")
-	       (string :tag "org " :value ""))
-	 (list :tag "other"
-	       (string :tag "LaTeX" :value "prefix")
-	       (string :tag "LaTeX" :value "suffix")
-	       (string :tag "org" :value "prefix")
-	       (string :tag "org " :value "suffix")))
+See `TeX-doc' i.e. (TeX-doc packageName) for more details on particular packages.
+
+When editing this with `customize', use
+`electric-newline-and-maybe-indent' for carraige return."
+  :type '(string)
+  :group 'mp
+  :group 'mp-skeleton-string)
+
+(define-skeleton mp-entwiner-beginning-skeleton
+   "Insert the beginning of an entwiner file.
+This is an .Rnw, .org, or .Rmd file.
+This is the material to appear after the headers which specify
+options for the entwiner.
+Title is the required variable str."
+   "Type title: "
+   \n 
+   '(cond
+      ((equalp "org" (car mp-entwiner))
+       (mp-org-title-skeleton str))
+      ((equalp "Rnw" (car mp-entwiner))
+       (mp-tex-title-skeleton str))
+      ((equalp "Rmd" (car mp-entwiner))
+       nil))
+   \n
+   '(mp-tex-beginning-skeleton)
+   \n)
+
+(define-skeleton mp-tex-title-skeleton
+  "Insert title and author into an .Rnw file.
+The string variable STR (required) provides the title.
+Author is given by `mp-author'.
+Includes the TeX commands:
+ - \\maketitle
+ - \\pagestyle{}
+ - \\tableofcontents
+Called by `mp-entwiner-beginning-skeleton'."
+  "Type title: "
+  \n \n
+  "%%%%" \n
+  "\\begin{document}" \n
+  "%%%%" \n \n
+  "\\title{" str "}" \n
+  "\\author{" (mp-author) "}" \n
+  "\\maketitle" \n
+  "\\tableofcontents")
+
+(define-skeleton mp-org-title-skeleton
+  "Insert title and author into an .org file.
+The string variable STR (required) provides the title.
+Author is given by the function `mp-author'.
+Called by `mp-entwiner-beginning-skeleton'."
+  "Type title: "
+  \n \n
+  "#+TITLE: " str \n
+  "#+AUTHOR: " (mp-author)
+  \n \n)
+
+(defun mp-author ()
+  "Return the variable `user-full-name'.
+If this is an empty string, return the variable `user-login-name'"
+  (if (equal user-full-name "")
+      user-login-name
+    user-full-name))
+
+(define-skeleton mp-tex-beginning-skeleton
+  "Insert `mp-tex-beginning'."
+  nil
+  \n
+  mp-tex-beginning
+  \n \n)
+
+(defcustom mp-tex-beginning
+  "\\medskip
+Example of text. Here are some holoalphabetic sentences:
+
+The quick brown fox jumps over the lazy dog.
+PACK MY BOX WITH FIVE DOZEN LIQUOR JUGS.
+Jackdaws love my big Sphinx of Quartz.
+
+Here is an example of an equation:
+\\begin{equation}
+\\bar{x} = \\frac{1}{n}\\sum_{i=1}^{i=n} x_i = \\frac{x_1 + x_2 + \\dots{} + x_n}{n}
+\\end{equation}
+
+\\medskip"
+  "Text to place at the beginning of a .tex file.
+This is used to provide a sample of the font.
+
+Used by the skeleton `mp-tex-beginning-skeleton'.
+
+Called by `mp-entwiner-beginning-skeleton'.
+
+When editing this with `customize', use
+`electric-newline-and-maybe-indent' for carraige return."
+  :type '(string)
+  :group 'mp
+  :group 'mp-skeleton-string)
+
+(defcustom mp-bibtex-style "plain"
+  "Bibliography style to use.
+Used by `mp-bibtex-skeleton'.
+It should be the `file-name-base' of a file ending in .bst,
+which is on the 'path' as determined by
+'kpsewhich --show-path=bst'."
+  :type
+  '(radio
+    (const :doc "hyperlink URLs, dois"
+	   :value "plainurl")
+    (const :doc "a simple default"
+	   :value "plain")
+    (const :doc "abbreviate"
+	   :value "abbrv")
+    (const :doc "Association for Computing Machinery"
+	   :value "acm")
+    (const :doc "sorts by label"
+	   :value "alpha")
+    (const :doc "American Psychological Association"
+	   :value "apalike")
+    (const :doc "Institute of Electrical and Electronics Engineers - Transactions"
+	   :value "ieeetr")
+    (const :doc "Society for Industrial and Applied Mathematics"
+	   :value "siam")
+    (const :doc "unsorted"
+	   :value "unsrt")
+    (string :doc "other"
+	    :value ""))
+  :safe (lambda (x)
+	  (= 0 (shell-command (concat "kpsewhich " x ".bst"))))
+  :group 'mp
+  :group 'mp-skeleton-string)
+
+(define-skeleton mp-tex-end-skeleton
+  "Insert `mp-tex-end'."
+  nil
+  mp-tex-end)
+
+(defcustom mp-tex-end
+  "\n%%%%\n\\end{document}"
+  "Default ending for .tex files."
+  :type '(string)
+  :group 'mp
+  :group 'mp-skeleton-string)
+
+(defun mp-insert-bib ()
+  "Insert bibliography.
+Called by `mp-entwiner-new'.
+See `mp-bibtex' and `mp-biblatex'."
+  (cond ((equalp "none" mp-bib)
+	 nil)
+	((equalp "Rmd" (car mp-entwiner))
+	 (mp-Rmd-skeleton))
+	((equalp "bibtex" mp-bib)
+	 (mp-bibtex-skeleton mp-fnb))
+	((equalp "biblatex" mp-bib)
+	 (mp-biblatex-skeleton))))
+
+(defun mp-Rmd-skeleton ()
+  "Insert bibliography commands."
+  (if (equalp "biblatex" mp-bib)
+	(insert "\\nocite{*}")
+      (mp-bibtex-skeleton mp-fnb)))
+
+(define-skeleton mp-bibtex-skeleton
+  "Insert bibliography.
+The string variable STR is the `file-name-base' for
+the bibliography.
+See also `mp-bibtex-style'."
+  "Type file-name-base: "
+  > "\\nocite{*}" \n
+  > "\\bibliographystyle{" mp-bibtex-style "}" \n
+  > "\\bibliography{" str "}"
+  \n \n)
+
+(define-skeleton mp-biblatex-skeleton
+  "Insert bibliography."
+  nil
+  > "\\nocite{*}" \n
+  > "\\printbibliography[title=References]" \n \n)
+
+(defun mp-Rnw-to-tex ()
+  "Generate a .tex (TeX) file from an .Rnw file.
+Once complete, `mp-tex-to-pdf' will be run on the output."
+  (message "mp-Rnw-to-tex...")
+  (mp-shell-sentinel "mp-Rnw-to-tex")
+  (message "mp-Rnw-to-tex...done"))
+
+(defun mp-Rmd-to-pdf ()
+  "Generate a .tex (TeX) file from an .Rnw file.
+Once complete, `mp-latex-pdf' will be run on the output."
+  (message "mp-Rmd-to-pdf...")
+  (mp-shell-sentinel "mp-Rmd-to-pdf")
+  (message "mp-Rmd-to-pdf... done"))
+
+(defvar mp-sentinel-done nil
+  "Value is 't' when no error results from `mp-shell-sentinel'.")
+
+(defcustom mp-sentinel-sleep 0.01
+  "Seconds to sleep to allow a process sentinel to complete.
+A higher value provides more time for the buffer *make-pdf*
+to update/ display messages from the process being called.
+See also `sleep-for' and `set-process-sentinel'.
+Called by `mp-Rnw-to-tex', `mp-latexmk' and `mp-shell-sentinel'."
+  :type 'number
   :group 'mp)
 
+(defun mp-shell-sentinel (CALLED-FROM)
+  "Run appropriate `start-process-shell-command', per CALLED-FROM.
+This is run with a sentinel, set via `set-process-sentinel.'
+The purpose of the sentinel is to catch errors in the process,
+as flagged when the return value of the process is not zero.
+Such errors are returned as `warn'ings.
+The shell command/ process that is run depends
+on the value of CALLED-FROM and of the `cdr' of `mp-entwiner':
 
+  CALLED-FROM     (cdr mp-entwiner)  process
+  mp-Rnw-to-tex   knitr              Rscript -e knitr::knit
+                  Sweave             R CMD Sweave
+  mp-Rmd-to-pdf                      Rscript -e rmarkdown::render
+  mp-Rscript-run                     Rscript `mp-fnb'.`mp-fne'
+  mp-latexmk                         latexmk
+  mp-view-pdf                        `mp-pdf-viewer'
 
-(defcustom mp-sweaveSty '((t . "
-\\NeedsTeXFormat{LaTeX2e}
-\\ProvidesPackage{Sweave}{}
-%
-\\RequirePackage{ifthen}
-\\newboolean{Sweave@gin}
-\\setboolean{Sweave@gin}{true}
-\\newboolean{Sweave@ae}
-\\setboolean{Sweave@ae}{true}
-%
-\\DeclareOption{nogin}{\\setboolean{Sweave@gin}{false}}
-\\DeclareOption{noae}{\\setboolean{Sweave@ae}{false}}
-\\ProcessOptions
-%
-\\RequirePackage{graphicx,fancyvrb}
-\\IfFileExists{upquote.sty}{\\RequirePackage{upquote}}{}
-%
-\\ifthenelse{\\boolean{Sweave@gin}}{\\setkeys{Gin}{width=0.8\\textwidth}}{}%
-\\ifthenelse{\\boolean{Sweave@ae}}{%
-  \\RequirePackage[T1]{fontenc}
-  \\RequirePackage{ae}
-}{}%
-%
-\\DefineVerbatimEnvironment{Sinput}{Verbatim}{fontshape=sl}
-\\DefineVerbatimEnvironment{Soutput}{Verbatim}{}
-\\DefineVerbatimEnvironment{Scode}{Verbatim}{fontshape=sl}
-%
-\\ifdefined\\Schunk%
-  \\message{\\string Environment Schunk is already defined, stay with former definition}%
-\\else
-  \\newenvironment{Schunk}{}{}%
-\\fi
-%
-\\newcommand{\\Sconcordance}[1]{%
-  \\ifx\\pdfoutput\\undefined%
-  \\csname newcount\\endcsname\\pdfoutput\\fi%
-  \\ifcase\\pdfoutput\\special{#1}%
-  \\else%
-   \\begingroup%
-     \\pdfcompresslevel=0%
-     \\immediate\\pdfobj stream{#1}%
-     \\pdfcatalog{/SweaveConcordance \\the\\pdflastobj\\space 0 R}%
-   \\endgroup%
-  \\fi}
-")) "
-The file 'Sweave.sty'.
+The command latexmk is called with the arguments:
+-bibtex, if `mp-bib' is non-nil.
+-from `mp-latex-options'
 
-This is given in the form (KEY . VALUE) where VALUE is a string. If any KEY is t and if no such file is found in the `default-directory', the first value which is t will be included in the working directory as 'Sweave.sty'.
+An error in the process leads to calling `mp-exit'."
+  (message
+   (concat "mp-shell-sentinel, called from "
+	   CALLED-FROM " ..."))
+  (pop-to-buffer "*make-pdf*")
+  ;; we pause here until the process we're calling here
+  ;; exits with (thrwo)
+  (lexical-let
+      ((CALLED-FROM CALLED-FROM)
+       (default-directory mp-dd)
+       (buffer1 (if (equalp "mp-view-pdf" CALLED-FROM)
+		    nil
+		  "*make-pdf*"))
+       (command1
+	(cond
+	 ((equalp "mp-Rscript-run" CALLED-FROM)
+	  (concat
+	   "Rscript --verbose --no-init-file " mp-fnb ".R"))
+	  ((equalp "mp-Rnw-to-tex" CALLED-FROM)
+	   (if (equalp "R-pkg-knitr" (cdr mp-entwiner))
+	      ;; -e = expression,
+	      ;; text following this needs to be in double quotes
+	      (concat
+	       "Rscript --verbose --no-init-file -e \"
+knitr::knit('" mp-fnb ".Rnw')\"")
+	    (concat "R CMD Sweave " mp-fnb ".Rnw")))
+	 ((equalp "mp-Rmd-to-pdf" CALLED-FROM)
+	  (concat
+	   "Rscript --verbose --no-init-file -e \"
+rmarkdown::render('" mp-fnb ".Rmd')\""))
+	 ((equalp "mp-latexmk" CALLED-FROM)
+	  (concat "latexmk "
+		  (when (equalp "bibtex" mp-bib)
+		    "-bibtex ")
+		  mp-fnb ".tex " (mp-latex-options)))
+	 ((equalp "mp-view-pdf" CALLED-FROM)
+	  (concat mp-pdf-viewer " " mp-fnb ".pdf")))))
+    (set-process-sentinel
+     (start-process-shell-command
+      CALLED-FROM buffer1 command1)
+     (lambda (process1 event1)
+       (if (= 0 (process-exit-status process1))
+	   ;;      (if (equalp event1 "finished\n")
+	   (progn
+	     (throw 'exit nil)
+	     (message
+	      (concat "mp-shell-sentinel, called from "
+		      CALLED-FROM " ... done")))
+	 (progn
+	   (kill-buffer "*make-pdf*")
+	   (delete-window)
+	   (setq mp-exiting t)
+	   (mp-exit
+	    (concat
+	     "Error in mp-shell-sentinel, called from `"
+	     (process-name process1) "'"))))))
+    (recursive-edit)))
 
-It is essential to have 'Sweave.sty' on your path when `mp-entwiner' is set to 'Sweave'.
-This variable is used by `mp-nw-tex'.
+(defcustom mp-latex-options '(("-interaction=nonstopmode" . t))
+  "Command-line options to be added to `mp-latex'.
+These are given in the form of a list of (KEY . VALUE) pairs,
+where KEY is the option.
+When the VALUE is non-nil, the KEY will be added.
+See also the function `mp-latex-options'
+which combines these as a string."
+  :type '(alist
+	  :key-type (choice
+		     :tag "other"
+		     (string
+		      :tag "argument"))
+	  :value-type (boolean
+		       :tag "Include ? "
+		       :value nil))
+  :options '("-interaction=nonstopmode"
+	     "-shell-escape"
+	     "-8bit"
+	     "-interaction=errorstopmode"
+	     "-enc"
+	     "-etex"
+	     "-mltex"
+	     "-output-format=pdf")
+  :group 'mp)
 
-When editing this with `customize', Use 'C-j' for carraige return."
-:group 'mp
-:group 'mp-files
-:type '(alist
-	:key-type (boolean :tag "Activate" :value nil)
-	:value-type (string :format "%v" :value "")))
+(defun mp-latex-options ()
+  "Combine the variable `mp-latex-options' as a string."
+  (let ((v1 (rassq-delete-all nil (copy-alist mp-latex-options))))
+    (mapconcat #'car v1 " ")))
 
+(defvar mp-exiting nil
+  "Value is 't' when exiting from `mp-shell-sentinel'.")
 
+(defun mp-latexmk ()
+  "Make a .pdf file, using the method given by `mp-latex'.
+Add file `latexmkrc' file to `mp-dd' if needed.
+Once complete, open the file with `mp-view-pdf'.
+Called by the functions
+- `mp-tex-to-pdf'
+- `mp-Rnw-to-tex'
+- `mp-org-to-tex'.
+See the manual for details:
+URL `http://ctan.mackichan.com/support/latexmk/latexmk.pdf'."
+  (message "mp-latexmk...")
+  (unless (directory-files
+	   mp-dd nil "^.latexmkrc$")
+    (mp-file-display ".latexmkrc")
+    (mp-latexmkrc-skeleton)
+    (save-buffer)
+    (kill-buffer)
+    (delete-window))
+  (mp-shell-sentinel "mp-latexmk")
+  (message "mp-latexmk... done"))
 
-(defcustom mp-latexmkrc '((t . "
-# Custom dependency for 'glossaries' package
+(define-skeleton mp-latexmkrc-skeleton
+  "Insert `mp-latexmkrc'.
+Adds the value of `mp-latex'."
+  nil
+  mp-latexmkrc \n
+  "$pdflatex = '" mp-latex " %O %S ';"
+  \n)
+
+(defcustom mp-latexmkrc
+  "# Custom dependency for 'glossaries' package.
 add_cus_dep('glo', 'gls', 0, 'makeglo2gls')\;
 sub makeglo2gls{
  system(\"makeindex -s \\\"$_[0].ist\\\" -t \\\"$_[0].glg\\\" -o \\\"$_[0].gls\\\" \\\"$_[0].glo\\\" \")\;
 }
-# The' glossaries' package, with the [acronym] option,
-# produces a .acn file when processed with (xe/pdf)latex and
-# then makeindex to process the .acn into .acr and
-# finally runs of (xe/pdf)latex to read in the .acr file.
+# Add support for the [acronym] option in the' glossaries' package.
 add_cus_dep('acn', 'acr', 0, 'makeacn2acr')\;
 sub makeacn2acr{
  system(\"makeindex -s \\\"$_[0].ist\\\" -t \\\"$_[0].alg\\\" -o \\\"$_[0].acr\\\" \\\"$_[0].acn\\\" \")\;
 }
-# Example of an added custom glossary type that is used
-# in some of the 'glossaries' example files
 # This is for the 'new glossary type' command
 # \\newglossary[nlg]{notation}{not}{ntn}{Notation}
 add_cus_dep('ntn', 'not', 0, 'makentn2not')\;
@@ -1786,24 +2234,12 @@ add_cus_dep('nlo', 'nls', 0, 'makenlo2nls')\;
 sub makenlo2nls{
  system(\"makeindex -s nomencl.ist -o \\\"$_[0].nls\\\" \\\"$_[0].nlo\\\" \")\;
 }
-# Custom dependency and function(s) for 'epstopdf' package
-# deletes an outdated pdf-image, and triggers a pdflatex-run:
-# add_cus_dep( 'eps', 'pdf', 0, 'cus_dep_delete_dest' )\;
-# FOR USERS OF epstopdf v1.5 and later ONLY:
-# load it as \\usepackage[update,prepend]{epstopdf}
-# detects an outdated pdf-image, and triggers a pdflatex-run
-# Custom dependecy to convert tif to png
-# add_cus_dep('eps', 'pdf', 0, 'cus_dep_require_primary_run')\;
-# add_cus_dep('tif', 'png', 0, 'maketif2png')\;
-# sub maketif2png{
-#  system(\"convert \\\"$_[0].tif\\\" \\\"$_[0].png\\\" \")\;
-# }
-")) "
-The file '.latexmkrc'.
-
-This is given in the form (KEY . VALUE) where VALUE is a string. If any KEY is t and if no such file is found in the `default-directory', the first value which is t will be included in the working directory as '.latexmkrc'.
-
-It is an initialization file or 'runcom'(commands) or for latexmk.
+# tex -> pdf
+$pdf_mode = 1;
+$postscript_mode = $dvi_mode = 0; "
+  "The runcom file '.latexmkrc'.
+It is an initialization file or 'runcom'
+\(run commands, meaning 'run configuration') for latexmk.
 
 This variable is used by `mp-latexmk'.
 It is recommended to have this on your path.
@@ -1812,391 +2248,529 @@ No support is provided for the (now deprecated) 'glossary' package.
 
 A link to the source is available as a link in the custmomize help.
 
-When editing this with `customize', Use 'C-j' for carraige return."
-:group 'mp
-:group 'mp-files
-:type '(alist
-	:key-type (boolean :tag "Activate" :value nil)
-	:value-type (string :format "%v" :value ""))
-:link '(url-link
-	:tag "example: pdflatexmkrc"
-	"http://ctan.math.washington.edu/tex-archive/support/latexmk/example_rcfiles/pdflatexmkrc"))
+When editing this with `customize', use
+`electric-newline-and-maybe-indent' for carraige return."
+  :type '(string :tag "# indicates comments")
+  :link '(url-link
+	  :tag "example: pdflatexmkrc"
+	  "http://ctan.math.washington.edu/tex-archive/support/latexmk/example_rcfiles/pdflatexmkrc")
+  :group 'mp
+  :group 'mp-skeleton-string)
 
+(define-skeleton mp-bib-skeleton
+  "Insert `mp-bib-default'."
+  nil
+  mp-bib-default \n \n)
 
+(defcustom mp-bib-default
+  "%%% Example of an article from a magazine or a journal:
+@Article{dardis,
+   Author={Dardis, C. and Woolf, E.C. and Scheck, A.C.},
+   Title={A tool for reproducible research: From data analysis (in R) to a typeset laboratory notebook (as .pdf) using the text editor Emacs with the 'mp' package},
+   Journal={F1000 Research},
+   Year={2016},
+   Volume={4},
+   Number={483},
+   Pages={1--21},
+   doi={10.12688/f1000research.6800.2}
+}"
+  "Default entry/entries for a .bib file.
+Used by the skeleton `mp-bib-skeleton'.
+See also `bibtex-mode'.
 
-(defcustom mp-upquoteSty '((t . "
-%% This is file `upquote.sty',
-%% generated with the docstrip utility.
-%%
-%% The original source files were:
-%% upquote.dtx  (with options: `package')
-%%
-%% Copyright (C) 2000 by Michael A. Covington
-%% Copyright (C) 2003 by Frank Mittelbach
-%% Copyright (C) 2012 by Markus Kuhn (current maintainer)
-%%
-%% Released under the LaTeX Project Public License v1.3c or later
-%% See http://www.latex-project.org/lppl.txt
-%%
-\\NeedsTeXFormat{LaTeX2e}
-\\ProvidesPackage{upquote}
-   [2012/04/19 v1.3 upright-quote and grave-accent glyphs in verbatim]
-\\newcommand\\upquote@cmtt{cmtt}
-\\newcommand\\upquote@OTone{OT1}
-\\ifx\\encodingdefault\\upquote@OTone
-  \\ifx\\ttdefault\\upquote@cmtt\\else\\RequirePackage{textcomp}\\fi
-\\else
-  \\RequirePackage{textcomp}
-\\fi
-\\begingroup
-\\catcode`'=\\active
-\\catcode``=\\active
-\\g@addto@macro\\@noligs
-   {\\let'\\textquotesingle
-    \\let`\\textasciigrave
-    \\ifx\\encodingdefault\\upquote@OTone
-    \\ifx\\ttdefault\\upquote@cmtt
-    \\def'{\\char13 }%
-    \\def`{\\char18 }%
-    \\fi\\fi}
-\\endgroup
-\\endinput
-%% End of file `upquote.sty'.
-")) "
-The file 'upquote.sty'.
+When editing this with `customize', use
+`electric-newline-and-maybe-indent' for carraige return."
+  :type '(string)
+  :group 'mp
+  :group 'mp-skeleton-string)
 
-This is given in the form (KEY . VALUE) where VALUE is a string. If any KEY is t and if no such file is found in the `default-directory', the first value which is t will be included in the working directory as 'upquote.sty'.
+(defun mp-org-to-tex ()
+  "Convert `mp-fnb'.org to `mp-fnb'.tex."
+  (mp-file-display (concat mp-fnb ".org"))
+  (mp-ox-settings)
+  (let ((ess-ask-for-ess-directory nil))
+    (org-latex-export-to-latex))
+  (kill-buffer)
+  (delete-window)
+  (let ((kill-buffer-query-functions nil))
+    (kill-buffer "*org-R-session*")))
 
-This variable is used by `mp-nw-tex'.
-This is favored by 'knitr' and 'Sweave' to improving code display.
+(defun mp-ox-settings ()
+  "Set export settings for `org-mode'.
+All variables are set as buffer-only (see `make-local-variable').
 
-When editing this with `customize', Use 'C-j' for (carraige) return/ newline."
-:group 'mp
-:group 'mp-files
-:type '(alist
-	:key-type (boolean :tag "Activate" :value nil)
-	:value-type (string :format "%v" :value "")))
+Adds support for 'R', 'latex' and 'emacs-lisp' to
+`org-babel-load-languages'.
+Sets the following to nil:
+ - `org-confirm-babel-evaluate'
+ - `org-latex-with-hyperref'
+ - `org-latex-table-caption-above'.
+Sets `org-latex-listings' to t.
+Adds 'listings' and 'color' to `org-latex-packages-alist'."
+  ;; org-export latex + org-babel language support
+  (mapc #'require
+	'(ox-latex ob-R ob-emacs-lisp ob-latex))
+  (set 'org-startup-folded nil)
+  (set 'org-latex-table-caption-above nil)
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((R . t) (latex . t) (emacs-lisp . t)))
+  (set (make-local-variable
+	'org-confirm-babel-evaluate) nil)
+  (set (make-local-variable
+	'org-latex-with-hyperref) nil)
+  (set (make-local-variable
+	'org-latex-listings) t)
+  (add-to-list 'org-latex-packages-alist
+	       '("" "listings"))
+  (add-to-list 'org-latex-packages-alist
+	       '("" "color")))
 
+(defun mp-tex-to-pdf ()
+  "Convert .tex to .pdf."
+  ;; TODO consider add (mp-update-latex)
+  (let ((b1 (concat mp-fnb ".bib"))
+	(t1 (concat mp-fnb ".tex")))
+    (when (string-match-p
+	   (regexp-quote b1)
+	   (format "%s" (buffer-list)))
+      (with-current-buffer b1
+	(save-buffer)
+	(bibtex-validate)))
+    (when (or (equalp "Org" (cdr mp-entwiner))
+	      (equalp "Sweave" (cdr mp-entwiner)))
+      (mp-file-display t1)
+      (save-excursion
+	(goto-char (point-min))
+	(while (search-forward-regexp
+		;; match up to first curly bracket {
+		"^\\\\includegraphics[^{]*" nil t)
+	  (replace-match "\\\\includepdf[pages=-, width=0.9\\\\linewidth]")))
+      (save-buffer)
+      (kill-buffer-and-window)))
+  (mp-latexmk))
 
+(defun mp-exit (STRING)
+  "Exit 'mp' in case of error.
+The `message' STRING takes the place of a call to `warn'.
+`kill-buffer' is called on any buffers generated during the process."
+  (let ((b1 (current-buffer)))
+    (pop-to-buffer b1))
+    (when mp-clean
+      (mp-clean))
+    (balance-windows)
+    (message STRING))
 
-(defcustom mp-package-attributes
-  '(Filename Copyright Author Maintainer
-	     Created Version
-	     Keywords
-	     Homepage Package-Version Package-Requires
-	     License URL
-	     Doc Keywords Compatibility) "
-Keywords to search for in the initial comments of a package in an .el file.
+(defun mp-view-pdf ()
+  "View pdf with `mp-pdf-viewer'."
+  (if (equalp "DocView" mp-pdf-viewer)
+      (progn
+	(pop-to-buffer "*make-pdf*")
+	(erase-buffer)
+	(insert-file-contents (concat mp-fnb ".pdf"))
+	(doc-view-mode))
+    (mp-shell-sentinel "mp-view-pdf")))
 
-These are used by `mp-el-tex'.
+(defcustom mp-pdf-viewer "DocView"
+  "Method used to view a .pdf file.
+On Linux, this defaults to `doc-view-mode'.
+Otherwise, this is the `shell-command' to view a .pdf file.
+\(If so, this command should be an executable found on
+ the `exec-path').
 
-These are all read to the `end-of-line'."
-	     :group 'mp
-	     :type '(sexp))
+This value is used by the functions
+ `mp-latex-pdf' and `mp-latexmk'.
 
+Some useful URLs for downloads are given in the `custmomize' help."
+  :type
+  '(radio (const :doc "Default on Linux. Part of GNU Emacs."
+		 "DocView")
+	  (const :doc "Default on Windows. Cross platform."
+		 "evince")
+	  (const :doc "Alternative for Windows."
+		 "sumatrapdf")
+	  (const :doc "Good for Linux/Ubuntu."
+		 "xpdf")
+	  (const :doc "Adobe Acrobat Reader."
+		 "acrord32")
+	  (string :tag "Enter an alternative program here."
+		  ""))
+  :link '(url-link
+	  :tag "DocView"
+	  "http://www.gnu.org/software/emacs/manual/html_node/emacs/Document-View.html")
+  :link '(url-link
+	  :tag "evince"
+	  "http://wiki.gnome.org/Apps/Evince")
+  :link '(url-link
+	  :tag "sumatra"
+	  "http://www.sumatrapdfreader.org/free-pdf-reader.html")
+  :link '(url-link
+	  :tag "xpdf"
+	  "http://www.foolabs.com/xpdf/")
+  :link '(url-link
+	  :tag "Adobe Acrobat Reader"
+	  "http://get.adobe.com/reader/")
+  :group 'mp)
 
+(defun mp-chunks-read ()
+  "Read a `list' of chunks of R code.
+Overwrite `mp-chunks' with these new values.
+Ensure no duplicate names with `mp-chunk-name-duplicates'.
+Return `mp-chunks'."
+  ;; (mp-chunk-set-adfixes) is called by (mp-file-display)
+  (mp-chunk-set-adfixes)
+  ;; cnp1 = chunk name prefix
+  ;; cfp1 = chunk format prefix
+  ;; ccs1 = chunk content suffix
+  (let ((cnp1
+	 (concat "^" (regexp-quote mp-chunk-name-prefix)))
+	(cfp1 (if (string-match "," mp-chunk-format-prefix)
+		  ;; match up to first comma
+		  (concat "^[^,]+,")
+		(regexp-quote mp-chunk-format-prefix)))
+	(ccs1 (if mp-chunk-content-suffix
+		  (concat
+		   "^" (regexp-quote mp-chunk-content-suffix))
+		nil))
+	(name1 "")
+	(format1 "")
+	(beg1 0)
+	(end1 0)
+	(content1 ""))
+    (setq mp-chunks '())
+    (save-excursion
+      (goto-char (point-min))
+      (while (search-forward-regexp cnp1 nil t)
+	;; format is on the line below the name in .org files
+	(setq end1 (if (equalp "org" mp-fne)
+		       2
+		     1))
+	(forward-line 0)
+	;; name and format
+	(if (save-excursion
+	      (search-forward-regexp
+	       cfp1 (line-end-position end1) t))
+	    (setq beg1 (save-excursion
+			 (search-forward-regexp cnp1 nil t))
+		  end1 (search-forward-regexp
+			cfp1 (line-end-position end1) t)
+		  ;; end1 (+ 1 (search-backward-regexp cfp1))
+		  name1 (string-trim
+			 (buffer-substring-no-properties
+			  beg1
+			  (- end1
+			     (- (length mp-chunk-format-prefix) 1))))
+		  format1 (string-trim
+			   (buffer-substring-no-properties
+			    end1
+			    (- (line-end-position)
+			       (length mp-chunk-name-suffix)))))
+	  (setq name1 (buffer-substring-no-properties
+		       (search-forward-regexp cnp1 nil t)
+		       (- (line-end-position)
+			  (length mp-chunk-name-suffix)))
+		format1 ""))
+	;; content
+	(beginning-of-line 2)
+	(setq content1
+	      (if (looking-at cnp1)
+		  ""
+		(progn
+		  (setq beg1 (point)
+			end1 (cond ((and ccs1
+					 (not (equalp "R" mp-fne)))
+				    (- (search-forward-regexp 
+					ccs1 nil t) 
+ 				       (length mp-chunk-content-suffix)))
+				   ((save-excursion
+				      (search-forward-regexp 
+				       cnp1 nil t))
+				    (- (save-excursion
+					 (search-forward-regexp 
+					  cnp1 nil t))
+				       (length cnp1)))
+				   (t (point-max))))
+		  (buffer-substring-no-properties
+		   beg1 end1))))
+	(push (list name1 format1 content1) mp-chunks))))
+  (setq mp-chunks (nreverse mp-chunks))
+  (unless (mp-chunk-name-duplicates (mapcar #'car mp-chunks))
+    mp-chunks))
 
-(defun mp-el-tex (&optional INCLUDESOURCE FILENAME) "
-Generate a .tex file from a .el file containing a package.
+(defun mp-chunk-name-duplicates (LIST)
+    "Return nil when LIST has no duplicates.
+Otherise, call `mp-exit'."
+    (let ((unique1 (remove-duplicates LIST :test #'string-equal)))
+      (if (eq LIST unique1)
+	  nil
+	(mp-exit "Chunk names are not all unique"))))
 
-If INCLUDESOURCE is non nil, the source code for the functions and the default values of the variables in the package are included also.
+(defun mp-update-entwiner-from-R ()
+  "Make a new entwiner from the corresponding .R file.
+This is done using `mp-chunks'."
+  (mp-file-display (concat mp-fnb ".R"))
+  (mp-chunks-read)
+  (delete-file
+   (concat mp-fnb "." (car mp-entwiner)) t)
+  (mp-entwiner-new))
 
-The keywords to identify in the package preamble are given in `mp-el-package-attributes'.
+(defun mp-update-R-from-entwiner ()
+    "Make a new .R file from the corresponding entwiner file.
+This is done using `mp-chunks'."
+  (mp-file-display (concat mp-fnb "." (car mp-entwiner)))
+  (mp-chunks-read)
+  (delete-file
+   (concat mp-fnb ".R") t)
+  (mp-R-new))
 
-It is designed for packages which are contained completely in one file."
-       (interactive
-	(list (y-or-n-p "Include source? ")
-	      (read-file-name "File name? ")))
-       (unless FILENAME
-	 (setq FILENAME (mp-get-file "" "el")))
-       (unless (or
-		INCLUDESOURCE
-		(equal INCLUDESOURCE ""))
-	 (setq INCLUDESOURCE t))
-       (let (preamble1 font1)
-	 (set 'preamble1 mp-preamble)
-       (setq preamble1 (assq-delete-all nil preamble1))
-       (when (string= mp-latex "pdflatex")
-	 (set 'font1 mp-latex-font)
-	 (setq font1 (rassq-delete-all nil font1)))
-       (unless (string= mp-latex "pdflatex")
-	 (set 'font1 mp-xetex-font)
-	  (setq font1 (rassq-delete-all nil font1)))
-       (message "mp-el-tex...")
-       (let* (beg1 end1 r1 elem1
-		   (l0 '())
-		   (l1 '())
-		   (fileStem (file-name-sans-extension
-			      (file-name-nondirectory
-			       FILENAME))))
-	 (defun fun1 (KEYWORD)
-	   ;; r1 = regexp at start of line
-	   (set 'r1
-		(concat
-		 "^."
-		 (substring (symbol-name KEYWORD) 1)
-		 ":?"))
-	   (save-excursion
-	     (set 'elem1
-		  (search-forward-regexp r1 nil t))
-	     (when elem1
-	       (set 'beg1 (point))
-	       (end-of-line)
-	       (set 'end1 (point))
-	       (set 'elem1
-		    (buffer-substring-no-properties
-		     beg1 end1))))
-	   ;; use cons here to make an alist
-	   (add-to-list 'l0 (cons KEYWORD elem1) t))
-	 ;; read keywords + commentary
-	 (goto-char (point-min))
-	 (save-excursion
-	   (goto-char (point-min))
-	   (set 'beg1 (point))
-	   (forward-comment (buffer-size))
-	   (set 'end1 (point))
-	   (set 'elem1
-		(buffer-substring-no-properties beg1 end1)))
-	 (when elem1
-	   (with-temp-buffer
-	     (insert elem1)
-	     (goto-char (point-min))
-	     (save-excursion
-	       (while (re-search-forward ";;" nil t)
-		 (replace-match "" nil nil)))
-	     (set 'case-fold-search nil)
-	     (mapc 'fun1 mp-package-attributes)
-	     (save-excursion
-	       (when
-		   (search-forward-regexp
-		    ";;;###autoload" nil t)
-		 (add-to-list 'l0 (cons 'autoload "TRUE") t)))
-	       (search-forward-regexp "[cC]ommentary:?" nil t)
-	       (set 'beg1 (point))
-	       (search-forward "Code" nil t)
-	       (beginning-of-line -2)
-	       (set 'end1 (point))
-	       (set 'elem1
-		    (buffer-substring-no-properties beg1 end1))
-	       (set 'elem1
-		    (replace-regexp-in-string
-		     ";; " "\newline " elem1))
-	       (add-to-list 'l0 (cons
-				 'Commentary
-				 elem1) t)
-	       (set 'l0 (rassq-delete-all nil l0)))
-	     l0)
-	 ;; read symbolic-expressions
-	 (while (not (= (point) (point-max)))
-	   (forward-sexp)
-	   (save-excursion
-	     (set 'beg1 (point))
-	     (set 'elem1 (sexp-at-point))
-	     (add-to-list
-	      'l1
-	      (cons
-	       (car elem1) elem1) t)))
-	 (find-file
-	  (concat fileStem ".org"))
-	 (erase-buffer)
-	 (defun fun2 (STRING)
-	   (let (list1)
-	     (set 'list1 (split-string STRING "\n"))
-	     (mapc
-	      (lambda (x)
-		(insert
-		 (format "#+LATEX_HEADER: %s \n" x)))
-	      list1)))
-	 (let (head1)
-	   (set 'head1
-		(mapconcat
-		 (lambda (x)
-		   (when (equal 'org (cadr x))
-		     (cddr x)))
-		 preamble1 "\n"))
-	   (fun2 head1)
-	   (set 'head1
-		(mapconcat
-		 (lambda (x)
-		   (when (equal 'all (cadr x))
-		     (cddr x)))
-		 preamble1 "\n"))
-	   (fun2 head1))
-	   (if (string= mp-latex "pdflatex")
-	       (mapc (lambda (x) (fun2 (car x))) font1)
-	     (mapc (lambda (x) (fun2 (car x))) font1))
-	 ;;
-	 (insert "\n")
-	 ;; insert keywords
-	 (when l0
-	   (insert "\n\n")
-	   (insert "* Package Attributes\n\n")
-	   (mapc
-	    (lambda (x)
-	      (insert
-	       (concat " - *" (symbol-name (car x)) "* : "))
-	      (insert
-	       (concat (cdr x) "\n"))
-	      (insert "\n"))
-	    l0)
-	   (insert "\n"))
-	 ;; insert elements
-	 (setq l1 (sort l1 'equal))
-	 (when (assoc 'defgroup l1)
-	   (insert "\n* Groups\n\n")
-	   (mapc
-	    (lambda (x)
-	      (when (eq 'defgroup (car x))
-		(insert (concat
-			 "** "
-			 (symbol-name (nth 1 (cdr x)))
-			 "\n\n"))
-		(insert
-		 (documentation-property
-		  (eval (cdr x))
-		  'group-documentation))
-		(insert "\n\n")))
-	    l1)
-	   (set 'l1 (assq-delete-all 'defgroup l1)))
-	 (when (assoc 'defun l1)
-	   (insert "\n* Functions\n\n")
-	   (mapc
-	    (lambda (x)
-	      (when (eq 'defun (car x))
-		(insert (concat
-			 "** "
-			 (symbol-name (nth 1 (cdr x)))))
-		(insert
-		 (concat
-		  "  /"
-		  (prin1-to-string
-		   (help-function-arglist
-		    (eval (cdr x))))
-		  "/ \n\n"))
-		(insert
-		 (concat
-		  "*Documentation*: "
-		  (documentation
-		   (eval (cdr x)) t)
-		  "\n\n"))
-		(when INCLUDESOURCE
-		  (insert "\n#+begin_src lisp \n")
-		  (set 'elem1 (indirect-function (cdr x)))
-		  (pop elem1)
-		  (pop elem1)
-		  (pop elem1)
-		  (while elem1
-		    (set 'r1 (pop elem1))
-		    (when (eq 'cons (type-of r1))
-		      (insert
-		       (concat (pp r1) "\n"))))
-		  (insert "\n#+end_src \n\n"))))
-	    l1)
-	   (set 'l1 (assq-delete-all 'defun l1)))
-	 (when (assoc 'defcustom l1)
-	   (insert "\n* Variables (customizable)\n\n")
-	   (mapc
-	    (lambda (x)
-	      (when (eq 'defcustom (car x))
-		(insert (concat "** "
-				(symbol-name (nth 1 (cdr x)))
-				"\n\n"))
-		(when (set 'elem1
-			   (documentation-property
-			    (eval (cdr x))
-			    'variable-documentation t))
-		  (insert "*Documentation*: \n")
-		  (insert (concat elem1 "\n\n")))
-		(when INCLUDESOURCE
-		  (defun fun3 (STRING)
-		    (insert (format "\n%s" STRING)))
-		  (when (set 'elem1
-			     (get (nth 1 (cdr x))
-				  'standard-value))
-		    (insert "*Standard value*:\n")
-		    (insert "#+begin_src lisp \n")
-		    (insert (format "%s" elem1))
-		    (insert "\n#+end_src \n"))
-		  (when (set 'elem1
-			     (get (nth 1 (cdr x))
-				  'custom-type))
-		    (insert "*Type*:\n")
-		    (insert "#+begin_src TeX")
-		    (if (sequencep elem1)
-			(mapcar
-			 (lambda (x) (fun3 x))
-			 elem1)
-		      (fun3 elem1))
-		    (insert "\n#+end_src \n"))
-		  (when (set 'elem1
-			     (get (nth 1 (cdr x))
-				  'custom-options))
-		    (insert "*Options*:\n")
-		    (insert "#+begin_src lisp")
-		    (if (sequencep elem1)
-			(mapcar
-			 (lambda (x) (fun3 x))
-			 elem1)
-		      (fun3 elem1))
-		    (insert "\n#+end_src \n"))
-		  (when (set 'elem1
-			     (get (nth 1 (cdr x))
-				  'custom-links))
-		    (insert "*Links*:\n")
-		    (mapc
-		     (lambda (x1)
-		       (if (set 'r1 (member :tag x1))
-			   (insert (concat
-				    "[["
-				    (car (last r1))
-				    "][" (cadr r1) "]]\n\n"))
-			 (insert (concat "[["
-					 car (last x1)
-					 "]]\n\n"))))
-		     elem1)))))
-	    l1)
-	   (set 'l1 (assq-delete-all 'defcustom l1)))
-	 (when (assoc 'defvar l1)
-	   (insert "\n* Variables\n")
-	   (mapc
-	    (lambda (x)
-	      (when (eq 'defvar (car x))
-		(insert (concat "\n** "
-				(symbol-name (nth 1 (cdr x)))
-				"\n"))
-		(insert "\n")
-		(when (set 'elem1
-			   (documentation-property
-			    (eval (cdr x))
-			    'variable-documentation t))
-		  (insert (concat
-			   "*Documentation*:\n"
-			   elem1 "\n\n")))))
-	    l1)
-	   (setq l1 (assq-delete-all 'defvar l1))
-	   (insert "\n"))
-	 (when l1
-	   (setq l1 (sort l1 'equal))
-	   (insert "\n* Additional code\n")
-	   (mapc
-	    (lambda (x)
-	      (unless (equal nil (cdr x))
-		(insert (concat "\n** *"
-				(prin1-to-string (car x))
-				"*\n"))
-		(insert
-		 (format
-		  "
-#+begin_src lisp
-%S
-#+end_src" (cdr x)))))
-	    l1))
-	 (save-buffer)
-	 (mp-ox-settings)
-	 (message "mp-el-tex...done")
-	 (mp-org-tex (concat fileStem ".org")))))
+(defun mp-mp ()
+  "'Entwine' the files in `mp-dd' to produce a .pdf.
+Calls `save-buffer'.
+The value of `mp-dd' is set with `mp-set-mp-dd'.
+Then call `mp-run'."
+  (interactive)
+  (save-buffer)
+  (mp-set-mp-dd)
+  (mp-initialize)
+  (if mp-fn
+      (setq mp-fn (call-interactively #'mp-file-confirm)
+	    mp-fnb (file-name-base mp-fn)
+	    mp-fne (file-name-extension mp-fn)) 
+    (setq mp-fnb (file-name-base (directory-file-name mp-dd))
+	  mp-fne "R"))
+  (mp-run mp-fne))
 
+(defcustom mp-clean nil
+  "Non-nil means call the function `mp-clean' during `mp-exit'."
+  :type '(radio (const
+		 :doc "Do not clean files on exit"
+		 :value nil)
+		(const
+		 :doc "Clean files on exit"
+		 :value t))
+  :group 'mp
+  :group 'mp-common)
 
+(defun mp-clean ()
+  "Delete files in `mp-dd' which have `mp-clean-extensions'.
+Also delete files/ subdirectories given in `mp-clean-others'."
+  (interactive)
+  (when (equalp "" mp-dd)
+    (mp-set-mp-dd))
+  (let ((bl1 (buffer-list))
+	(revert1 '("*Buffer-list*" "*Ibuffer*"
+		   (file-name-nondirectory
+		    (directory-file-name mp-dd))))
+	(b1 (current-buffer)))
+  (dolist (x bl1)
+    (when (and
+	    (equalp mp-fnb (file-name-base (buffer-name x)))
+	    (member
+	     (file-name-extension (buffer-name x))
+	     mp-clean-extensions))
+      (kill-buffer x)
+      (delete-window)))
+  (dolist (x mp-clean-extensions)
+    (mapc #'delete-file
+	  (file-name-all-completions
+	   (concat mp-fnb "." x)
+	   mp-dd)))
+  (dolist (x mp-clean-others)
+    (when (member x (directory-files mp-dd))
+      (if (file-directory-p x)
+	  (delete-directory x t)
+	(delete-file x))))
+  (setq bl1 (mapcar #'buffer-name (buffer-list)))
+  (dolist (x revert1)
+     (when (member x bl1)
+       (with-current-buffer x
+	 (revert-buffer))))))
+
+(defcustom mp-clean-extensions
+  '("Rnw" "org" "Rmd" "aux" "bbl" "blg" "fdb_latexmk"
+    "fls" "log" "out" "toc")
+  "File extensions to be deleted from the `mp-dd'.
+The corresponding buffers are also killed, if applicable.
+This value is used by `mp-clean'.
+See also the functions `delete-file', `file-name-extension'."
+  :type '(repeat (string :tag "file extension"))
+  :group 'mp)
+
+(defcustom mp-clean-others
+  '("knit.R" ".latexmkrc" "auto" ".Rhistory")
+  "Files (and/or directories) to be deleted from `mp-dd'.
+This value is used by `mp-clean'."
+  :type '(repeat (string))
+  :group 'mp)
+
+(defun mp-file-confirm (&optional DEFAULT)
+  "Confirm `mp-fn' as the one to start the mp process. 
+When DEFAULT is true, this is the most recently active file.
+When called interactively, user has the option to enter a file name
+\(base, extension, or both).
+If none is given, defaults to the current file  or
+the most recently active file in the `default-directory'.
+Calls `mp-find-file-name'."
+  (interactive
+   (list (y-or-n-p-with-timeout
+	  (concat "Use default (" mp-fn ") ? ")
+	  mp-timeout t)))
+  (if DEFAULT
+      mp-fn
+    (call-interactively #'mp-file-choose)))
+
+(defun mp-file-choose (&optional FILE)
+  "Confirm FILE as the one to start the mp process.
+By default the most recently active file.
+When called interactively, user has the option to enter a file name"
+  (interactive)
+  (let ((f1 mp-fn))
+    (setq f1
+	  (prin1
+	   ;; (completing-read PROMPT COLLECTION &optional
+	   ;; PREDICATE REQUIRE-MATCH INITIAL-INPUT HIST DEF
+	   ;; INHERIT-INPUT-METHOD KEYMAP)
+	   (completing-read "Filename: " mp-df nil t nil nil mp-fn)))
+    (message (concat
+	      "Filename "
+	      (if (equalp f1 mp-fn)
+		  "unchanged : "
+		"changed to : ")
+	      f1))
+    (setq mp-fn f1)))
+
+(defvar mp-minor-mode-map nil
+  ;; (let ((map1 (make-sparse-keymap)))
+  ;;   (if (fboundp 'read-kbd-macro)
+  ;; 	(define-key map1 (read-kbd-macro "C-M-|") 'mp-mp)
+  ;;     (define-key map1 [(control meta ?|)] 'mp-mp))
+  ;;   map1)
+  "The keymap for the 'mp' minor mode.")
+
+(define-minor-mode mp-minor-mode
+  "Define the 'mp' minor mode (mp = make pdf).
+'Mp' is a global minor mode.
+It's LIGHTER (displayed on the mode line) is ' mp '."
+  t " mp " mp-minor-mode-map
+  (message "mp minor mode toggled")
+  :group 'mp
+  :global t
+  :version 0.2)
+
+(defun mp-customize-common ()
+  "View/set common options for the 'mp' package.
+\(Those the user is most likely to wish to change).
+Opens help window.
+Cutomization buffers are overlaid in this window.
+
+These windows are overlaid.
+Use 'q' to kill each of these new buffers
+\(i.e. run `quit-window' then `bury-buffer').
+
+See also the group `mp-common' and the function `mp-customize-all'."
+  (interactive)
+  (dolist (x (get 'mp-common 'custom-group))
+    (cond ((eq (cadr x) 'custom-face)
+	   (customize-face (car x)))
+	  ((eq (cadr x) 'custom-variable)
+	   (customize-option (car x)))
+	  ((eq (cadr x) 'custom-group)
+	   (customize-group (car x))))))
+
+(defgroup mp-skeleton-string nil
+  "These are strings used by a corresponding `define-skeleton'.
+See also `skeleton-insert'.
+This group is part of `mp'."
+  :group 'mp)
+
+(defun mp-customize-skeleton-string ()
+  "View/set skeleton strings for the 'mp' package.
+Opens help window.
+Cutomization buffers are overlaid in this window.
+
+These windows are overlaid.
+Use 'q' to kill each of these new buffers
+\(which calls `quit-window' then `bury-buffer').
+
+See also
+- the function `mp-customize-common'
+- the output from the command '(customize-group 'mp)'"
+  (interactive)
+  (dolist (x (get 'mp-skeleton-string 'custom-group))
+    (cond ((eq (cadr x) 'custom-variable)
+	   (customize-option (car x)))
+	  ((eq (cadr x) 'custom-group)
+	   (customize-group (car x))))))
+
+(defun mp-customize-all ()
+  "View/set all options for the 'mp' package.
+Opens help window.
+Cutomization buffers are overlaid in this window.
+
+These windows are overlaid.
+Use 'q' to kill each of these new buffers
+\(which calls run `quit-window' then `bury-buffer').
+
+See also
+- the function `mp-customize-common'
+- the output from the command '(customize-group 'mp)'"
+  (interactive)
+  (dolist (x (get 'mp 'custom-group))
+    (cond ((eq (cadr x) 'custom-face)
+	   (customize-face (car x)))
+	  ((eq (cadr x) 'custom-variable)
+	   (customize-option (car x)))
+	  ((eq (cadr x) 'custom-group)
+	   (customize-group (car x))))))
+
+(defun mp-chunk-new ()
+  "Insert a new chunk.
+Calls `mp-chunk-set-adfixes' to set these correctly."
+  (interactive)
+  (mp-chunk-set-adfixes)
+  (let ((cf1 (mp-chunk-format)))
+    (insert mp-chunk-name-prefix)
+    (save-excursion
+      (insert
+       (concat
+	mp-chunk-format-prefix
+	cf1
+	mp-chunk-name-suffix))
+      (unless (looking-at "\n")
+	(insert "\n"))
+      (when mp-chunk-content-suffix
+	(insert
+	 (concat "\n" mp-chunk-content-suffix))))))
+  
+(define-skeleton mp-tex-skeleton
+  "Generate a .tex file."
+  nil
+  '(mp-doc-class-tex-skeleton)
+   '(mp-preabmle-tex-skeleton)
+   \n
+   '(mp-tex-title-skeleton)
+   '(when mp-bib
+     (mp-insert-bib))
+   \n
+    '(goto-char (buffer-end 1))
+    '(mp-tex-end-skeleton))
+
+(defun mp-tex-new ()
+  "Make an .tex file.
+The format depends, in part, in the value of `mp-entwiner'.
+Calls `mp-set-mp-dd' and `mp-tex-skeleton'.
+This is a 'standalone' function i.e. not called in the
+usual sequence following `mp-mp'."
+  (interactive)
+  (setq mp-fnb ""
+	mp-fne (car mp-entwiner))
+  (mp-set-mp-dd)
+  (mp-file-display (concat mp-fnb ".tex"))
+  (erase-buffer)
+  (mp-tex-skeleton)
+  (when mp-bib
+    (mp-bib))
+  (save-buffer))
 
 (provide 'mp)
 
