@@ -1,0 +1,3555 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html401/loose.dtd">
+<html>
+<!-- This manual is for mp, version 0.2
+Copyright C 2018-2022 - Chris Dardis
+
+
+
+ -->
+<!-- Created on January 4, 2022 by texi2html 1.82
+texi2html was written by: 
+            Lionel Cons <Lionel.Cons@cern.ch> (original author)
+            Karl Berry  <karl@freefriends.org>
+            Olaf Bachmann <obachman@mathematik.uni-kl.de>
+            and many others.
+Maintained by: Many creative people.
+Send bugs and suggestions to <texi2html-bug@nongnu.org>
+-->
+<head>
+<title>mp 0.2</title>
+
+<meta name="description" content="mp 0.2">
+<meta name="keywords" content="mp 0.2">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="texi2html 1.82">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+<!--
+a.summary-letter {text-decoration: none}
+blockquote.smallquotation {font-size: smaller}
+pre.display {font-family: serif}
+pre.format {font-family: serif}
+pre.menu-comment {font-family: serif}
+pre.menu-preformatted {font-family: serif}
+pre.smalldisplay {font-family: serif; font-size: smaller}
+pre.smallexample {font-size: smaller}
+pre.smallformat {font-family: serif; font-size: smaller}
+pre.smalllisp {font-size: smaller}
+span.roman {font-family:serif; font-weight:normal;}
+span.sansserif {font-family:sans-serif; font-weight:normal;}
+ul.toc {list-style: none}
+-->
+</style>
+
+
+</head>
+
+<body lang="en" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
+
+<a name="Top"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_Contents" title="Table of contents">Contents</a>]</td>
+<td valign="middle" align="left">[<a href="#Index" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<a name="mp"></a>
+<h1 class="settitle">mp</h1>
+<p>This manual is for mp version 0.2, January  3, 2022
+</p>
+<table class="menu" border="0" cellspacing="0">
+<tr><td align="left" valign="top"><a href="#Preamble">1. Preamble</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+</td></tr>
+<tr><td align="left" valign="top"><a href="#defgroup">2. defgroup</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+</td></tr>
+<tr><td align="left" valign="top"><a href="#defun">3. defun</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+</td></tr>
+<tr><td align="left" valign="top"><a href="#defcustom">4. defcustom</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+</td></tr>
+<tr><td align="left" valign="top"><a href="#defvar">5. defvar</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+</td></tr>
+<tr><td align="left" valign="top"><a href="#defconst">6. defconst</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+</td></tr>
+<tr><td align="left" valign="top"><a href="#defvar_002dlocal">7. defvar-local</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+</td></tr>
+<tr><td align="left" valign="top"><a href="#Other-symbolic-expressions">8. Other symbolic expressions</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+</td></tr>
+<tr><td align="left" valign="top"><a href="#Index">Index</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+</td></tr>
+<tr><th colspan="3" align="left" valign="top"><pre class="menu-comment">
+</pre></th></tr></table>
+
+<hr size="1">
+<a name="Preamble"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#Top" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#defgroup" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#Top" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#Top" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#defgroup" title="Next chapter"> &gt;&gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_Contents" title="Table of contents">Contents</a>]</td>
+<td valign="middle" align="left">[<a href="#Index" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<a name="Preamble-1"></a>
+<h1 class="chapter">1. Preamble</h1>
+<a name="index-Preamble"></a>
+
+<p><code>lexical binding</code> is <code>t</code>.<br>
+<strong>Copyright</strong>: 2018-2022 - Chris Dardis <br>
+<strong>Author</strong>: C. Dardis &lt;christopherdardis@gmail.com&gt; <br>
+<strong>URL</strong>: <a href="http://github.com/dardisco/mp">http://github.com/dardisco/mp</a> <br>
+<strong>Version</strong>: 0.2 <br>
+<strong>Keywords</strong>: R, Sweave, knitr, latex, noweb, org <br>
+<strong>Package-Requires</strong>: ((ess) (org) (org-element) (tex)) <br>
+<strong>Commentary</strong>: Makes a pdf from the materials in the &lsquo;default-directory&rsquo;
+ (or will search up the directory tree for
+  the appropriate file type).
+</p>
+<p> These may include .R, .tex, .Rnw, .org, .Rmd and .bib files.
+ Support is provided for indexes, glossaries and table of contents.
+</p> 
+<p> Installation:
+</p>
+<p> This package can be installed using
+</p>
+<p> (package-install-from-file &quot;/path/to/mp.el&quot;)
+</p>
+<p> Or place the folliwng in your init.el file
+</p>
+<p> (add-to-list &rsquo;load-path &quot;~/path/to/directory&quot;)
+ (require &rsquo;mp)
+</p>
+<p> Usage:
+</p>
+<p> To generate a .pdf file use the &lsquo;mp-mp&rsquo; command.
+     &lsquo;M-x mp-mp RET&rsquo;
+ This command can be called within the directory used to produce
+ the .pdf. It can also be called from one of the files used to
+ produce the .pdf. In the latter case, the file will first be
+ saved if there are any changes.
+</p>
+<p> There are a number of addition commands which you may wish
+ to call independently:
+ - &lsquo;mp-customize-common&rsquo; - Set common customizable variables
+ - &lsquo;mp-example&rsquo; - Generate an example .pdf
+ - &lsquo;mp-custom-example&rsquo; - Call both commands above, in sequence
+ - &lsquo;mp-customize-all&rsquo; - Set all customizable variables
+ - &lsquo;mp-customize-skeleton-string&rsquo; - Set all customizable
+     skeleton strings for the package (strings used by skeletons)
+ - &lsquo;mp-clean&rsquo; - Delete files in which have &lsquo;mp-clean-extensions&rsquo;
+ - &lsquo;mp-tex-new&rsquo; - Make a new .tex file
+ - &lsquo;mp-chunk-new&rsquo; - Insert a new chunk
+</p>
+<p> You may wish to define a shortcut for calling
+  &lsquo;mp-chunk-new&rsquo;.
+ &lsquo;f8&rsquo; is suggested as there are 8 characters in these prefixes.
+ That is, &quot;## &mdash;- &quot; is 8 characters in length.
+ The prefixes follow the conventions established by knitr.
+ If so, also place something like this in your init.el file:
+ &ldquo;&lsquo;
+ (global-set-key
+  (kbd &quot;&lt;f8&gt;&quot;)
+  (lambda ()
+    (interactive)
+    (mp-chunk-new)))
+ &ldquo;&lsquo;   
+</p>  
+<p> or, for example, if using ESS and &lsquo;bind-key&rsquo;:
+</p> 
+<p> &ldquo;&lsquo;
+ (bind-key
+  (kbd &quot;&lt;f8&gt;&quot;)
+  (lambda ()
+    (interactive)
+    (mp-chunk-new))
+  ess-mode-map)
+ &ldquo;&lsquo;
+</p>
+<p> Details:
+</p>
+<p> The purpose of &lsquo;mp-mp&rsquo; is to move from an R file or an
+ intermediary file (.Rnw, .Rmd, .org, .bib, .tex) to a .pdf
+ with a single command. This is done by selecting an entwiner
+ (named after the conventions of &rsquo;weaving&rsquo; with Sweave or &rsquo;knitting&rsquo;
+ with knitr; the default is knitr).
+</p>
+<p> The simplest way to see this in action is to call &lsquo;mp-example&rsquo;.
+ This will generate a new directory in the current
+ &lsquo;default-directory&rsquo; for the files used to generate the final .pdf.
+ This may also be a good way to start a new project.
+</p> 
+<p> Assuming we start with an .R file, &lsquo;mp-mp&rsquo; generates an
+ intermediary file, as appropriate, then uses the entwiner to
+ generate a .tex file from the intermediary, then uses latexmk
+ to generate a .pdf from the .tex file, which is then displayed.
+</p> 
+<p> Alternatively, we may start with an intermediary e.g. a .Rnw file.
+ A .R file is generated from this before making the .tex file,
+ as above.
+ We may also start directly with a .tex file. In this case,
+ no intermediary or .R file is created; we proceed directly
+ to .pdf. Similarly in the case of a .bib file. Note that
+ a .pdf will *not* be generated from a .bib file without a
+ corresponding .tex file in the same directory.
+</p>
+<p> Output from the various steps in compiling the .pdf appears in
+ the &rsquo;*make-pdf*&rsquo; buffer, which (by default) will by used to
+ display the .pdf once complete. Alternative .pdf viewers are
+ supported. If another viewer is used, this output will remain
+ visible in the &rsquo;*make-pdf*&rsquo; buffer.
+</p>
+<p> Note that all code in the .R file is run via Rscript, to ensure
+ there are no errors with this and in case this modifies another
+ file in the workign directory e.g. a .bib file as is the case
+ when running &lsquo;mp-example&rsquo;.
+</p>
+<p> Updating R code chunks:
+</p>
+<p> An advantage of &lsquo;mp-mp&rsquo; is that code can be updated in either
+ the .R file or the intermediary. Whichever has been more recently
+ modified will be used as the source and the other as the destination.
+ This allows for editing of code in either the .R file or the
+ intermediary.
+</p>
+<p> That is, when &lsquo;mp-mp&rsquo; is called from an .R file or an intermediary,
+ a corresponding .R or intermediary will be created or
+ updated, as appropriate.
+</p>
+<p> This starts by reading the chunks from the working file.
+ This is the buffer currently open (if it has unsaved changes).
+ This will be an .R file, or an entwiner file (.Rnw, .Rmd, .org).
+</p>
+<p> For example, when working with an .R file, if there is *no*
+ entwiner file (.Rnw, .org) with the same file name prefix in
+ the same directory, this file will be *created* before generating
+ a .tex file from this entwiner.
+</p>
+<p> If an entwiner file *already exists*, this is *deleted*.
+ A new entwiner file is created after reading the code chunks
+ in the .R file.
+</p>
+<p> As above, note that changes to a .tex file do *not* update the
+ corresponding intermediary. Thus free text (outside .R code chunks)
+ should generally be updated in the intermediary file, unless
+ no further changes to the .R code is planned.
+</p>
+<p> Customization:
+</p>
+<p> To avoid errors, it is best to set the following customizable
+ variables once at the start of a project:
+ - &lsquo;mp-entwiner&rsquo;
+ - &lsquo;mp-latex&rsquo;
+ - &lsquo;mp-bib&rsquo;
+</p>
+<p> If these are changed mid-way through, it may be necessary to
+ first delete the intermediary, .tex and .pdf files before starting
+ afresh from the .R file in the directory.
+</p>
+<p> This package contains a variety of defaults which may be modified.
+ For example, the preamble for a LaTeX document, which varies
+ depending on whether LaTeX or XeTeX/LuaLaTeX is used to generate
+ the .pdf.
+</p>
+<p> Multiple plots per chunk:
+</p>
+<p> All of the entwiners will save graphical output in one or more
+ separate files, then include some these in the final .pdf.
+</p>
+<p> Only knitr supports multiple plots per chunk by default.
+</p>
+<p> By default, both Sweave and Org will include only the first
+ plot/graph/figure produced.
+ They both use the TeX command &lsquo;\includegraphics&rsquo; for this.
+ The function &lsquo;mp-tex-to-pdf&rsquo; will replace instances of this
+ command with &lsquo;\includepdf[pages=-, width=0.9\linewidth]&rsquo;,
+ so that all plots/pages are included.
+</p>
+<p> An alternative is to save each plot as a separate
+ file and then output the TeX command to include all of them.
+</p>
+<p> An example of a code block using this approach follows below.
+ &ldquo;&lsquo;
+ for(i in 1:4){
+ file=paste(&quot;f&quot;, i, &quot;.eps&quot;, sep=&quot;&quot;)
+ postscript(file=file, paper=&quot;special&quot;, width=8, height=8)
+ plot(rnorm(100)+i)
+ dev.off()
+ cat(&quot; \\includegraphics{&quot;, file, &quot;\n&quot;, sep=&quot;&quot;)
+ 
+ &ldquo;&lsquo;
+ In Sweave, we would wrap the code above in:
+ &ldquo;&lsquo;
+ &lt;&lt;plots, results=tex, strip.white=false&gt;&gt;=
+ **code**
+ @
+ &ldquo;&lsquo;
+ In Org, we would wrap the code above in:
+ &ldquo;&lsquo;
+ #+NAME: plots2
+ #+begin_src R :session *org-R-session* :exports both :results output :results verbatim :results latex
+ **code**
+ #+end_src
+ &ldquo;&lsquo;
+</p>
+<p> History/goals:
+</p>
+<p> This package was initially developed in 2012 to help to
+ speed up the process of scientific writing. At that time,
+ there was no easy was to tranistion quickly from a .R file to
+ a .pdf and knitr was relatively new and was not being used
+ routinely e.g. to generate package documentation.
+</p>
+<p> The range of options has expanded dramatically since.
+ In particulary, .Rmd appears to have become the most popular
+ choice for performing this type of work.
+</p>
+<p> Dependencies:
+</p>
+<p> The following should be installed and on your path:
+ - R, including the packages knitr and rmarkdown
+ - LaTeX
+ - pandoc
+ - bash commands: locate, grep
+</p>
+<p> The following emacs packages are also recommended:
+ - org
+ - ess
+ - tex, bibtex
+ - doc-view
+ - markdown-mode
+ - polymode, poly-R
+</p>
+<p> This is designed for Emacs on debian linux with bash.
+ It has not been evaluated on other systems.
+</p>
+<p> For developers:
+</p> 
+<p> Function-local/temporary variables are named using
+ as name1 e.g. &lsquo;v1&rsquo;, &lsquo;buffer1&rsquo;. <br>
+</p><hr size="6">
+<a name="defgroup"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#Preamble" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#mp-1" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#Preamble" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#Top" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#defun" title="Next chapter"> &gt;&gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_Contents" title="Table of contents">Contents</a>]</td>
+<td valign="middle" align="left">[<a href="#Index" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<a name="defgroup-1"></a>
+<h1 class="chapter">2. defgroup</h1>
+<a name="index-defgroup"></a>
+
+<p>Documentation for <code>defgroup</code>: <br>
+Declare SYMBOL as a customization group containing MEMBERS.
+SYMBOL does not need to be quoted.
+</p>
+<p>Third argument DOC is the group documentation.  This should be a short
+description of the group, beginning with a capital and ending with
+a period.  Words other than the first should not be capitalized, if they
+are not usually written so.
+</p>
+<p>MEMBERS should be an alist of the form ((NAME WIDGET)...) where
+NAME is a symbol and WIDGET is a widget for editing that symbol.
+Useful widgets are ‘custom-variable’ for editing variables,
+‘custom-face’ for editing faces, and ‘custom-group’ for editing groups.
+</p>
+<p>The remaining arguments should have the form
+</p>
+<p>   [KEYWORD VALUE]...
+</p>
+<p>For a list of valid keywords, see the common keywords listed in
+‘defcustom’.
+</p>
+<p>See Info node ‘(elisp) Customization’ in the Emacs Lisp manual
+for more information.<br>
+</p>
+<p>A table of all <code>defgroup</code>s follows:
+</p>
+
+<dl compact="compact">
+<dt> <code>mp</code>
+<a name="index-mp"></a>
+</dt>
+<dt> <code>mp-common</code>
+<a name="index-mp_002dcommon"></a>
+</dt>
+</dl>
+
+<p>Details of each <code>defgroup</code> follow below: <br>
+</p>
+<a name="index-mp-1"></a>
+<hr size="6">
+<a name="mp-1"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#defgroup" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#mp_002dcommon" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#defgroup" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#defgroup" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#defun" title="Next chapter"> &gt;&gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_Contents" title="Table of contents">Contents</a>]</td>
+<td valign="middle" align="left">[<a href="#Index" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<h2 class="unnumberedsec">mp</h2>
+<dl>
+<dt><a name="index-mp-2"></a><u>defgroup:</u> <b>mp</b></dt>
+<dd>
+<dl compact="compact">
+<dt> <var>group-documentation</var></dt>
+<dd><p>Make Pdf.
+This is a series of variables and functions to simplity
+ the process of pdf creation using R, LaTeX and
+ the intermediaries (entwiners)
+ knitr, Sweave and Org (&lsquo;org-mode&rsquo;).
+</p></dd>
+<dt> <var>custom-prefix</var></dt>
+<dd><p>mp-
+</p></dd>
+<dt> <var>custom-version</var></dt>
+<dd><p>0.2
+</p></dd>
+<dt> <var>custom-group</var></dt>
+<dd><p>((mp custom-group) (mp-common custom-group) (mp-example-file-name custom-variable) (mp-timeout custom-variable) (mp-file-name-extensions custom-variable) (mp-function-sequence custom-variable) (mp-entwiner custom-variable) (mp-R-chunks-new-R custom-variable) (mp-chunk-name-prefix-R custom-variable) (mp-chunk-format-prefix-R custom-variable) (mp-chunk-content-suffix-R custom-variable) (mp-chunk-heading-level custom-variable) (mp-R-chunk-defaults-R-pkg custom-variable) (mp-chunk-format-default-R-pkg custom-variable) (mp-chunk-format-default-sweave custom-variable) (mp-chunk-format-default-org custom-variable) (mp-bib custom-variable) (mp-preamble-bib custom-variable) (mp-preamble-biblatex custom-variable) (mp-doc-class-tex custom-variable) (mp-preamble-knitr custom-variable) (mp-preamble-sweave custom-variable) (mp-preamble-org custom-variable) (mp-latex custom-variable) (mp-latex-font custom-variable) (mp-xetex-font custom-variable) (mp-preamble-tex custom-variable) (mp-add-preamble-tex-extra custom-variable) (mp-preamble-tex-extra custom-variable) (mp-tex-beginning custom-variable) (mp-bibtex-style custom-variable) (mp-tex-end custom-variable) (mp-sentinel-sleep custom-variable) (mp-latex-options custom-variable) (mp-latexmkrc custom-variable) (mp-bib-default custom-variable) (mp-pdf-viewer custom-variable) (mp-clean custom-variable) (mp-clean-extensions custom-variable) (mp-clean-others custom-variable) (mp-skeleton-string custom-group))
+</p></dd>
+</dl>
+</dd></dl>
+
+
+<a name="index-mp_002dcommon-1"></a>
+<hr size="6">
+<a name="mp_002dcommon"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#mp-1" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#defun" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#defgroup" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#defgroup" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#defun" title="Next chapter"> &gt;&gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_Contents" title="Table of contents">Contents</a>]</td>
+<td valign="middle" align="left">[<a href="#Index" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<h2 class="unnumberedsec">mp-common</h2>
+<dl>
+<dt><a name="index-mp_002dcommon-2"></a><u>defgroup:</u> <b>mp-common</b></dt>
+<dd>
+<dl compact="compact">
+<dt> <var>group-documentation</var></dt>
+<dd><p>Options that the user is most likely to wish to change.
+This group is part of &lsquo;mp&rsquo;.
+</p></dd>
+<dt> <var>custom-group</var></dt>
+<dd><p>((mp-timeout custom-variable) (mp-entwiner custom-variable) (mp-chunk-heading-level custom-variable) (mp-bib custom-variable) (mp-clean custom-variable))
+</p></dd>
+</dl>
+</dd></dl>
+
+
+<hr size="6">
+<a name="defun"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#mp_002dcommon" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#mp_002dcustom_002dexample" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#defgroup" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#Top" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#defcustom" title="Next chapter"> &gt;&gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_Contents" title="Table of contents">Contents</a>]</td>
+<td valign="middle" align="left">[<a href="#Index" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<a name="defun-1"></a>
+<h1 class="chapter">3. defun</h1>
+<a name="index-defun"></a>
+
+<p>Documentation for <code>defun</code>: <br>
+Define NAME as a function.
+The definition is (lambda ARGLIST [DOCSTRING] BODY...).
+See also the function ‘interactive’.
+DECL is a declaration, optional, of the form (declare DECLS...) where
+DECLS is a list of elements of the form (PROP . VALUES).  These are
+interpreted according to ‘defun-declarations-alist’.
+The return value is undefined.
+</p>
+<p>(fn NAME ARGLIST &amp;optional DOCSTRING DECL &amp;rest BODY)<br>
+</p>
+<p>A table of all <code>defun</code>s follows:
+</p>
+
+<dl compact="compact">
+<dt> <code>mp-custom-example</code>
+<a name="index-mp_002dcustom_002dexample"></a>
+</dt>
+<dd><p>Run ‘mp-customize-common’ then ‘mp-example’.
+</p></dd>
+<dt> <code>mp-example</code>
+<a name="index-mp_002dexample"></a>
+</dt>
+<dd><p>Generate and run an example.
+</p></dd>
+<dt> <code>mp-initialize</code>
+<a name="index-mp_002dinitialize"></a>
+</dt>
+<dd><p>Set the following ‘defvar’s to their staring value:
+</p></dd>
+<dt> <code>mp-set-mp-dd</code>
+<a name="index-mp_002dset_002dmp_002ddd"></a>
+</dt>
+<dd><p>Set the value of ‘mp-dd’.
+</p></dd>
+<dt> <code>mp-valid-file-name-p</code>
+<a name="index-mp_002dvalid_002dfile_002dname_002dp"></a>
+</dt>
+<dd><p>Return t is STRING is a valid filename.
+</p></dd>
+<dt> <code>mp-run</code>
+<a name="index-mp_002drun"></a>
+</dt>
+<dd><p>Run the appropriate list of functions from ‘mp-function-sequence’.
+</p></dd>
+<dt> <code>mp-R-entwiner</code>
+<a name="index-mp_002dR_002dentwiner"></a>
+</dt>
+<dd><p>Convert R to an entwiner or vice versa.
+</p></dd>
+<dt> <code>mp-bib</code>
+<a name="index-mp_002dbib"></a>
+</dt>
+<dd><p>Check if there is a file named ‘mp-fnb’.bib in ‘mp-dd’.
+</p></dd>
+<dt> <code>mp-R-new</code>
+<a name="index-mp_002dR_002dnew"></a>
+</dt>
+<dd><p>Make an .R file.
+</p></dd>
+<dt> <code>mp-chunk-update-format</code>
+<a name="index-mp_002dchunk_002dupdate_002dformat"></a>
+</dt>
+<dd><p>Update the format of a CHUNK, per the value of ‘mp-entwiner’.
+</p></dd>
+<dt> <code>mp-R-chunk-R-citations</code>
+<a name="index-mp_002dR_002dchunk_002dR_002dcitations"></a>
+</dt>
+<dd><p>Return a string which is R code that writes a bibliography file.
+</p></dd>
+<dt> <code>mp-file-display</code>
+<a name="index-mp_002dfile_002ddisplay"></a>
+</dt>
+<dd><p>Displays FILE-NAME.
+</p></dd>
+<dt> <code>mp-file-open</code>
+<a name="index-mp_002dfile_002dopen"></a>
+</dt>
+<dd><p>Open FILE-NAME in a buffer; set buffer to appropriate mode.
+</p></dd>
+<dt> <code>mp-chunk-set-adfixes</code>
+<a name="index-mp_002dchunk_002dset_002dadfixes"></a>
+</dt>
+<dd><p>Set the prefixes and suffixes for chunks.
+</p></dd>
+<dt> <code>mp-set-mode</code>
+<a name="index-mp_002dset_002dmode"></a>
+</dt>
+<dd><p>Set the appropriate mode for a file.
+</p></dd>
+</dl>
+
+<p>Details of each <code>defun</code> follow below: <br>
+</p>
+<a name="index-mp_002dcustom_002dexample-1"></a>
+<hr size="6">
+<a name="mp_002dcustom_002dexample"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#defun" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#mp_002dexample" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#defun" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#defun" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#defcustom" title="Next chapter"> &gt;&gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_Contents" title="Table of contents">Contents</a>]</td>
+<td valign="middle" align="left">[<a href="#Index" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<h2 class="unnumberedsec">mp-custom-example</h2>
+<dl>
+<dt><a name="index-mp_002dcustom_002dexample-2"></a><u>Function:</u> <b>mp-custom-example</b></dt>
+<dd><p>Command ? <em>yes</em> <br>
+Arguments: <em>none</em> <br>
+Documentation: Run ‘mp-customize-common’ then ‘mp-example’.
+</p>
+<table><tr><td>&nbsp;</td><td><pre class="smallformat"> </pre><pre class="verbatim">((interactive)
+ (mp-customize-common)
+ (mp-example))
+</pre><pre class="smallformat"> </pre></td></tr></table>
+
+</dd></dl>
+
+
+<a name="index-mp_002dexample-1"></a>
+<hr size="6">
+<a name="mp_002dexample"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#mp_002dcustom_002dexample" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#mp_002dinitialize" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#defun" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#defun" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#defcustom" title="Next chapter"> &gt;&gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_Contents" title="Table of contents">Contents</a>]</td>
+<td valign="middle" align="left">[<a href="#Index" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<h2 class="unnumberedsec">mp-example</h2>
+<dl>
+<dt><a name="index-mp_002dexample-2"></a><u>Function:</u> <b>mp-example</b></dt>
+<dd><p>Command ? <em>yes</em> <br>
+Arguments: <em>none</em> <br>
+Documentation: Generate and run an example.
+Calls ‘mp-mp’, in the subdirectory ‘mp-example-file-name’.
+</p>
+<table><tr><td>&nbsp;</td><td><pre class="smallformat"> </pre><pre class="verbatim">((interactive)
+ (mp-set-mp-dd)
+ (let
+     ((d1
+       (concat mp-dd mp-example-file-name &quot;/&quot;)))
+   (delete-directory d1 t)
+   (mkdir d1 t)
+   (cd d1)
+   (setq mp-dd d1 mp-fnb mp-example-file-name mp-fne &quot;R&quot;)
+   (mp-initialize)
+   (message
+    (concat &quot;mp-example ... running in &quot;
+	    (print mp-dd))))
+ (mp-run mp-fne))
+</pre><pre class="smallformat"> </pre></td></tr></table>
+
+</dd></dl>
+
+
+<a name="index-mp_002dinitialize-1"></a>
+<hr size="6">
+<a name="mp_002dinitialize"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#mp_002dexample" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#mp_002dset_002dmp_002ddd" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#defun" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#defun" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#defcustom" title="Next chapter"> &gt;&gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_Contents" title="Table of contents">Contents</a>]</td>
+<td valign="middle" align="left">[<a href="#Index" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<h2 class="unnumberedsec">mp-initialize</h2>
+<dl>
+<dt><a name="index-mp_002dinitialize-2"></a><u>Function:</u> <b>mp-initialize</b></dt>
+<dd><p>Command ? <em>no</em> <br>
+Arguments: <em>none</em> <br>
+Documentation: Set the following ‘defvar’s to their staring value:
+- ‘mp-df’
+- ‘mp-fn’
+- ‘mp-chunks’
+Called by ‘mp-example’ and ‘mp-mp’.
+</p>
+<table><tr><td>&nbsp;</td><td><pre class="smallformat"> </pre><pre class="verbatim">((while
+     (get-buffer-window &quot;*make-pdf*&quot;)
+   (delete-window
+    (get-buffer-window &quot;*make-pdf*&quot;)))
+ (if
+     (get-buffer &quot;*make-pdf*&quot;)
+     (progn
+       (kill-buffer &quot;*make-pdf*&quot;)))
+ (balance-windows)
+ (setq mp-df
+       (sort
+	(directory-files mp-dd nil
+			 (mapconcat
+			  #'(lambda
+			      (x)
+			      (concat &quot;\\.&quot; x &quot;$&quot;))
+			  mp-file-name-extensions &quot;\\|&quot;)
+			 t)
+	#'file-newer-than-file-p)
+       mp-fn
+       (car mp-df)
+       mp-chunks 'nil mp-exiting nil))
+</pre><pre class="smallformat"> </pre></td></tr></table>
+
+</dd></dl>
+
+
+<a name="index-mp_002dset_002dmp_002ddd-1"></a>
+<hr size="6">
+<a name="mp_002dset_002dmp_002ddd"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#mp_002dinitialize" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#mp_002dvalid_002dfile_002dname_002dp" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#defun" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#defun" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#defcustom" title="Next chapter"> &gt;&gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_Contents" title="Table of contents">Contents</a>]</td>
+<td valign="middle" align="left">[<a href="#Index" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<h2 class="unnumberedsec">mp-set-mp-dd</h2>
+<dl>
+<dt><a name="index-mp_002dset_002dmp_002ddd-2"></a><u>Function:</u> <b>mp-set-mp-dd</b></dt>
+<dd><p>Command ? <em>no</em> <br>
+Arguments: <em>none</em> <br>
+Documentation: Set the value of ‘mp-dd’.
+If ‘mp-fnb’ is an empty string, also set this to the same
+value as ‘mp-dd’.
+</p>
+<table><tr><td>&nbsp;</td><td><pre class="smallformat"> </pre><pre class="verbatim">((setq mp-dd
+       (cond
+	((buffer-file-name)
+	 (file-name-directory buffer-file-name))
+	((equal major-mode 'dired-mode)
+	 dired-directory)
+	(t
+	 (shell-command-to-string &quot;printf '%s' $HOME/&quot;)))
+       default-directory mp-dd)
+ (message
+  (concat &quot;mp-set-mp-dd ... mp-dd set to &quot;
+	  (print mp-dd)))
+ (if
+     (equalp &quot;&quot; mp-fnb)
+     (progn
+       (setq mp-fnb
+	     (file-name-nondirectory
+	      (directory-file-name mp-dd)))
+       (message
+	(concat &quot;mp-set-mp-dd ... mp-fnb set to &quot;
+		(print mp-fnb))))))
+</pre><pre class="smallformat"> </pre></td></tr></table>
+
+</dd></dl>
+
+
+<a name="index-mp_002dvalid_002dfile_002dname_002dp-1"></a>
+<hr size="6">
+<a name="mp_002dvalid_002dfile_002dname_002dp"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#mp_002dset_002dmp_002ddd" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#mp_002drun" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#defun" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#defun" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#defcustom" title="Next chapter"> &gt;&gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_Contents" title="Table of contents">Contents</a>]</td>
+<td valign="middle" align="left">[<a href="#Index" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<h2 class="unnumberedsec">mp-valid-file-name-p</h2>
+<dl>
+<dt><a name="index-mp_002dvalid_002dfile_002dname_002dp-2"></a><u>Function:</u> <b>mp-valid-file-name-p</b></dt>
+<dd><p>Command ? <em>yes</em> <br>
+Arguments: <var>STRING</var>  <br>
+Documentation: Return t is STRING is a valid filename.
+Uses ‘file-name-invalid-regexp’, which depends on the ‘system-type’.
+An example of an invalid filename is &quot;\0&quot;.
+See also the following for additional restrictions on Windows:
+URL ‘https://docs.microsoft.com/en-us/windows/win32/fileio/naming-a-file’.
+</p>
+<table><tr><td>&nbsp;</td><td><pre class="smallformat"> </pre><pre class="verbatim">((interactive &quot;FFilename: &quot;)
+ (not
+  (string-match file-name-invalid-regexp STRING)))
+</pre><pre class="smallformat"> </pre></td></tr></table>
+
+</dd></dl>
+
+
+<a name="index-mp_002drun-1"></a>
+<hr size="6">
+<a name="mp_002drun"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#mp_002dvalid_002dfile_002dname_002dp" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#mp_002dR_002dentwiner" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#defun" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#defun" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#defcustom" title="Next chapter"> &gt;&gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_Contents" title="Table of contents">Contents</a>]</td>
+<td valign="middle" align="left">[<a href="#Index" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<h2 class="unnumberedsec">mp-run</h2>
+<dl>
+<dt><a name="index-mp_002drun-2"></a><u>Function:</u> <b>mp-run</b></dt>
+<dd><p>Command ? <em>no</em> <br>
+Arguments: <em>none</em> <br>
+Documentation: Run the appropriate list of functions from ‘mp-function-sequence’.
+This is given by ‘mp-fne’.
+</p>
+<table><tr><td>&nbsp;</td><td><pre class="smallformat"> </pre><pre class="verbatim">((let
+     ((seq1
+       (catch '--cl-block-nil--
+	 (let
+	     ((--dolist-tail-- mp-function-sequence))
+	   (while --dolist-tail--
+	     (let
+		 ((x
+		   (car --dolist-tail--)))
+	       (if
+		   (string-match
+		    (car x)
+		    mp-fne)
+		   (progn
+		     (throw '--cl-block-nil--
+			    (eval
+			     (cdr x)))))
+	       (setq --dolist-tail--
+		     (cdr --dolist-tail--))))))))
+   (message
+    (concat &quot;mp-run, with &quot;
+	    (car mp-entwiner)
+	    &quot; and &quot;
+	    (cdr mp-entwiner)
+	    &quot;, starting with .&quot; mp-fne &quot; file ...&quot;))
+   (let
+       ((--dolist-tail-- seq1))
+     (while --dolist-tail--
+       (let
+	   ((x
+	     (car --dolist-tail--)))
+	 (funcall x)
+	 (setq --dolist-tail--
+	       (cdr --dolist-tail--))))))
+ (mp-exit &quot;mp-run... done&quot;))
+</pre><pre class="smallformat"> </pre></td></tr></table>
+
+</dd></dl>
+
+
+<a name="index-mp_002dR_002dentwiner-1"></a>
+<hr size="6">
+<a name="mp_002dR_002dentwiner"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#mp_002drun" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#mp_002dbib" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#defun" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#defun" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#defcustom" title="Next chapter"> &gt;&gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_Contents" title="Table of contents">Contents</a>]</td>
+<td valign="middle" align="left">[<a href="#Index" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<h2 class="unnumberedsec">mp-R-entwiner</h2>
+<dl>
+<dt><a name="index-mp_002dR_002dentwiner-2"></a><u>Function:</u> <b>mp-R-entwiner</b></dt>
+<dd><p>Command ? <em>no</em> <br>
+Arguments: <em>none</em> <br>
+Documentation: Convert R to an entwiner or vice versa.
+Calls ‘mp-chunks-read’ to get code chunks from the current file.
+If this is an .R file and an ’entwiner’ file already exists,
+ this is deleted and replaced.
+ update the *least recently used* file
+ i.e. the .R or the entwiner, using, as appropriate 
+ ‘mp-update-entwiner-from-R’ or ‘mp-update-R-from-entwiner’.
+If no such file exists, make one with ‘mp-entwiner-new’.
+</p>
+<table><tr><td>&nbsp;</td><td><pre class="smallformat"> </pre><pre class="verbatim">((let
+     ((rf1
+       (car
+	(cl-member
+	 (concat mp-fnb &quot;.R&quot;)
+	 mp-df :test #'equalp)))
+      (ef1
+       (car
+	(cl-member
+	 (concat mp-fnb &quot;.&quot;
+		 (car mp-entwiner))
+	 mp-df :test #'equalp))))
+   (message &quot;mp-R-entwiner ...&quot;)
+   (if
+       (not rf1)
+       (progn
+	 (mp-R-new)
+	 (if
+	     (mp-empty-string-to-nil ef1)
+	     nil
+	   (mp-entwiner-new)))
+     (if ef1
+	 (if
+	     (file-newer-than-file-p rf1 ef1)
+	     (mp-update-entwiner-from-R)
+	   (mp-update-R-from-entwiner))
+       (progn
+	 (mp-file-display
+	  (concat mp-fnb &quot;.R&quot;))
+	 (mp-chunks-read)
+	 (mp-entwiner-new)))))
+ (if mp-bib
+     (progn
+       (mp-bib)))
+ (mp-shell-sentinel &quot;mp-Rscript-run&quot;)
+ (message &quot;mp-R-entwiner ... done&quot;))
+</pre><pre class="smallformat"> </pre></td></tr></table>
+
+</dd></dl>
+
+
+<a name="index-mp_002dbib-1"></a>
+<hr size="6">
+<a name="mp_002dbib"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#mp_002dR_002dentwiner" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#mp_002dR_002dnew" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#defun" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#defun" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#defcustom" title="Next chapter"> &gt;&gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_Contents" title="Table of contents">Contents</a>]</td>
+<td valign="middle" align="left">[<a href="#Index" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<h2 class="unnumberedsec">mp-bib</h2>
+<dl>
+<dt><a name="index-mp_002dbib-2"></a><u>Function:</u> <b>mp-bib</b></dt>
+<dd><p>Command ? <em>no</em> <br>
+Arguments: <em>none</em> <br>
+Documentation: Check if there is a file named ‘mp-fnb’.bib in ‘mp-dd’.
+If not, make one by calling ‘mp-bib-skeleton’.
+See also the variable ‘mp-bib’.
+</p>
+<table><tr><td>&nbsp;</td><td><pre class="smallformat"> </pre><pre class="verbatim">((if
+     (directory-files mp-dd nil
+		      (concat mp-fnb &quot;.bib$&quot;))
+     nil
+   (mp-file-display
+    (concat mp-fnb &quot;.bib&quot;))
+   (mp-bib-skeleton)
+   (save-buffer)
+   (kill-buffer)
+   (delete-window)))
+</pre><pre class="smallformat"> </pre></td></tr></table>
+
+</dd></dl>
+
+
+<a name="index-mp_002dR_002dnew-1"></a>
+<hr size="6">
+<a name="mp_002dR_002dnew"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#mp_002dbib" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#mp_002dchunk_002dupdate_002dformat" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#defun" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#defun" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#defcustom" title="Next chapter"> &gt;&gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_Contents" title="Table of contents">Contents</a>]</td>
+<td valign="middle" align="left">[<a href="#Index" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<h2 class="unnumberedsec">mp-R-new</h2>
+<dl>
+<dt><a name="index-mp_002dR_002dnew-2"></a><u>Function:</u> <b>mp-R-new</b></dt>
+<dd><p>Command ? <em>no</em> <br>
+Arguments: <em>none</em> <br>
+Documentation: Make an .R file.
+If ‘mp-chunks’ is not an empty list, use these,
+otherwise use ‘mp-R-chunks-new-R’.
+Called by ‘mp-R-entwiner’ and ‘mp-update-R-from-entwiner’.
+</p>
+<table><tr><td>&nbsp;</td><td><pre class="smallformat"> </pre><pre class="verbatim">((if
+     (equalp 'nil mp-chunks)
+     (progn
+       (if mp-bib
+	   (progn
+	     (setq mp-chunks
+		   (cons
+		    (list &quot;R citations&quot; &quot;&quot;
+			  (mp-R-chunk-R-citations))
+		    mp-chunks))))
+       (let
+	   ((--dolist-tail--
+	     (reverse
+	      (copy-tree mp-R-chunks-new-R))))
+	 (while --dolist-tail--
+	   (let
+	       ((x
+		 (car --dolist-tail--)))
+	     (setq mp-chunks
+		   (cons x mp-chunks))
+	     (setq --dolist-tail--
+		   (cdr --dolist-tail--)))))
+       (if
+	   (string-match &quot;^R-pkg-&quot;
+			 (cdr mp-entwiner))
+	   (progn
+	     (setq mp-chunks
+		   (cons
+		    (copy-tree mp-R-chunk-defaults-R-pkg)
+		    mp-chunks))))))
+ (let
+     ((--dolist-tail-- mp-chunks))
+   (while --dolist-tail--
+     (let
+	 ((x
+	   (car --dolist-tail--)))
+       (mp-chunk-update-format x)
+       (setq --dolist-tail--
+	     (cdr --dolist-tail--)))))
+ (setq mp-fne &quot;R&quot;)
+ (let
+     ((fn1
+       (concat mp-fnb &quot;.R&quot;)))
+   (if
+       (get-buffer fn1)
+       nil
+     (mp-file-display fn1))
+   (save-current-buffer
+     (set-buffer fn1)
+     (goto-char
+      (point-min))
+     (mapc #'mp-chunk-insert mp-chunks)
+     (goto-char
+      (point-max)))
+   (save-buffer)
+   (kill-buffer)
+   (delete-window)))
+</pre><pre class="smallformat"> </pre></td></tr></table>
+
+</dd></dl>
+
+
+<a name="index-mp_002dchunk_002dupdate_002dformat-1"></a>
+<hr size="6">
+<a name="mp_002dchunk_002dupdate_002dformat"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#mp_002dR_002dnew" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#mp_002dR_002dchunk_002dR_002dcitations" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#defun" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#defun" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#defcustom" title="Next chapter"> &gt;&gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_Contents" title="Table of contents">Contents</a>]</td>
+<td valign="middle" align="left">[<a href="#Index" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<h2 class="unnumberedsec">mp-chunk-update-format</h2>
+<dl>
+<dt><a name="index-mp_002dchunk_002dupdate_002dformat-2"></a><u>Function:</u> <b>mp-chunk-update-format</b></dt>
+<dd><p>Command ? <em>no</em> <br>
+Arguments: <var>CHUNK</var>  <br>
+Documentation: Update the format of a CHUNK, per the value of ‘mp-entwiner’.
+The format is the second element of CHUNK, a string.
+</p>
+<table><tr><td>&nbsp;</td><td><pre class="smallformat"> </pre><pre class="verbatim">((if
+     (equalp &quot;&quot;
+	     (car
+	      (cdr CHUNK)))
+     (progn
+       (setcar
+	(cdr CHUNK)
+	(mp-chunk-format)))))
+</pre><pre class="smallformat"> </pre></td></tr></table>
+
+</dd></dl>
+
+
+<a name="index-mp_002dR_002dchunk_002dR_002dcitations-1"></a>
+<hr size="6">
+<a name="mp_002dR_002dchunk_002dR_002dcitations"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#mp_002dchunk_002dupdate_002dformat" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#mp_002dfile_002ddisplay" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#defun" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#defun" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#defcustom" title="Next chapter"> &gt;&gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_Contents" title="Table of contents">Contents</a>]</td>
+<td valign="middle" align="left">[<a href="#Index" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<h2 class="unnumberedsec">mp-R-chunk-R-citations</h2>
+<dl>
+<dt><a name="index-mp_002dR_002dchunk_002dR_002dcitations-2"></a><u>Function:</u> <b>mp-R-chunk-R-citations</b></dt>
+<dd><p>Command ? <em>no</em> <br>
+Arguments: <em>none</em> <br>
+Documentation: Return a string which is R code that writes a bibliography file.
+This file is named ’‘mp-fnb’.bib.’.
+A citation appears therein for each loaded R package.
+Adds a handle to each citation, if necessary.
+This is added to ‘mp-chunks’ when ‘mp-bib’ is non-nil.
+Called by ‘mp-R-new’.
+</p>
+<table><tr><td>&nbsp;</td><td><pre class="smallformat"> </pre><pre class="verbatim">((concat &quot;print(.packages())\n## vector for citations\nvc1 &lt;- unlist(sapply(X=rev(.packages()),\n                     FUN=function(x)\n                         utils::toBibtex(utils::citation(x))))\nvc1 &lt;- vc1[!vc1=='']\n## names for citations\nn1 &lt;- vc1[which(grepl(pattern='.year', x=vc1))]\nn1  &lt;- paste0(\n    sub(pattern='\\\\.year$', replacement='', x=names(n1)),\n    regmatches(x=n1, m=regexpr(pattern='[0123456789]+', text=n1)))\n## group as list\nl1 &lt;- vector(mode='list', length=length(n1))\nnames(l1) &lt;- n1\nend1 &lt;- which(grepl(pattern='\\\\}$', x=vc1))\n## remove trailing comma from last item in .bib entry, if necessary\nvc1[end1-1] &lt;- sub(pattern=',$', replacement='', x=vc1[end1-1])\nend1 &lt;- c(0, end1)\nfor (i in seq.int(length.out=length(l1)))\n    l1[[i]] &lt;- unname(vc1[seq.int(from=(end1[i] + 1L), to=end1[i+1])])\nl1 &lt;- l1[!duplicated(l1)]\n## add a handle, if necessary\nfor (i in seq.int(length.out=length(l1)))\n    if (grepl(pattern='\\\\{,$', x=l1[[i]][1]))\n        l1[[i]][1] &lt;- sub(pattern=',$', \n                          replacement=paste0(names(l1[i]), ','),\n                          x=l1[[i]][1])\nif (!'mp-example.bib' %in% dir())\n    write(x='', file='&quot; mp-dd mp-fnb &quot;.bib')\nbib1 &lt;- readLines('&quot; mp-dd mp-fnb &quot;.bib')\nfor (i in seq.int(length.out=length(l1)))\n    if (!(l1[[i]][1] %in% bib1))\n        write(x=l1[[i]], file='&quot; mp-dd mp-fnb &quot;.bib', append=TRUE)&quot;))
+</pre><pre class="smallformat"> </pre></td></tr></table>
+
+</dd></dl>
+
+
+<a name="index-mp_002dfile_002ddisplay-1"></a>
+<hr size="6">
+<a name="mp_002dfile_002ddisplay"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#mp_002dR_002dchunk_002dR_002dcitations" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#mp_002dfile_002dopen" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#defun" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#defun" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#defcustom" title="Next chapter"> &gt;&gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_Contents" title="Table of contents">Contents</a>]</td>
+<td valign="middle" align="left">[<a href="#Index" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<h2 class="unnumberedsec">mp-file-display</h2>
+<dl>
+<dt><a name="index-mp_002dfile_002ddisplay-2"></a><u>Function:</u> <b>mp-file-display</b></dt>
+<dd><p>Command ? <em>no</em> <br>
+Arguments: <var>FILE-NAME</var>  <br>
+Documentation: Displays FILE-NAME.
+If the file is already open if a buffer, calls ‘pop-to-buffer’.
+If not, calls ‘mp-file-open’.
+Finally, calls ‘mp-set-mode’ and ‘mp-chunk-set-adfixes’.
+</p>
+<table><tr><td>&nbsp;</td><td><pre class="smallformat"> </pre><pre class="verbatim">((setq mp-fne
+       (file-name-extension FILE-NAME))
+ (let
+     ((default-directory mp-dd)
+      (bn1
+       (car
+	(member FILE-NAME
+		(mapcar 'buffer-name
+			(buffer-list))))))
+   (if bn1
+       (pop-to-buffer bn1)
+     (mp-file-open FILE-NAME)))
+ (mp-set-mode)
+ (mp-chunk-set-adfixes))
+</pre><pre class="smallformat"> </pre></td></tr></table>
+
+</dd></dl>
+
+
+<a name="index-mp_002dfile_002dopen-1"></a>
+<hr size="6">
+<a name="mp_002dfile_002dopen"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#mp_002dfile_002ddisplay" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#mp_002dchunk_002dset_002dadfixes" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#defun" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#defun" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#defcustom" title="Next chapter"> &gt;&gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_Contents" title="Table of contents">Contents</a>]</td>
+<td valign="middle" align="left">[<a href="#Index" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<h2 class="unnumberedsec">mp-file-open</h2>
+<dl>
+<dt><a name="index-mp_002dfile_002dopen-2"></a><u>Function:</u> <b>mp-file-open</b></dt>
+<dd><p>Command ? <em>no</em> <br>
+Arguments: <var>FILE-NAME</var>  <br>
+Documentation: Open FILE-NAME in a buffer; set buffer to appropriate mode.
+Return buffer.
+This function is derived from a combination of the functions
+ ‘find-file-noselect’ and ‘find-file-noselect-1’.
+Called by ‘mp-file-display’.
+</p>
+<table><tr><td>&nbsp;</td><td><pre class="smallformat"> </pre><pre class="verbatim">((let*
+     ((default-directory mp-dd)
+      (truename1
+       (abbreviate-file-name
+	(file-truename FILE-NAME)))
+      (buf1 nil))
+   (if
+       (featurep 'uniquify)
+       (let
+	   ((uniquify-managed
+	     (progn
+	       (make-local-variable 'uniquify-managed)
+	       nil)))
+	 (setq buf1
+	       (create-file-buffer FILE-NAME)))
+     (setq buf1
+	   (create-file-buffer FILE-NAME)))
+   (pop-to-buffer buf1 nil t)
+   (set-buffer buf1)
+   (set-buffer-multibyte t)
+   (if
+       (and
+	(=
+	 (buffer-size buf1)
+	 0)
+	(directory-files mp-dd nil
+			 (concat &quot;^&quot; FILE-NAME &quot;$&quot;)))
+       (progn
+	 (insert-file-contents-literally truename1 t)))
+   (setq buffer-file-truename truename1 buffer-file-name
+	 (expand-file-name buffer-file-truename)
+	 buffer-file-number
+	 (nthcdr 10
+		 (file-attributes truename1)))))
+</pre><pre class="smallformat"> </pre></td></tr></table>
+
+</dd></dl>
+
+
+<a name="index-mp_002dchunk_002dset_002dadfixes-1"></a>
+<hr size="6">
+<a name="mp_002dchunk_002dset_002dadfixes"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#mp_002dfile_002dopen" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#mp_002dset_002dmode" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#defun" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#defun" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#defcustom" title="Next chapter"> &gt;&gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_Contents" title="Table of contents">Contents</a>]</td>
+<td valign="middle" align="left">[<a href="#Index" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<h2 class="unnumberedsec">mp-chunk-set-adfixes</h2>
+<dl>
+<dt><a name="index-mp_002dchunk_002dset_002dadfixes-2"></a><u>Function:</u> <b>mp-chunk-set-adfixes</b></dt>
+<dd><p>Command ? <em>no</em> <br>
+Arguments: <em>none</em> <br>
+Documentation: Set the prefixes and suffixes for chunks.
+These depend on the ‘file-name-extension’ of the curent buffer,
+if applicable,  otherwise on ‘mp-fne’.
+The following file-local variables are set:
+ - ‘mp-chunk-heading-level-prefix’
+ - ‘mp-chunk-heading-level-suffix’
+ - ‘mp-chunk-name-prefix’
+ - ‘mp-chunk-name-suffix’
+ - ‘mp-chunk-format-prefix’
+ - ‘mp-chunk-content-suffix’
+Called by ‘mp-file-display’.
+</p>
+<table><tr><td>&nbsp;</td><td><pre class="smallformat"> </pre><pre class="verbatim">((let
+     ((fe1
+       (car
+	(cl-member
+	 (file-name-extension
+	  (buffer-file-name))
+	 '(&quot;R&quot; &quot;Rnw&quot; &quot;org&quot; &quot;Rmd&quot;)
+	 :test #'equalp))))
+   (if fe1 nil
+     (setq fe1 mp-fne))
+   (cond
+    ((equalp &quot;R&quot; fe1)
+     (setq mp-chunk-name-prefix mp-chunk-name-prefix-R mp-chunk-format-prefix mp-chunk-format-prefix-R mp-chunk-name-suffix &quot;&quot; mp-chunk-content-suffix mp-chunk-content-suffix-R))
+    ((equalp &quot;Rnw&quot; fe1)
+     (setq mp-chunk-heading-level-prefix
+	   (elt mp-chunk-heading-level 0)
+	   mp-chunk-heading-level-suffix &quot;}&quot; mp-chunk-name-prefix mp-chunk-name-prefix-Rnw mp-chunk-name-suffix mp-chunk-name-suffix-Rnw mp-chunk-format-prefix mp-chunk-format-prefix-Rnw mp-chunk-content-suffix mp-chunk-content-suffix-Rnw))
+    ((equalp &quot;org&quot; fe1)
+     (setq mp-chunk-heading-level-prefix
+	   (elt mp-chunk-heading-level 1)
+	   mp-chunk-heading-level-suffix &quot;&quot; mp-chunk-name-prefix mp-chunk-name-prefix-org mp-chunk-format-prefix mp-chunk-format-prefix-org mp-chunk-name-suffix &quot;&quot; mp-chunk-content-suffix mp-chunk-content-suffix-org))
+    ((equalp &quot;Rmd&quot; fe1)
+     (setq mp-chunk-heading-level-prefix
+	   (elt mp-chunk-heading-level 2)
+	   mp-chunk-heading-level-suffix &quot;&quot; mp-chunk-name-prefix mp-chunk-name-prefix-Rmd mp-chunk-name-suffix mp-chunk-name-suffix-Rmd mp-chunk-format-prefix mp-chunk-format-prefix-Rmd mp-chunk-content-suffix mp-chunk-content-suffix-Rmd)))
+   (message
+    (concat &quot;mp-chunk-set-adfixes... set per for .&quot; fe1 &quot; file extension&quot;))))
+</pre><pre class="smallformat"> </pre></td></tr></table>
+
+</dd></dl>
+
+
+<a name="index-mp_002dset_002dmode-1"></a>
+<hr size="6">
+<a name="mp_002dset_002dmode"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#mp_002dchunk_002dset_002dadfixes" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#defcustom" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#defun" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#defun" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#defcustom" title="Next chapter"> &gt;&gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_Contents" title="Table of contents">Contents</a>]</td>
+<td valign="middle" align="left">[<a href="#Index" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<h2 class="unnumberedsec">mp-set-mode</h2>
+<dl>
+<dt><a name="index-mp_002dset_002dmode-2"></a><u>Function:</u> <b>mp-set-mode</b></dt>
+<dd><p>Command ? <em>no</em> <br>
+Arguments: <em>none</em> <br>
+Documentation: Set the appropriate mode for a file.
+</p>
+<table><tr><td>&nbsp;</td><td><pre class="smallformat"> </pre><pre class="verbatim">((cond
+  ((equalp &quot;R&quot; mp-fne)
+   (R-mode))
+  ((equalp &quot;Rnw&quot; mp-fne)
+   (Rnw-mode))
+  ((equalp &quot;org&quot; mp-fne)
+   (org-mode))
+  ((equalp &quot;Rmd&quot; mp-fne)
+   (markdown-mode)
+   (if poly-markdown+r-mode nil
+     (poly-markdown+r-mode)))
+  ((equalp &quot;tex&quot; mp-fne)
+   (tex-mode))
+  ((equalp &quot;bib&quot; mp-fne)
+   (bibtex-mode))
+  (t
+   (fundamental-mode))))
+</pre><pre class="smallformat"> </pre></td></tr></table>
+
+</dd></dl>
+
+
+<hr size="6">
+<a name="defcustom"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#mp_002dset_002dmode" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#mp_002dexample_002dfile_002dname" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#defun" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#Top" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#defvar" title="Next chapter"> &gt;&gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_Contents" title="Table of contents">Contents</a>]</td>
+<td valign="middle" align="left">[<a href="#Index" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<a name="defcustom-1"></a>
+<h1 class="chapter">4. defcustom</h1>
+<a name="index-defcustom"></a>
+
+<p>Documentation for <code>defcustom</code>: <br>
+Declare SYMBOL as a customizable variable.
+SYMBOL is the variable name; it should not be quoted.
+STANDARD is an expression specifying the variable’s standard
+value.  It should not be quoted.  It is evaluated once by
+‘defcustom’, and the value is assigned to SYMBOL if the variable
+is unbound.  The expression itself is also stored, so that
+Customize can re-evaluate it later to get the standard value.
+DOC is the variable documentation.
+</p>
+<p>This macro uses ‘defvar’ as a subroutine, which also marks the
+variable as &quot;special&quot;, so that it is always dynamically bound
+even when ‘lexical-binding’ is t.
+</p>
+<p>The remaining arguments to ‘defcustom’ should have the form
+</p>
+<p>   [KEYWORD VALUE]...
+</p>
+<p>The following keywords are meaningful:
+</p>
+<p>:type	VALUE should be a widget type for editing the symbol’s value.
+	Every ‘defcustom’ should specify a value for this keyword.
+:options VALUE should be a list of valid members of the widget type.
+:initialize
+	VALUE should be a function used to initialize the
+	variable.  It takes two arguments, the symbol and value
+	given in the ‘defcustom’ call.  The default is
+	‘custom-initialize-reset’.
+:set	VALUE should be a function to set the value of the symbol
+	when using the Customize user interface.  It takes two arguments,
+	the symbol to set and the value to give it.  The function should
+	not modify its value argument destructively.  The default choice
+	of function is ‘set-default’.
+:get	VALUE should be a function to extract the value of symbol.
+	The function takes one argument, a symbol, and should return
+	the current value for that symbol.  The default choice of function
+	is ‘default-value’.
+:require
+	VALUE should be a feature symbol.  If you save a value
+	for this option, then when your init file loads the value,
+	it does (require VALUE) first.
+:set-after VARIABLES
+	Specifies that SYMBOL should be set after the list of variables
+        VARIABLES when both have been customized.
+:risky	Set SYMBOL’s ‘risky-local-variable’ property to VALUE.
+:safe	Set SYMBOL’s ‘safe-local-variable’ property to VALUE.
+        See Info node ‘(elisp) File Local Variables’.
+</p>
+<p>The following common keywords are also meaningful.
+</p>
+<p>:group  VALUE should be a customization group.
+        Add SYMBOL (or FACE with ‘defface’) to that group.
+:link LINK-DATA
+        Include an external link after the documentation string for this
+        item.  This is a sentence containing an active field which
+        references some other documentation.
+</p>
+<p>        There are several alternatives you can use for LINK-DATA:
+</p>
+<p>        (custom-manual INFO-NODE)
+             Link to an Info node; INFO-NODE is a string which specifies
+             the node name, as in &quot;(emacs)Top&quot;.
+</p>
+<p>        (info-link INFO-NODE)
+             Like ‘custom-manual’ except that the link appears in the
+             customization buffer with the Info node name.
+</p>
+<p>        (url-link URL)
+             Link to a web page; URL is a string which specifies the URL.
+</p>
+<p>        (emacs-commentary-link LIBRARY)
+             Link to the commentary section of LIBRARY.
+</p>
+<p>        (emacs-library-link LIBRARY)
+             Link to an Emacs Lisp LIBRARY file.
+</p>
+<p>        (file-link FILE)
+             Link to FILE.
+</p>
+<p>        (function-link FUNCTION)
+             Link to the documentation of FUNCTION.
+</p>
+<p>        (variable-link VARIABLE)
+             Link to the documentation of VARIABLE.
+</p>
+<p>        (custom-group-link GROUP)
+             Link to another customization GROUP.
+</p>
+<p>        You can specify the text to use in the customization buffer by
+        adding ‘:tag NAME’ after the first element of the LINK-DATA; for
+        example, (info-link :tag &quot;foo&quot; &quot;(emacs)Top&quot;) makes a link to the
+        Emacs manual which appears in the buffer as ‘foo’.
+</p>
+<p>        An item can have more than one external link; however, most items
+        have none at all.
+:version
+        VALUE should be a string specifying that the variable was
+        first introduced, or its default value was changed, in Emacs
+        version VERSION.
+:package-version
+        VALUE should be a list with the form (PACKAGE . VERSION)
+        specifying that the variable was first introduced, or its
+        default value was changed, in PACKAGE version VERSION.  This
+        keyword takes priority over :version.  For packages which
+        are bundled with Emacs releases, the PACKAGE and VERSION
+        must appear in the alist ‘customize-package-emacs-version-alist’.
+        Since PACKAGE must be unique and the user might see it in an
+        error message, a good choice is the official name of the
+        package, such as MH-E or Gnus.
+:tag LABEL
+        Use LABEL, a string, instead of the item’s name, to label the item
+        in customization menus and buffers.
+:load FILE
+        Load file FILE (a string) before displaying this customization
+        item.  Loading is done with ‘load’, and only if the file is
+        not already loaded.
+</p>
+<p>If SYMBOL has a local binding, then this form affects the local
+binding.  This is normally not what you want.  Thus, if you need
+to load a file defining variables with this form, or with
+‘defvar’ or ‘defconst’, you should always load that file
+_outside_ any bindings for these variables.  (‘defvar’ and
+‘defconst’ behave similarly in this respect.)
+</p>
+<p>See Info node ‘(elisp) Customization’ in the Emacs Lisp manual
+for more information.<br>
+</p>
+<p>A table of all <code>defcustom</code>s follows:
+</p>
+
+<dl compact="compact">
+<dt> <code>mp-example-file-name</code>
+<a name="index-mp_002dexample_002dfile_002dname"></a>
+</dt>
+<dd><p>Name of directory and of ‘file-name-base’ to use for an example.
+</p></dd>
+<dt> <code>mp-timeout</code>
+<a name="index-mp_002dtimeout"></a>
+</dt>
+<dd><p>Seconds to wait for user input when calling interactive functions.
+</p></dd>
+<dt> <code>mp-file-name-extensions</code>
+<a name="index-mp_002dfile_002dname_002dextensions"></a>
+</dt>
+<dd><p>The ‘file-name-extension’s (as strings) with which ‘mp’ works.
+</p></dd>
+<dt> <code>mp-function-sequence</code>
+<a name="index-mp_002dfunction_002dsequence"></a>
+</dt>
+<dd><p>An alist where:
+</p></dd>
+<dt> <code>mp-entwiner</code>
+<a name="index-mp_002dentwiner"></a>
+</dt>
+<dd><p>How to ’entwine’ the files in ‘mp-dd’.
+</p></dd>
+<dt> <code>mp-R-chunks-new-R</code>
+<a name="index-mp_002dR_002dchunks_002dnew_002dR"></a>
+</dt>
+<dd><p>A ‘list’ of chunks for a new .R file.
+</p></dd>
+<dt> <code>mp-chunk-name-prefix-R</code>
+<a name="index-mp_002dchunk_002dname_002dprefix_002dR"></a>
+</dt>
+<dd><p>Prefix for the chunk name in an .R file.
+</p></dd>
+<dt> <code>mp-chunk-format-prefix-R</code>
+<a name="index-mp_002dchunk_002dformat_002dprefix_002dR"></a>
+</dt>
+<dd><p>Prefix for the chunk format in an .R file.
+</p></dd>
+<dt> <code>mp-chunk-content-suffix-R</code>
+<a name="index-mp_002dchunk_002dcontent_002dsuffix_002dR"></a>
+</dt>
+<dd><p>Suffix for the chunk content in an .R file.
+</p></dd>
+<dt> <code>mp-chunk-heading-level</code>
+<a name="index-mp_002dchunk_002dheading_002dlevel"></a>
+</dt>
+<dd><p>Prefixes indicating the heading level for a chunk.
+</p></dd>
+<dt> <code>mp-R-chunk-defaults-R-pkg</code>
+<a name="index-mp_002dR_002dchunk_002ddefaults_002dR_002dpkg"></a>
+</dt>
+<dd><p>Default setup options for ’knitr’.
+</p></dd>
+</dl>
+
+<p>Details of each <code>defcustom</code> follow below: <br>
+</p>
+<a name="index-mp_002dexample_002dfile_002dname-1"></a>
+<hr size="6">
+<a name="mp_002dexample_002dfile_002dname"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#defcustom" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#mp_002dtimeout" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#defcustom" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#defcustom" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#defvar" title="Next chapter"> &gt;&gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_Contents" title="Table of contents">Contents</a>]</td>
+<td valign="middle" align="left">[<a href="#Index" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<h2 class="unnumberedsec">mp-example-file-name</h2>
+<dl>
+<dt><a name="index-mp_002dexample_002dfile_002dname-2"></a><u>User Option:</u> <b>mp-example-file-name</b></dt>
+<dd><dl compact="compact">
+<dt> <var>standard-value</var></dt>
+<dd><p>((funcall (function (closure (t) nil mp-example))))
+</p></dd>
+<dt> <var>custom-type</var></dt>
+<dd><p>(string)
+</p></dd>
+<dt> <var>safe-local-variable</var></dt>
+<dd><p>mp-valid-file-name-p
+</p></dd>
+<dt> <var>custom-requests</var></dt>
+<dd><p>nil
+</p></dd>
+<dt> <var>variable-documentation</var></dt>
+<dd><p>Name of directory and of &lsquo;file-name-base&rsquo; to use for an example.
+Used by &lsquo;mp-example&rsquo;.
+Avoid using special characters in this string.
+See also &lsquo;mp-valid-file-name-p&rsquo;.
+</p></dd>
+</dl>
+</dd></dl>
+
+
+<a name="index-mp_002dtimeout-1"></a>
+<hr size="6">
+<a name="mp_002dtimeout"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#mp_002dexample_002dfile_002dname" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#mp_002dfile_002dname_002dextensions" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#defcustom" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#defcustom" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#defvar" title="Next chapter"> &gt;&gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_Contents" title="Table of contents">Contents</a>]</td>
+<td valign="middle" align="left">[<a href="#Index" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<h2 class="unnumberedsec">mp-timeout</h2>
+<dl>
+<dt><a name="index-mp_002dtimeout-2"></a><u>User Option:</u> <b>mp-timeout</b></dt>
+<dd><dl compact="compact">
+<dt> <var>standard-value</var></dt>
+<dd><p>((funcall (function (closure (t) nil 0.2))))
+</p></dd>
+<dt> <var>custom-type</var></dt>
+<dd><p>(number)
+</p></dd>
+<dt> <var>custom-requests</var></dt>
+<dd><p>nil
+</p></dd>
+<dt> <var>variable-documentation</var></dt>
+<dd><p>Seconds to wait for user input when calling interactive functions.
+A low value will not give the user time to respond to prompts.
+In this case, the default values are used.
+See the functions &lsquo;with-timeout&rsquo; and &lsquo;y-or-n-p-with-timeout&rsquo;.
+Used by:
+- &lsquo;mp-find-file-name-interactive&rsquo;
+</p></dd>
+</dl>
+</dd></dl>
+
+
+<a name="index-mp_002dfile_002dname_002dextensions-1"></a>
+<hr size="6">
+<a name="mp_002dfile_002dname_002dextensions"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#mp_002dtimeout" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#mp_002dfunction_002dsequence" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#defcustom" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#defcustom" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#defvar" title="Next chapter"> &gt;&gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_Contents" title="Table of contents">Contents</a>]</td>
+<td valign="middle" align="left">[<a href="#Index" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<h2 class="unnumberedsec">mp-file-name-extensions</h2>
+<dl>
+<dt><a name="index-mp_002dfile_002dname_002dextensions-2"></a><u>User Option:</u> <b>mp-file-name-extensions</b></dt>
+<dd><dl compact="compact">
+<dt> <var>standard-value</var></dt>
+<dd><p>((funcall (function (closure (t) nil (quote (R Rnw org Rmd md tex bib pdf))))))
+</p></dd>
+<dt> <var>custom-type</var></dt>
+<dd><p>(repeat (string <code>:tag</code> extension))
+</p></dd>
+<dt> <var>custom-requests</var></dt>
+<dd><p>nil
+</p></dd>
+<dt> <var>variable-documentation</var></dt>
+<dd><p>The &lsquo;file-name-extension&rsquo;s (as strings) with which &lsquo;mp&rsquo; works.
+These age given as a list of strings.
+They are not case sensitive (see &lsquo;case-fold-search&rsquo;).
+</p></dd>
+</dl>
+</dd></dl>
+
+
+<a name="index-mp_002dfunction_002dsequence-1"></a>
+<hr size="6">
+<a name="mp_002dfunction_002dsequence"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#mp_002dfile_002dname_002dextensions" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#mp_002dentwiner" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#defcustom" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#defcustom" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#defvar" title="Next chapter"> &gt;&gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_Contents" title="Table of contents">Contents</a>]</td>
+<td valign="middle" align="left">[<a href="#Index" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<h2 class="unnumberedsec">mp-function-sequence</h2>
+<dl>
+<dt><a name="index-mp_002dfunction_002dsequence-2"></a><u>User Option:</u> <b>mp-function-sequence</b></dt>
+<dd><dl compact="compact">
+<dt> <var>standard-value</var></dt>
+<dd><p>((funcall (function (closure (t) nil (quote ((R cond ((equalp Rnw (car mp-entwiner)) (quote (mp-R-entwiner mp-Rnw-to-tex mp-tex-to-pdf mp-view-pdf))) ((equalp org (car mp-entwiner)) (quote (mp-R-entwiner mp-org-to-tex mp-tex-to-pdf mp-view-pdf))) ((equalp Rmd (car mp-entwiner)) (quote (mp-R-entwiner mp-Rmd-to-pdf mp-view-pdf)))) (Rnw quote (mp-R-entwiner mp-Rnw-to-tex mp-tex-to-pdf mp-view-pdf)) (org quote (mp-R-entwiner mp-org-to-tex mp-tex-to-pdf mp-view-pdf)) (Rmd quote (mp-R-entwiner mp-Rmd-to-pdf mp-view-pdf)) (tex\|bib quote (mp-tex-to-pdf mp-view-pdf)) (pdf quote (mp-view-pdf))))))))
+</p></dd>
+<dt> <var>custom-type</var></dt>
+<dd><p>(alist <code>:key-type</code> (string <code>:format</code> 
+ %t 
+ %v <code>:tag</code>             file extension, a string) <code>:value-type</code> (sexp <code>:format</code> %t 
+ %v <code>:tag</code>  sexp: a list, or function returning a list))
+</p></dd>
+<dt> <var>custom-requests</var></dt>
+<dd><p>nil
+</p></dd>
+<dt> <var>variable-documentation</var></dt>
+<dd><p>An alist where:
+The key is the file name extension, a regular expression.
+The value is list of functions to run.
+Used by &lsquo;mp-run&rsquo; as the overall control flow.
+</p></dd>
+</dl>
+</dd></dl>
+
+
+<a name="index-mp_002dentwiner-1"></a>
+<hr size="6">
+<a name="mp_002dentwiner"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#mp_002dfunction_002dsequence" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#mp_002dR_002dchunks_002dnew_002dR" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#defcustom" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#defcustom" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#defvar" title="Next chapter"> &gt;&gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_Contents" title="Table of contents">Contents</a>]</td>
+<td valign="middle" align="left">[<a href="#Index" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<h2 class="unnumberedsec">mp-entwiner</h2>
+<dl>
+<dt><a name="index-mp_002dentwiner-2"></a><u>User Option:</u> <b>mp-entwiner</b></dt>
+<dd><dl compact="compact">
+<dt> <var>standard-value</var></dt>
+<dd><p>((funcall (function (closure (t) nil (quote (Rnw . R-pkg-knitr))))))
+</p></dd>
+<dt> <var>custom-type</var></dt>
+<dd><p>(radio (const <code>:doc</code> Rnw with knitr (the default) <code>:value</code> (Rnw . R-pkg-knitr)) (const <code>:doc</code> Rnw with Sweave <code>:value</code> (Rnw . Sweave)) (const <code>:doc</code> Org (uses .org file) <code>:value</code> (org . Org)) (const <code>:doc</code>  md with knitr <code>:value</code> (Rmd . R-pkg-rmarkdown)))
+</p></dd>
+<dt> <var>custom-requests</var></dt>
+<dd><p>nil
+</p></dd>
+<dt> <var>variable-documentation</var></dt>
+<dd><p>How to &rsquo;entwine&rsquo; the files in &lsquo;mp-dd&rsquo;.
+Given in the form of a cons, where:
+- key-type   = &lsquo;file-name-extension&rsquo; (a string)
+- value-type = method (a string)
+</p>
+<p>The &rsquo;entwiner&rsquo; is an intermediary/ bridging file, 
+ which acts as a &rsquo;go-between&rsquo; for .R and .tex files.
+</p>
+<p>&quot;R-pkg-knitr&quot; and &quot;Sweave&quot; use an .Rnw file (see &lsquo;Rnw-mode&rsquo;).
+&quot;Org&quot; uses an .org file (see &lsquo;org-mode&rsquo;)
+See also info node &lsquo;(org)LaTeX export&rsquo;.
+&quot;R-pkg-rmarkdown&quot; uses an .Rmd file (see &lsquo;poly-markdown+r-mode&rsquo;)
+ and an .md file (see &lsquo;markdown-mode&rsquo;).
+</p></dd>
+</dl>
+</dd></dl>
+
+
+<a name="index-mp_002dR_002dchunks_002dnew_002dR-1"></a>
+<hr size="6">
+<a name="mp_002dR_002dchunks_002dnew_002dR"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#mp_002dentwiner" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#mp_002dchunk_002dname_002dprefix_002dR" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#defcustom" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#defcustom" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#defvar" title="Next chapter"> &gt;&gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_Contents" title="Table of contents">Contents</a>]</td>
+<td valign="middle" align="left">[<a href="#Index" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<h2 class="unnumberedsec">mp-R-chunks-new-R</h2>
+<dl>
+<dt><a name="index-mp_002dR_002dchunks_002dnew_002dR-2"></a><u>User Option:</u> <b>mp-R-chunks-new-R</b></dt>
+<dd><dl compact="compact">
+<dt> <var>standard-value</var></dt>
+<dd><p>((funcall (function (closure (t) nil (quote ((Hello world  print(&rsquo;Hello, World!&rsquo;)) (Plots (cond ((string-match R-pkg- (cdr mp-entwiner)) results=&rsquo;asis&rsquo;) ((equalp Sweave (cdr mp-entwiner)) results=verbatim, fig=TRUE, pdf=TRUE) ((equalp Org (cdr mp-entwiner)) <code>:session</code> *org-R-session* <code>:exports</code> both <code>:results</code> output <code>:results</code> graphics <code>:file</code> &quot;p1.pdf&quot;)) ## The examples below are taken from ?graphics:<code>:plot</code>
+require(&rsquo;stats&rsquo;) # for lowess, rpois, rnorm
+plot(cars)
+lines(lowess(cars))
+plot(sin, -pi, 2*pi) # see ?plot.function
+## Discrete Distribution Plot:
+plot(table(rpois(100, 5)), type=&rsquo;h&rsquo;, col=&rsquo;red&rsquo;, lwd=10,
+     main=&rsquo;rpois(100, lambda=5)&rsquo;)
+## Simple quantiles/ECDF, see ecdf() {library(stats) for a better one:
+plot(x &lt;- sort(rnorm(47)), type=&rsquo;s&rsquo;, main=&rsquo;plot(x, type=\&rsquo;s\&rsquo;)&rsquo;)
+points(x, cex=0.5, col=&rsquo;dark red&rsquo;)) (R session information (cond ((string-match R-pkg- (cdr mp-entwiner)) results=&rsquo;asis&rsquo;) ((equalp Sweave (cdr mp-entwiner)) results=tex) ((equalp Org (cdr mp-entwiner)) <code>:session</code> *org-R-session* <code>:exports</code> both <code>:results</code> output <code>:results</code> verbatim <code>:results</code> latex)) (if (equalp Rmd (car mp-entwiner)) utils:<code>:sessionInfo</code>() utils:<code>:toLatex</code>(utils:<code>:sessionInfo</code>())))))))))
+</p></dd>
+<dt> <var>custom-type</var></dt>
+<dd><p>(alist <code>:key-type</code> (string <code>:format</code> 
+ %t 
+ %v <code>:tag</code>            Chunk name) <code>:value-type</code> (group (sexp <code>:format</code> %t 
+ %v <code>:tag</code> Chunk format) (sexp <code>:format</code> %t 
+ %v <code>:tag</code> Chunk content)))
+</p></dd>
+<dt> <var>custom-requests</var></dt>
+<dd><p>nil
+</p></dd>
+<dt> <var>variable-documentation</var></dt>
+<dd><p>A &lsquo;list&rsquo; of chunks for a new .R file.
+Each element is a list with 3 elements.
+- first element  = chunk name, a string
+- second element = chunk format, a string or
+   a symbolic expression which evaluates to a string
+- third element  = chunk content, a string or
+   a symbolic expression which evaluates to a string
+The second and third elements may e.g. be conditional,
+e.g. depending on the value of &lsquo;mp-entwiner&rsquo;.
+Be sure to escape:
+- double quotes i.e. &quot;&quot;
+- single quotes within single quotes e.g. &rsquo;abc &rsquo;def&rsquo; ghi&rsquo;
+When editing this with &lsquo;customize&rsquo;, use
+&lsquo;electric-newline-and-maybe-indent&rsquo; for carraige return.
+</p></dd>
+</dl>
+</dd></dl>
+
+
+<a name="index-mp_002dchunk_002dname_002dprefix_002dR-1"></a>
+<hr size="6">
+<a name="mp_002dchunk_002dname_002dprefix_002dR"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#mp_002dR_002dchunks_002dnew_002dR" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#mp_002dchunk_002dformat_002dprefix_002dR" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#defcustom" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#defcustom" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#defvar" title="Next chapter"> &gt;&gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_Contents" title="Table of contents">Contents</a>]</td>
+<td valign="middle" align="left">[<a href="#Index" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<h2 class="unnumberedsec">mp-chunk-name-prefix-R</h2>
+<dl>
+<dt><a name="index-mp_002dchunk_002dname_002dprefix_002dR-2"></a><u>User Option:</u> <b>mp-chunk-name-prefix-R</b></dt>
+<dd><dl compact="compact">
+<dt> <var>standard-value</var></dt>
+<dd><p>((funcall (function (closure (t) nil ## &mdash;- ))))
+</p></dd>
+<dt> <var>custom-type</var></dt>
+<dd><p>(string)
+</p></dd>
+<dt> <var>custom-requests</var></dt>
+<dd><p>nil
+</p></dd>
+<dt> <var>variable-documentation</var></dt>
+<dd><p>Prefix for the chunk name in an .R file.
+The default value follows the convention used by &rsquo;knitr&rsquo;.
+</p></dd>
+</dl>
+</dd></dl>
+
+
+<a name="index-mp_002dchunk_002dformat_002dprefix_002dR-1"></a>
+<hr size="6">
+<a name="mp_002dchunk_002dformat_002dprefix_002dR"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#mp_002dchunk_002dname_002dprefix_002dR" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#mp_002dchunk_002dcontent_002dsuffix_002dR" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#defcustom" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#defcustom" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#defvar" title="Next chapter"> &gt;&gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_Contents" title="Table of contents">Contents</a>]</td>
+<td valign="middle" align="left">[<a href="#Index" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<h2 class="unnumberedsec">mp-chunk-format-prefix-R</h2>
+<dl>
+<dt><a name="index-mp_002dchunk_002dformat_002dprefix_002dR-2"></a><u>User Option:</u> <b>mp-chunk-format-prefix-R</b></dt>
+<dd><dl compact="compact">
+<dt> <var>standard-value</var></dt>
+<dd><p>((funcall (function (closure (t) nil , ))))
+</p></dd>
+<dt> <var>custom-type</var></dt>
+<dd><p>(string)
+</p></dd>
+<dt> <var>custom-requests</var></dt>
+<dd><p>nil
+</p></dd>
+<dt> <var>variable-documentation</var></dt>
+<dd><p>Prefix for the chunk format in an .R file.
+The default value follows the convention used by &rsquo;knitr&rsquo;.
+</p></dd>
+</dl>
+</dd></dl>
+
+
+<a name="index-mp_002dchunk_002dcontent_002dsuffix_002dR-1"></a>
+<hr size="6">
+<a name="mp_002dchunk_002dcontent_002dsuffix_002dR"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#mp_002dchunk_002dformat_002dprefix_002dR" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#mp_002dchunk_002dheading_002dlevel" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#defcustom" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#defcustom" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#defvar" title="Next chapter"> &gt;&gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_Contents" title="Table of contents">Contents</a>]</td>
+<td valign="middle" align="left">[<a href="#Index" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<h2 class="unnumberedsec">mp-chunk-content-suffix-R</h2>
+<dl>
+<dt><a name="index-mp_002dchunk_002dcontent_002dsuffix_002dR-2"></a><u>User Option:</u> <b>mp-chunk-content-suffix-R</b></dt>
+<dd><dl compact="compact">
+<dt> <var>standard-value</var></dt>
+<dd><p>((funcall (function (closure (t) nil 
+))))
+</p></dd>
+<dt> <var>custom-type</var></dt>
+<dd><p>(sexp)
+</p></dd>
+<dt> <var>custom-requests</var></dt>
+<dd><p>nil
+</p></dd>
+<dt> <var>variable-documentation</var></dt>
+<dd><p>Suffix for the chunk content in an .R file.
+</p></dd>
+</dl>
+</dd></dl>
+
+
+<a name="index-mp_002dchunk_002dheading_002dlevel-1"></a>
+<hr size="6">
+<a name="mp_002dchunk_002dheading_002dlevel"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#mp_002dchunk_002dcontent_002dsuffix_002dR" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#mp_002dR_002dchunk_002ddefaults_002dR_002dpkg" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#defcustom" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#defcustom" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#defvar" title="Next chapter"> &gt;&gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_Contents" title="Table of contents">Contents</a>]</td>
+<td valign="middle" align="left">[<a href="#Index" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<h2 class="unnumberedsec">mp-chunk-heading-level</h2>
+<dl>
+<dt><a name="index-mp_002dchunk_002dheading_002dlevel-2"></a><u>User Option:</u> <b>mp-chunk-heading-level</b></dt>
+<dd><dl compact="compact">
+<dt> <var>standard-value</var></dt>
+<dd><p>((funcall (function (closure (t) nil (quote (\section{ ***  ### ))))))
+</p></dd>
+<dt> <var>custom-type</var></dt>
+<dd><p>(choice <code>:tag</code>  (list <code>:tag</code> level 1 = part (string <code>:tag</code> LaTeX <code>:value</code> \part{) (string <code>:tag</code> org <code>:value</code> * ) (string <code>:tag</code> Rnw <code>:value</code> # )) (list <code>:tag</code> level 2 = chapter
+  [LaTeX - only for \documentclass{book or {report] (string <code>:tag</code> LaTeX <code>:value</code> \chapter{) (string <code>:tag</code> org <code>:value</code> ** ) (string <code>:tag</code> Rnw <code>:value</code> ## )) (list <code>:tag</code> level 3 = section (string <code>:tag</code> LaTeX <code>:value</code> \section{) (string <code>:tag</code> org <code>:value</code> *** ) (string <code>:tag</code> Rnw <code>:value</code> # )) (list <code>:tag</code> level 4 = subsection (string <code>:tag</code> LaTeX \subsection{) (string <code>:tag</code> org <code>:value</code> **** ) (string <code>:tag</code> Rnw <code>:value</code> ## )) (list <code>:tag</code> level 5 = subsubsection (string <code>:tag</code> LaTeX <code>:value</code> \subsubsection{) (string <code>:tag</code> org <code>:value</code> ***** ) (string <code>:tag</code> Rnw <code>:value</code> ### )) (list <code>:tag</code> level 6 = paragraph (string <code>:tag</code> LaTeX <code>:value</code> \paragraph{) (string <code>:tag</code> org <code>:value</code> ****** ) (string <code>:tag</code> Rnw <code>:value</code> ###### )) (list <code>:tag</code> level 7 = sub-paragraph
+  [markdown - not applicable] (string <code>:tag</code> LaTeX <code>:value</code> \subparagraph{) (string <code>:tag</code> org <code>:value</code> ******* ) (string <code>:tag</code> Rnw <code>:value</code> )) (list <code>:tag</code> none (const <code>:tag</code> LaTeX <code>:value</code> ) (const <code>:tag</code> org <code>:value</code> ) (const <code>:tag</code> Rnw <code>:value</code> )) (list <code>:tag</code> custom (string <code>:tag</code> LaTeX <code>:value</code> prefix-for-LaTeX) (string <code>:tag</code> org  <code>:value</code> prefix-for-org) (string <code>:tag</code> Rnw <code>:value</code> prefix-for-Rnw)))
+</p></dd>
+<dt> <var>custom-requests</var></dt>
+<dd><p>nil
+</p></dd>
+<dt> <var>variable-documentation</var></dt>
+<dd><p>Prefixes indicating the heading level for a chunk.
+Specify these in the form of a list of two in the form:
+ &rsquo;(heading-level-for-LaTeX heading-for-Org)
+</p>
+<p>The value is used to prior to a chunk-name.
+As a TeX command, a closing &quot;&quot; is added e.g. 
+&rsquo;\subsection{&rsquo;chunk-name&rsquo;&rsquo;.
+</p>
+<p>Regarding levels of depth:
+- LaTeX uses 7 heading levels by default
+- &lsquo;org-mode&rsquo; supports up to 8 heading levels
+  (only 7, * to *******, are provided as options here)
+- markdown uses 6 heading levels, # to ######
+Thus, we here restrict outselves to 7, bearing in mind that other 
+formats can be more restrictive e.g. markdown supports 6.
+This is not meant to indicate a direct correspondance between 
+heading levels in org-mode and LaTeX.
+</p>
+<p>These values are used by &lsquo;mp-chunk-insert&rsquo;.
+</p>
+<p>For org-mode, see also &lsquo;org-level-faces&rsquo;, &lsquo;org-heading-components&rsquo; and
+&lsquo;org-element-headline-parser&rsquo;.
+For markdown-mode, see also &lsquo;markdown-regex-header&rsquo;.
+</p></dd>
+</dl>
+</dd></dl>
+
+
+<a name="index-mp_002dR_002dchunk_002ddefaults_002dR_002dpkg-1"></a>
+<hr size="6">
+<a name="mp_002dR_002dchunk_002ddefaults_002dR_002dpkg"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#mp_002dchunk_002dheading_002dlevel" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#defvar" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#defcustom" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#defcustom" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#defvar" title="Next chapter"> &gt;&gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_Contents" title="Table of contents">Contents</a>]</td>
+<td valign="middle" align="left">[<a href="#Index" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<h2 class="unnumberedsec">mp-R-chunk-defaults-R-pkg</h2>
+<dl>
+<dt><a name="index-mp_002dR_002dchunk_002ddefaults_002dR_002dpkg-2"></a><u>User Option:</u> <b>mp-R-chunk-defaults-R-pkg</b></dt>
+<dd><dl compact="compact">
+<dt> <var>standard-value</var></dt>
+<dd><p>((funcall (function (closure (t) nil (quote (Default options for knitr and rmarkdown  ### Defaults for chunks typeset with knitr
+library(&rsquo;knitr&rsquo;)
+### defaults for all chunks
+opts_chunk$set(
+    eval=TRUE,
+    ## text results
+    echo=TRUE,
+    results=c(&rsquo;markup&rsquo;, &rsquo;asis&rsquo;, &rsquo;hold&rsquo;, &rsquo;hide&rsquo;)[1],
+    collapse=FALSE,
+    warning=TRUE, message=TRUE, error=TRUE,
+    split=FALSE, include=TRUE, strip.white=TRUE,
+    ## code decoration
+    tidy=FALSE, prompt=FALSE, comment=&rsquo;##&rsquo;,
+    highlight=TRUE, size=&rsquo;normalsize&rsquo;,
+    background=c(&rsquo;#F7F7F7&rsquo;, colors()[479], c(0.1, 0.2, 0.3))[1],
+    ## cache
+    cache=FALSE,
+    ## plots
+    fig.path=c(&rsquo;figure&rsquo;, &rsquo;figure/minimal-&rsquo;)[1],
+    fig.keep=c(&rsquo;high&rsquo;, &rsquo;none&rsquo;, &rsquo;all&rsquo;, &rsquo;first&rsquo;, &rsquo;last&rsquo;)[1],
+    fig.align=c(&rsquo;center&rsquo;, &rsquo;left&rsquo;, &rsquo;right&rsquo;, &rsquo;default&rsquo;)[1],
+    fig.show=c(&rsquo;hold&rsquo;, &rsquo;asis&rsquo;, &rsquo;animate&rsquo;, &rsquo;hide&rsquo;)[1],
+    dev=c(&rsquo;pdf&rsquo;, &rsquo;png&rsquo;, &rsquo;tikz&rsquo;)[1],
+    fig.width=7, fig.height=7, #inches
+    fig.env=c(&rsquo;figure&rsquo;, &rsquo;marginfigure&rsquo;)[1],
+    fig.pos=c(&rdquo;, &rsquo;h&rsquo;, &rsquo;t&rsquo;, &rsquo;b&rsquo;, &rsquo;p&rsquo;, &rsquo;H&rsquo;)[1])
+opts_knit$set(out.format=&rsquo;latex&rsquo;)
+knit_theme$set(&rsquo;biogoo&rsquo;)
+### Set R options
+options(formatR.arrow=TRUE, width=60)
+knit_hooks$set(inline = function(x) {
+    ## if (is.numeric(x)) return(knitr::<code>:format</code>_sci(x, &rsquo;latex&rsquo;))
+    highr:<code>:hi</code>_latex(x)
+)
+### uncomment below to change theme
+## knit_theme$get()
+## opts_knit$set(out.format=&rsquo;latex&rsquo;)
+## thm1 &lt;- knit_theme$get(&rsquo;acid&rsquo;)
+## knit_theme$set(thm1)))))))
+</p></dd>
+<dt> <var>custom-links</var></dt>
+<dd><p>((url-link <code>:tag</code> Code chunks and package options http://yihui.name/knitr/options) (url-link <code>:tag</code> Hooks - knitr documentation http://yihui.name/knitr/hooks))
+</p></dd>
+<dt> <var>custom-type</var></dt>
+<dd><p>(string)
+</p></dd>
+<dt> <var>custom-requests</var></dt>
+<dd><p>nil
+</p></dd>
+<dt> <var>variable-documentation</var></dt>
+<dd><p>Default setup options for &rsquo;knitr&rsquo;.
+Used by &lsquo;mp-R-new&rsquo;.
+This list is not exhaustive.
+Common options are given as vectors, with a choice indicated by
+the index, in square brackets.
+</p></dd>
+</dl>
+</dd></dl>
+
+
+<hr size="6">
+<a name="defvar"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#mp_002dR_002dchunk_002ddefaults_002dR_002dpkg" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#mp_002ddd" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#defcustom" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#Top" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#defconst" title="Next chapter"> &gt;&gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_Contents" title="Table of contents">Contents</a>]</td>
+<td valign="middle" align="left">[<a href="#Index" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<a name="defvar-1"></a>
+<h1 class="chapter">5. defvar</h1>
+<a name="index-defvar"></a>
+
+<p>Documentation for <code>defvar</code>: <br>
+Define SYMBOL as a variable, and return SYMBOL.
+You are not required to define a variable in order to use it, but
+defining it lets you supply an initial value and documentation, which
+can be referred to by the Emacs help facilities and other programming
+tools.  The ‘defvar’ form also declares the variable as &quot;special&quot;,
+so that it is always dynamically bound even if ‘lexical-binding’ is t.
+</p>
+<p>If SYMBOL’s value is void and the optional argument INITVALUE is
+provided, INITVALUE is evaluated and the result used to set SYMBOL’s
+value.  If SYMBOL is buffer-local, its default value is what is set;
+buffer-local values are not affected.  If INITVALUE is missing,
+SYMBOL’s value is not set.
+</p>
+<p>If SYMBOL has a local binding, then this form affects the local
+binding.  This is usually not what you want.  Thus, if you need to
+load a file defining variables, with this form or with ‘defconst’ or
+‘defcustom’, you should always load that file _outside_ any bindings
+for these variables.  (‘defconst’ and ‘defcustom’ behave similarly in
+this respect.)
+</p>
+<p>The optional argument DOCSTRING is a documentation string for the
+variable.
+</p>
+<p>To define a user option, use ‘defcustom’ instead of ‘defvar’.
+</p>
+<p>(fn SYMBOL &amp;optional INITVALUE DOCSTRING)<br>
+</p>
+<p>A table of all <code>defvar</code>s follows:
+</p>
+
+<dl compact="compact">
+<dt> <code>mp-dd</code>
+<a name="index-mp_002ddd"></a>
+</dt>
+<dd><p>The ‘default-directory’; set when ‘mp-set-mp-dd’ is run.
+</p></dd>
+<dt> <code>mp-fnb</code>
+<a name="index-mp_002dfnb"></a>
+</dt>
+<dd><p>The ‘file-name-base’ (a string) for the working file in ‘mp-dd’.
+</p></dd>
+<dt> <code>mp-fne</code>
+<a name="index-mp_002dfne"></a>
+</dt>
+<dd><p>The ‘file-name-extension’ (a string) for the working file in ‘mp-dd’.
+</p></dd>
+<dt> <code>mp-chunks</code>
+<a name="index-mp_002dchunks"></a>
+</dt>
+<dd><p>Stores value for code chunks as a list of strings.
+</p></dd>
+<dt> <code>mp-df</code>
+<a name="index-mp_002ddf"></a>
+</dt>
+<dd><p>A list of the ‘directory-files’ in ‘mp-dd’.
+</p></dd>
+<dt> <code>mp-fn</code>
+<a name="index-mp_002dfn"></a>
+</dt>
+<dd><p>The file-name i.e. ‘mp-fnb’.‘mp-fne’.
+</p></dd>
+</dl>
+
+<p>Details of each <code>defvar</code> follow below: <br>
+</p>
+<a name="index-mp_002ddd-1"></a>
+<hr size="6">
+<a name="mp_002ddd"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#defvar" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#mp_002dfnb" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#defvar" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#defvar" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#defconst" title="Next chapter"> &gt;&gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_Contents" title="Table of contents">Contents</a>]</td>
+<td valign="middle" align="left">[<a href="#Index" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<h2 class="unnumberedsec">mp-dd</h2>
+<dl>
+<dt><a name="index-mp_002ddd-2"></a><u>defvar:</u> <b>mp-dd</b></dt>
+<dd>
+<dl compact="compact">
+<dt> <var>variable-documentation</var></dt>
+<dd><p>The &lsquo;default-directory&rsquo;; set when &lsquo;mp-set-mp-dd&rsquo; is run.
+Defined here as a dynamicaly-bound variable so that
+various functions can refer to this value.
+</p></dd>
+</dl>
+</dd></dl>
+
+
+<a name="index-mp_002dfnb-1"></a>
+<hr size="6">
+<a name="mp_002dfnb"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#mp_002ddd" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#mp_002dfne" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#defvar" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#defvar" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#defconst" title="Next chapter"> &gt;&gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_Contents" title="Table of contents">Contents</a>]</td>
+<td valign="middle" align="left">[<a href="#Index" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<h2 class="unnumberedsec">mp-fnb</h2>
+<dl>
+<dt><a name="index-mp_002dfnb-2"></a><u>defvar:</u> <b>mp-fnb</b></dt>
+<dd>
+<dl compact="compact">
+<dt> <var>variable-documentation</var></dt>
+<dd><p>The &lsquo;file-name-base&rsquo; (a string) for the working file in &lsquo;mp-dd&rsquo;.
+Set when &lsquo;mp-mp&rsquo; is run.
+Defined here as a dynamic variable so that
+various functions can use this value.
+</p></dd>
+</dl>
+</dd></dl>
+
+
+<a name="index-mp_002dfne-1"></a>
+<hr size="6">
+<a name="mp_002dfne"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#mp_002dfnb" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#mp_002dchunks" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#defvar" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#defvar" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#defconst" title="Next chapter"> &gt;&gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_Contents" title="Table of contents">Contents</a>]</td>
+<td valign="middle" align="left">[<a href="#Index" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<h2 class="unnumberedsec">mp-fne</h2>
+<dl>
+<dt><a name="index-mp_002dfne-2"></a><u>defvar:</u> <b>mp-fne</b></dt>
+<dd>
+<dl compact="compact">
+<dt> <var>variable-documentation</var></dt>
+<dd><p>The &lsquo;file-name-extension&rsquo; (a string) for the working file in &lsquo;mp-dd&rsquo;.
+This is set when &lsquo;mp-mp&rsquo; is run.
+Defined here as a dynamic variable so that
+various functions can use this value.
+</p></dd>
+</dl>
+</dd></dl>
+
+
+<a name="index-mp_002dchunks-1"></a>
+<hr size="6">
+<a name="mp_002dchunks"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#mp_002dfne" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#mp_002ddf" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#defvar" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#defvar" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#defconst" title="Next chapter"> &gt;&gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_Contents" title="Table of contents">Contents</a>]</td>
+<td valign="middle" align="left">[<a href="#Index" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<h2 class="unnumberedsec">mp-chunks</h2>
+<dl>
+<dt><a name="index-mp_002dchunks-2"></a><u>defvar:</u> <b>mp-chunks</b></dt>
+<dd>
+<dl compact="compact">
+<dt> <var>variable-documentation</var></dt>
+<dd><p>Stores value for code chunks as a list of strings.
+The value should be a &lsquo;list&rsquo; of 3 elements where
+the first is the name of the chunk,
+the second provides formattinhg information
+the third is the content of the chunk.
+</p>
+<p>The second element, chunk formatting should
+reflect the entwiner in use; see also
+&lsquo;mp-sweave-opts&rsquo; and &lsquo;mp-org-opts&rsquo;.
+</p></dd>
+</dl>
+</dd></dl>
+
+
+<a name="index-mp_002ddf-1"></a>
+<hr size="6">
+<a name="mp_002ddf"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#mp_002dchunks" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#mp_002dfn" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#defvar" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#defvar" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#defconst" title="Next chapter"> &gt;&gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_Contents" title="Table of contents">Contents</a>]</td>
+<td valign="middle" align="left">[<a href="#Index" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<h2 class="unnumberedsec">mp-df</h2>
+<dl>
+<dt><a name="index-mp_002ddf-2"></a><u>defvar:</u> <b>mp-df</b></dt>
+<dd>
+<dl compact="compact">
+<dt> <var>variable-documentation</var></dt>
+<dd><p>A list of the &lsquo;directory-files&rsquo; in &lsquo;mp-dd&rsquo;.
+Defined here as a dynamicaly-bound variable so that
+ various functions can refer to this value.
+</p></dd>
+</dl>
+</dd></dl>
+
+
+<a name="index-mp_002dfn-1"></a>
+<hr size="6">
+<a name="mp_002dfn"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#mp_002ddf" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#defconst" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#defvar" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#defvar" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#defconst" title="Next chapter"> &gt;&gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_Contents" title="Table of contents">Contents</a>]</td>
+<td valign="middle" align="left">[<a href="#Index" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<h2 class="unnumberedsec">mp-fn</h2>
+<dl>
+<dt><a name="index-mp_002dfn-2"></a><u>defvar:</u> <b>mp-fn</b></dt>
+<dd>
+<dl compact="compact">
+<dt> <var>variable-documentation</var></dt>
+<dd><p>The file-name i.e. &lsquo;mp-fnb&rsquo;.&lsquo;mp-fne&rsquo;.
+Defined here as a dynamicaly-bound variable so that
+ various functions can refer to this value.
+</p></dd>
+</dl>
+</dd></dl>
+
+
+<hr size="6">
+<a name="defconst"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#mp_002dfn" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#mp_002dchunk_002dname_002dprefix_002dRnw" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#defvar" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#Top" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#defvar_002dlocal" title="Next chapter"> &gt;&gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_Contents" title="Table of contents">Contents</a>]</td>
+<td valign="middle" align="left">[<a href="#Index" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<a name="defconst-1"></a>
+<h1 class="chapter">6. defconst</h1>
+<a name="index-defconst"></a>
+
+<p>Documentation for <code>defconst</code>: <br>
+Define SYMBOL as a constant variable.
+This declares that neither programs nor users should ever change the
+value.  This constancy is not actually enforced by Emacs Lisp, but
+SYMBOL is marked as a special variable so that it is never lexically
+bound.
+</p>
+<p>The ‘defconst’ form always sets the value of SYMBOL to the result of
+evalling INITVALUE.  If SYMBOL is buffer-local, its default value is
+what is set; buffer-local values are not affected.  If SYMBOL has a
+local binding, then this form sets the local binding’s value.
+However, you should normally not make local bindings for variables
+defined with this form.
+</p>
+<p>The optional DOCSTRING specifies the variable’s documentation string.
+</p>
+<p>(fn SYMBOL INITVALUE [DOCSTRING])<br>
+</p>
+<p>A table of all <code>defconst</code>s follows:
+</p>
+
+<dl compact="compact">
+<dt> <code>mp-chunk-name-prefix-Rnw</code>
+<a name="index-mp_002dchunk_002dname_002dprefix_002dRnw"></a>
+</dt>
+<dd><p>Prefix for the chunk name in an .Rnw file.
+</p></dd>
+<dt> <code>mp-chunk-name-prefix-org</code>
+<a name="index-mp_002dchunk_002dname_002dprefix_002dorg"></a>
+</dt>
+<dd><p>Prefix for the chunk name in an .org file.
+</p></dd>
+<dt> <code>mp-chunk-name-prefix-Rmd</code>
+<a name="index-mp_002dchunk_002dname_002dprefix_002dRmd"></a>
+</dt>
+<dd><p>Prefix for the chunk name in an .Rmd file.
+</p></dd>
+<dt> <code>mp-chunk-format-prefix-Rnw</code>
+<a name="index-mp_002dchunk_002dformat_002dprefix_002dRnw"></a>
+</dt>
+<dd><p>Prefix for the chunk format in an .Rnw file.
+</p></dd>
+<dt> <code>mp-chunk-format-prefix-org</code>
+<a name="index-mp_002dchunk_002dformat_002dprefix_002dorg"></a>
+</dt>
+<dd><p>Prefix for the chunk format in an .org file.
+</p></dd>
+<dt> <code>mp-chunk-format-prefix-Rmd</code>
+<a name="index-mp_002dchunk_002dformat_002dprefix_002dRmd"></a>
+</dt>
+<dd><p>Prefix for the chunk format in an .Rmd file.
+</p></dd>
+<dt> <code>mp-chunk-name-suffix-Rnw</code>
+<a name="index-mp_002dchunk_002dname_002dsuffix_002dRnw"></a>
+</dt>
+<dd><p>Suffix for the chunk name in an .Rnw file.
+</p></dd>
+<dt> <code>mp-chunk-name-suffix-Rmd</code>
+<a name="index-mp_002dchunk_002dname_002dsuffix_002dRmd"></a>
+</dt>
+<dd><p>Suffix for the chunk name in an .Rmd file.
+</p></dd>
+<dt> <code>mp-chunk-content-suffix-Rnw</code>
+<a name="index-mp_002dchunk_002dcontent_002dsuffix_002dRnw"></a>
+</dt>
+<dd><p>Suffix for the chunk content in an .Rnw file.
+</p></dd>
+<dt> <code>mp-chunk-content-suffix-Rmd</code>
+<a name="index-mp_002dchunk_002dcontent_002dsuffix_002dRmd"></a>
+</dt>
+<dd><p>Suffix for the chunk content in an .Rmd file.
+</p></dd>
+<dt> <code>mp-chunk-content-suffix-org</code>
+<a name="index-mp_002dchunk_002dcontent_002dsuffix_002dorg"></a>
+</dt>
+<dd><p>Suffix for the chunk content in an .org file.
+</p></dd>
+</dl>
+
+<p>Details of each <code>defconst</code> follow below: <br>
+</p>
+<a name="index-mp_002dchunk_002dname_002dprefix_002dRnw-1"></a>
+<hr size="6">
+<a name="mp_002dchunk_002dname_002dprefix_002dRnw"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#defconst" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#mp_002dchunk_002dname_002dprefix_002dorg" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#defconst" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#defconst" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#defvar_002dlocal" title="Next chapter"> &gt;&gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_Contents" title="Table of contents">Contents</a>]</td>
+<td valign="middle" align="left">[<a href="#Index" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<h2 class="unnumberedsec">mp-chunk-name-prefix-Rnw</h2>
+<dl>
+<dt><a name="index-mp_002dchunk_002dname_002dprefix_002dRnw-2"></a><u>defconst:</u> <b>mp-chunk-name-prefix-Rnw</b></dt>
+<dd>
+<dl compact="compact">
+<dt> <var>variable-documentation</var></dt>
+<dd><p>Prefix for the chunk name in an .Rnw file.
+</p></dd>
+<dt> <var>risky-local-variable</var></dt>
+<dd><p>t
+</p></dd>
+</dl>
+</dd></dl>
+
+
+<a name="index-mp_002dchunk_002dname_002dprefix_002dorg-1"></a>
+<hr size="6">
+<a name="mp_002dchunk_002dname_002dprefix_002dorg"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#mp_002dchunk_002dname_002dprefix_002dRnw" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#mp_002dchunk_002dname_002dprefix_002dRmd" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#defconst" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#defconst" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#defvar_002dlocal" title="Next chapter"> &gt;&gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_Contents" title="Table of contents">Contents</a>]</td>
+<td valign="middle" align="left">[<a href="#Index" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<h2 class="unnumberedsec">mp-chunk-name-prefix-org</h2>
+<dl>
+<dt><a name="index-mp_002dchunk_002dname_002dprefix_002dorg-2"></a><u>defconst:</u> <b>mp-chunk-name-prefix-org</b></dt>
+<dd>
+<dl compact="compact">
+<dt> <var>variable-documentation</var></dt>
+<dd><p>Prefix for the chunk name in an .org file.
+See also &lsquo;mp-org-opts&rsquo;.
+</p></dd>
+<dt> <var>risky-local-variable</var></dt>
+<dd><p>t
+</p></dd>
+</dl>
+</dd></dl>
+
+
+<a name="index-mp_002dchunk_002dname_002dprefix_002dRmd-1"></a>
+<hr size="6">
+<a name="mp_002dchunk_002dname_002dprefix_002dRmd"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#mp_002dchunk_002dname_002dprefix_002dorg" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#mp_002dchunk_002dformat_002dprefix_002dRnw" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#defconst" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#defconst" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#defvar_002dlocal" title="Next chapter"> &gt;&gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_Contents" title="Table of contents">Contents</a>]</td>
+<td valign="middle" align="left">[<a href="#Index" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<h2 class="unnumberedsec">mp-chunk-name-prefix-Rmd</h2>
+<dl>
+<dt><a name="index-mp_002dchunk_002dname_002dprefix_002dRmd-2"></a><u>defconst:</u> <b>mp-chunk-name-prefix-Rmd</b></dt>
+<dd>
+<dl compact="compact">
+<dt> <var>variable-documentation</var></dt>
+<dd><p>Prefix for the chunk name in an .Rmd file.
+</p></dd>
+<dt> <var>risky-local-variable</var></dt>
+<dd><p>t
+</p></dd>
+</dl>
+</dd></dl>
+
+
+<a name="index-mp_002dchunk_002dformat_002dprefix_002dRnw-1"></a>
+<hr size="6">
+<a name="mp_002dchunk_002dformat_002dprefix_002dRnw"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#mp_002dchunk_002dname_002dprefix_002dRmd" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#mp_002dchunk_002dformat_002dprefix_002dorg" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#defconst" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#defconst" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#defvar_002dlocal" title="Next chapter"> &gt;&gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_Contents" title="Table of contents">Contents</a>]</td>
+<td valign="middle" align="left">[<a href="#Index" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<h2 class="unnumberedsec">mp-chunk-format-prefix-Rnw</h2>
+<dl>
+<dt><a name="index-mp_002dchunk_002dformat_002dprefix_002dRnw-2"></a><u>defconst:</u> <b>mp-chunk-format-prefix-Rnw</b></dt>
+<dd>
+<dl compact="compact">
+<dt> <var>variable-documentation</var></dt>
+<dd><p>Prefix for the chunk format in an .Rnw file.
+</p></dd>
+<dt> <var>risky-local-variable</var></dt>
+<dd><p>t
+</p></dd>
+</dl>
+</dd></dl>
+
+
+<a name="index-mp_002dchunk_002dformat_002dprefix_002dorg-1"></a>
+<hr size="6">
+<a name="mp_002dchunk_002dformat_002dprefix_002dorg"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#mp_002dchunk_002dformat_002dprefix_002dRnw" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#mp_002dchunk_002dformat_002dprefix_002dRmd" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#defconst" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#defconst" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#defvar_002dlocal" title="Next chapter"> &gt;&gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_Contents" title="Table of contents">Contents</a>]</td>
+<td valign="middle" align="left">[<a href="#Index" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<h2 class="unnumberedsec">mp-chunk-format-prefix-org</h2>
+<dl>
+<dt><a name="index-mp_002dchunk_002dformat_002dprefix_002dorg-2"></a><u>defconst:</u> <b>mp-chunk-format-prefix-org</b></dt>
+<dd>
+<dl compact="compact">
+<dt> <var>variable-documentation</var></dt>
+<dd><p>Prefix for the chunk format in an .org file.
+</p></dd>
+<dt> <var>risky-local-variable</var></dt>
+<dd><p>t
+</p></dd>
+</dl>
+</dd></dl>
+
+
+<a name="index-mp_002dchunk_002dformat_002dprefix_002dRmd-1"></a>
+<hr size="6">
+<a name="mp_002dchunk_002dformat_002dprefix_002dRmd"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#mp_002dchunk_002dformat_002dprefix_002dorg" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#mp_002dchunk_002dname_002dsuffix_002dRnw" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#defconst" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#defconst" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#defvar_002dlocal" title="Next chapter"> &gt;&gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_Contents" title="Table of contents">Contents</a>]</td>
+<td valign="middle" align="left">[<a href="#Index" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<h2 class="unnumberedsec">mp-chunk-format-prefix-Rmd</h2>
+<dl>
+<dt><a name="index-mp_002dchunk_002dformat_002dprefix_002dRmd-2"></a><u>defconst:</u> <b>mp-chunk-format-prefix-Rmd</b></dt>
+<dd>
+<dl compact="compact">
+<dt> <var>variable-documentation</var></dt>
+<dd><p>Prefix for the chunk format in an .Rmd file.
+Note that this is not essential i.e. a code chunk could begin
+&ldquo;&lsquo;{r chunk-name, echo=TRUE
+rather than
+&ldquo;&lsquo;{r, chunk-name, echo=TRUE
+The convention of an extra comma follows that used by knitr.
+</p></dd>
+<dt> <var>risky-local-variable</var></dt>
+<dd><p>t
+</p></dd>
+</dl>
+</dd></dl>
+
+
+<a name="index-mp_002dchunk_002dname_002dsuffix_002dRnw-1"></a>
+<hr size="6">
+<a name="mp_002dchunk_002dname_002dsuffix_002dRnw"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#mp_002dchunk_002dformat_002dprefix_002dRmd" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#mp_002dchunk_002dname_002dsuffix_002dRmd" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#defconst" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#defconst" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#defvar_002dlocal" title="Next chapter"> &gt;&gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_Contents" title="Table of contents">Contents</a>]</td>
+<td valign="middle" align="left">[<a href="#Index" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<h2 class="unnumberedsec">mp-chunk-name-suffix-Rnw</h2>
+<dl>
+<dt><a name="index-mp_002dchunk_002dname_002dsuffix_002dRnw-2"></a><u>defconst:</u> <b>mp-chunk-name-suffix-Rnw</b></dt>
+<dd>
+<dl compact="compact">
+<dt> <var>variable-documentation</var></dt>
+<dd><p>Suffix for the chunk name in an .Rnw file.
+</p></dd>
+<dt> <var>risky-local-variable</var></dt>
+<dd><p>t
+</p></dd>
+</dl>
+</dd></dl>
+
+
+<a name="index-mp_002dchunk_002dname_002dsuffix_002dRmd-1"></a>
+<hr size="6">
+<a name="mp_002dchunk_002dname_002dsuffix_002dRmd"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#mp_002dchunk_002dname_002dsuffix_002dRnw" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#mp_002dchunk_002dcontent_002dsuffix_002dRnw" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#defconst" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#defconst" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#defvar_002dlocal" title="Next chapter"> &gt;&gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_Contents" title="Table of contents">Contents</a>]</td>
+<td valign="middle" align="left">[<a href="#Index" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<h2 class="unnumberedsec">mp-chunk-name-suffix-Rmd</h2>
+<dl>
+<dt><a name="index-mp_002dchunk_002dname_002dsuffix_002dRmd-2"></a><u>defconst:</u> <b>mp-chunk-name-suffix-Rmd</b></dt>
+<dd>
+<dl compact="compact">
+<dt> <var>variable-documentation</var></dt>
+<dd><p>Suffix for the chunk name in an .Rmd file.
+</p></dd>
+<dt> <var>risky-local-variable</var></dt>
+<dd><p>t
+</p></dd>
+</dl>
+</dd></dl>
+
+
+<a name="index-mp_002dchunk_002dcontent_002dsuffix_002dRnw-1"></a>
+<hr size="6">
+<a name="mp_002dchunk_002dcontent_002dsuffix_002dRnw"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#mp_002dchunk_002dname_002dsuffix_002dRmd" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#mp_002dchunk_002dcontent_002dsuffix_002dRmd" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#defconst" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#defconst" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#defvar_002dlocal" title="Next chapter"> &gt;&gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_Contents" title="Table of contents">Contents</a>]</td>
+<td valign="middle" align="left">[<a href="#Index" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<h2 class="unnumberedsec">mp-chunk-content-suffix-Rnw</h2>
+<dl>
+<dt><a name="index-mp_002dchunk_002dcontent_002dsuffix_002dRnw-2"></a><u>defconst:</u> <b>mp-chunk-content-suffix-Rnw</b></dt>
+<dd>
+<dl compact="compact">
+<dt> <var>variable-documentation</var></dt>
+<dd><p>Suffix for the chunk content in an .Rnw file.
+</p></dd>
+<dt> <var>risky-local-variable</var></dt>
+<dd><p>t
+</p></dd>
+</dl>
+</dd></dl>
+
+
+<a name="index-mp_002dchunk_002dcontent_002dsuffix_002dRmd-1"></a>
+<hr size="6">
+<a name="mp_002dchunk_002dcontent_002dsuffix_002dRmd"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#mp_002dchunk_002dcontent_002dsuffix_002dRnw" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#mp_002dchunk_002dcontent_002dsuffix_002dorg" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#defconst" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#defconst" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#defvar_002dlocal" title="Next chapter"> &gt;&gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_Contents" title="Table of contents">Contents</a>]</td>
+<td valign="middle" align="left">[<a href="#Index" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<h2 class="unnumberedsec">mp-chunk-content-suffix-Rmd</h2>
+<dl>
+<dt><a name="index-mp_002dchunk_002dcontent_002dsuffix_002dRmd-2"></a><u>defconst:</u> <b>mp-chunk-content-suffix-Rmd</b></dt>
+<dd>
+<dl compact="compact">
+<dt> <var>variable-documentation</var></dt>
+<dd><p>Suffix for the chunk content in an .Rmd file.
+</p></dd>
+<dt> <var>risky-local-variable</var></dt>
+<dd><p>t
+</p></dd>
+</dl>
+</dd></dl>
+
+
+<a name="index-mp_002dchunk_002dcontent_002dsuffix_002dorg-1"></a>
+<hr size="6">
+<a name="mp_002dchunk_002dcontent_002dsuffix_002dorg"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#mp_002dchunk_002dcontent_002dsuffix_002dRmd" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#defvar_002dlocal" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#defconst" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#defconst" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#defvar_002dlocal" title="Next chapter"> &gt;&gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_Contents" title="Table of contents">Contents</a>]</td>
+<td valign="middle" align="left">[<a href="#Index" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<h2 class="unnumberedsec">mp-chunk-content-suffix-org</h2>
+<dl>
+<dt><a name="index-mp_002dchunk_002dcontent_002dsuffix_002dorg-2"></a><u>defconst:</u> <b>mp-chunk-content-suffix-org</b></dt>
+<dd>
+<dl compact="compact">
+<dt> <var>variable-documentation</var></dt>
+<dd><p>Suffix for the chunk content in an .org file.
+</p></dd>
+<dt> <var>risky-local-variable</var></dt>
+<dd><p>t
+</p></dd>
+</dl>
+</dd></dl>
+
+
+<hr size="6">
+<a name="defvar_002dlocal"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#mp_002dchunk_002dcontent_002dsuffix_002dorg" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#mp_002dchunk_002dheading_002dlevel_002dprefix" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#defconst" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#Top" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#Other-symbolic-expressions" title="Next chapter"> &gt;&gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_Contents" title="Table of contents">Contents</a>]</td>
+<td valign="middle" align="left">[<a href="#Index" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<a name="defvar_002dlocal-1"></a>
+<h1 class="chapter">7. defvar-local</h1>
+<a name="index-defvar_002dlocal"></a>
+
+<p>Documentation for <code>defvar-local</code>: <br>
+Define VAR as a buffer-local variable with default value VAL.
+Like ‘defvar’ but additionally marks the variable as being automatically
+buffer-local wherever it is set.
+</p>
+<p>(fn VAR VAL &amp;optional DOCSTRING)<br>
+</p>
+<p>A table of all <code>defvar-local</code>s follows:
+</p>
+
+<dl compact="compact">
+<dt> <code>mp-chunk-heading-level-prefix</code>
+<a name="index-mp_002dchunk_002dheading_002dlevel_002dprefix"></a>
+</dt>
+<dd><p>Value of chunk heading level prefix.
+</p></dd>
+<dt> <code>mp-chunk-heading-level-suffix</code>
+<a name="index-mp_002dchunk_002dheading_002dlevel_002dsuffix"></a>
+</dt>
+<dd><p>Value of chunk heading level suffix.
+</p></dd>
+<dt> <code>mp-chunk-name-prefix</code>
+<a name="index-mp_002dchunk_002dname_002dprefix"></a>
+</dt>
+<dd><p>Value of chunk name prefix.
+</p></dd>
+<dt> <code>mp-chunk-name-suffix</code>
+<a name="index-mp_002dchunk_002dname_002dsuffix"></a>
+</dt>
+<dd><p>Value of chunk name suffix.
+</p></dd>
+<dt> <code>mp-chunk-format-prefix</code>
+<a name="index-mp_002dchunk_002dformat_002dprefix"></a>
+</dt>
+<dd><p>Value of chunk format prefix.
+</p></dd>
+<dt> <code>mp-chunk-content-suffix</code>
+<a name="index-mp_002dchunk_002dcontent_002dsuffix"></a>
+</dt>
+<dd><p>Value of chunk content suffix.
+</p></dd>
+</dl>
+
+<p>Details of each <code>defvar-local</code> follow below: <br>
+</p>
+<a name="index-mp_002dchunk_002dheading_002dlevel_002dprefix-1"></a>
+<hr size="6">
+<a name="mp_002dchunk_002dheading_002dlevel_002dprefix"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#defvar_002dlocal" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#mp_002dchunk_002dheading_002dlevel_002dsuffix" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#defvar_002dlocal" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#defvar_002dlocal" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#Other-symbolic-expressions" title="Next chapter"> &gt;&gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_Contents" title="Table of contents">Contents</a>]</td>
+<td valign="middle" align="left">[<a href="#Index" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<h2 class="unnumberedsec">mp-chunk-heading-level-prefix</h2>
+<dl>
+<dt><a name="index-mp_002dchunk_002dheading_002dlevel_002dprefix-2"></a><u>defvar-local:</u> <b>mp-chunk-heading-level-prefix</b></dt>
+<dd>
+<dl compact="compact">
+<dt> <var>variable-documentation</var></dt>
+<dd><p>Value of chunk heading level prefix.
+Set with &lsquo;mp-chunk-set-adfixes&rsquo;.
+</p></dd>
+</dl>
+</dd></dl>
+
+
+<a name="index-mp_002dchunk_002dheading_002dlevel_002dsuffix-1"></a>
+<hr size="6">
+<a name="mp_002dchunk_002dheading_002dlevel_002dsuffix"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#mp_002dchunk_002dheading_002dlevel_002dprefix" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#mp_002dchunk_002dname_002dprefix" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#defvar_002dlocal" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#defvar_002dlocal" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#Other-symbolic-expressions" title="Next chapter"> &gt;&gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_Contents" title="Table of contents">Contents</a>]</td>
+<td valign="middle" align="left">[<a href="#Index" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<h2 class="unnumberedsec">mp-chunk-heading-level-suffix</h2>
+<dl>
+<dt><a name="index-mp_002dchunk_002dheading_002dlevel_002dsuffix-2"></a><u>defvar-local:</u> <b>mp-chunk-heading-level-suffix</b></dt>
+<dd>
+<dl compact="compact">
+<dt> <var>variable-documentation</var></dt>
+<dd><p>Value of chunk heading level suffix.
+Set with &lsquo;mp-chunk-set-adfixes&rsquo;.
+</p></dd>
+</dl>
+</dd></dl>
+
+
+<a name="index-mp_002dchunk_002dname_002dprefix-1"></a>
+<hr size="6">
+<a name="mp_002dchunk_002dname_002dprefix"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#mp_002dchunk_002dheading_002dlevel_002dsuffix" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#mp_002dchunk_002dname_002dsuffix" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#defvar_002dlocal" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#defvar_002dlocal" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#Other-symbolic-expressions" title="Next chapter"> &gt;&gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_Contents" title="Table of contents">Contents</a>]</td>
+<td valign="middle" align="left">[<a href="#Index" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<h2 class="unnumberedsec">mp-chunk-name-prefix</h2>
+<dl>
+<dt><a name="index-mp_002dchunk_002dname_002dprefix-2"></a><u>defvar-local:</u> <b>mp-chunk-name-prefix</b></dt>
+<dd>
+<dl compact="compact">
+<dt> <var>variable-documentation</var></dt>
+<dd><p>Value of chunk name prefix.
+Set with &lsquo;mp-chunk-set-adfixes&rsquo;.
+</p></dd>
+</dl>
+</dd></dl>
+
+
+<a name="index-mp_002dchunk_002dname_002dsuffix-1"></a>
+<hr size="6">
+<a name="mp_002dchunk_002dname_002dsuffix"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#mp_002dchunk_002dname_002dprefix" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#mp_002dchunk_002dformat_002dprefix" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#defvar_002dlocal" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#defvar_002dlocal" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#Other-symbolic-expressions" title="Next chapter"> &gt;&gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_Contents" title="Table of contents">Contents</a>]</td>
+<td valign="middle" align="left">[<a href="#Index" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<h2 class="unnumberedsec">mp-chunk-name-suffix</h2>
+<dl>
+<dt><a name="index-mp_002dchunk_002dname_002dsuffix-2"></a><u>defvar-local:</u> <b>mp-chunk-name-suffix</b></dt>
+<dd>
+<dl compact="compact">
+<dt> <var>variable-documentation</var></dt>
+<dd><p>Value of chunk name suffix.
+Set with &lsquo;mp-chunk-set-adfixes&rsquo;.
+</p></dd>
+</dl>
+</dd></dl>
+
+
+<a name="index-mp_002dchunk_002dformat_002dprefix-1"></a>
+<hr size="6">
+<a name="mp_002dchunk_002dformat_002dprefix"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#mp_002dchunk_002dname_002dsuffix" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#mp_002dchunk_002dcontent_002dsuffix" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#defvar_002dlocal" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#defvar_002dlocal" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#Other-symbolic-expressions" title="Next chapter"> &gt;&gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_Contents" title="Table of contents">Contents</a>]</td>
+<td valign="middle" align="left">[<a href="#Index" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<h2 class="unnumberedsec">mp-chunk-format-prefix</h2>
+<dl>
+<dt><a name="index-mp_002dchunk_002dformat_002dprefix-2"></a><u>defvar-local:</u> <b>mp-chunk-format-prefix</b></dt>
+<dd>
+<dl compact="compact">
+<dt> <var>variable-documentation</var></dt>
+<dd><p>Value of chunk format prefix.
+Set with &lsquo;mp-chunk-set-adfixes&rsquo;.
+</p></dd>
+</dl>
+</dd></dl>
+
+
+<a name="index-mp_002dchunk_002dcontent_002dsuffix-1"></a>
+<hr size="6">
+<a name="mp_002dchunk_002dcontent_002dsuffix"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#mp_002dchunk_002dformat_002dprefix" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#Other-symbolic-expressions" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#defvar_002dlocal" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#defvar_002dlocal" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#Other-symbolic-expressions" title="Next chapter"> &gt;&gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_Contents" title="Table of contents">Contents</a>]</td>
+<td valign="middle" align="left">[<a href="#Index" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<h2 class="unnumberedsec">mp-chunk-content-suffix</h2>
+<dl>
+<dt><a name="index-mp_002dchunk_002dcontent_002dsuffix-2"></a><u>defvar-local:</u> <b>mp-chunk-content-suffix</b></dt>
+<dd>
+<dl compact="compact">
+<dt> <var>variable-documentation</var></dt>
+<dd><p>Value of chunk content suffix.
+Set with &lsquo;mp-chunk-set-adfixes&rsquo;.
+</p></dd>
+</dl>
+</dd></dl>
+
+
+<hr size="6">
+<a name="Other-symbolic-expressions"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#mp_002dchunk_002dcontent_002dsuffix" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#Index" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#defvar_002dlocal" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#Top" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[<a href="#Index" title="Next chapter"> &gt;&gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_Contents" title="Table of contents">Contents</a>]</td>
+<td valign="middle" align="left">[<a href="#Index" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<a name="Other-symbolic-expressions-1"></a>
+<h1 class="chapter">8. Other symbolic expressions</h1>
+<a name="index-Other-symbolic-expressions"></a>
+
+<table><tr><td>&nbsp;</td><td><pre class="smallformat"> </pre><pre class="verbatim">(mapc #'require
+      '(org ess tex bibtex doc-view ibuffer autorevert cl calendar timer))
+
+(setq org-src-fontify-natively nil)
+
+</pre><pre class="smallformat"> </pre></td></tr></table>
+
+<hr size="6">
+<a name="Index"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#Other-symbolic-expressions" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[ &gt; ]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#Other-symbolic-expressions" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#Top" title="Up section"> Up </a>]</td>
+<td valign="middle" align="left">[ &gt;&gt; ]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_Contents" title="Table of contents">Contents</a>]</td>
+<td valign="middle" align="left">[<a href="#Index" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<a name="Index-1"></a>
+<h1 class="unnumbered">Index</h1>
+<table><tr><th valign="top">Jump to: &nbsp; </th><td><a href="#Index-1_cp_letter-D" class="summary-letter"><b>D</b></a>
+ &nbsp; 
+<a href="#Index-1_cp_letter-M" class="summary-letter"><b>M</b></a>
+ &nbsp; 
+<a href="#Index-1_cp_letter-O" class="summary-letter"><b>O</b></a>
+ &nbsp; 
+<a href="#Index-1_cp_letter-P" class="summary-letter"><b>P</b></a>
+ &nbsp; 
+</td></tr></table>
+<table border="0" class="index-cp">
+<tr><td></td><th align="left">Index Entry</th><th align="left"> Section</th></tr>
+<tr><td colspan="3"> <hr></td></tr>
+<tr><th><a name="Index-1_cp_letter-D">D</a></th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="#index-defconst">defconst</a></td><td valign="top"><a href="#defconst">6. defconst</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-defcustom">defcustom</a></td><td valign="top"><a href="#defcustom">4. defcustom</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-defgroup">defgroup</a></td><td valign="top"><a href="#defgroup">2. defgroup</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-defun">defun</a></td><td valign="top"><a href="#defun">3. defun</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-defvar">defvar</a></td><td valign="top"><a href="#defvar">5. defvar</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-defvar_002dlocal">defvar-local</a></td><td valign="top"><a href="#defvar_002dlocal">7. defvar-local</a></td></tr>
+<tr><td colspan="3"> <hr></td></tr>
+<tr><th><a name="Index-1_cp_letter-M">M</a></th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="#index-mp-1">mp</a></td><td valign="top"><a href="#defgroup">2. defgroup</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-mp_002dbib-1">mp-bib</a></td><td valign="top"><a href="#mp_002dR_002dentwiner">mp-R-entwiner</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-mp_002dchunk_002dcontent_002dsuffix-1">mp-chunk-content-suffix</a></td><td valign="top"><a href="#mp_002dchunk_002dformat_002dprefix">mp-chunk-format-prefix</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-mp_002dchunk_002dcontent_002dsuffix_002dorg-1">mp-chunk-content-suffix-org</a></td><td valign="top"><a href="#mp_002dchunk_002dcontent_002dsuffix_002dRmd">mp-chunk-content-suffix-Rmd</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-mp_002dchunk_002dcontent_002dsuffix_002dR-1">mp-chunk-content-suffix-R</a></td><td valign="top"><a href="#mp_002dchunk_002dformat_002dprefix_002dR">mp-chunk-format-prefix-R</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-mp_002dchunk_002dcontent_002dsuffix_002dRmd-1">mp-chunk-content-suffix-Rmd</a></td><td valign="top"><a href="#mp_002dchunk_002dcontent_002dsuffix_002dRnw">mp-chunk-content-suffix-Rnw</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-mp_002dchunk_002dcontent_002dsuffix_002dRnw-1">mp-chunk-content-suffix-Rnw</a></td><td valign="top"><a href="#mp_002dchunk_002dname_002dsuffix_002dRmd">mp-chunk-name-suffix-Rmd</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-mp_002dchunk_002dformat_002dprefix-1">mp-chunk-format-prefix</a></td><td valign="top"><a href="#mp_002dchunk_002dname_002dsuffix">mp-chunk-name-suffix</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-mp_002dchunk_002dformat_002dprefix_002dorg-1">mp-chunk-format-prefix-org</a></td><td valign="top"><a href="#mp_002dchunk_002dformat_002dprefix_002dRnw">mp-chunk-format-prefix-Rnw</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-mp_002dchunk_002dformat_002dprefix_002dR-1">mp-chunk-format-prefix-R</a></td><td valign="top"><a href="#mp_002dchunk_002dname_002dprefix_002dR">mp-chunk-name-prefix-R</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-mp_002dchunk_002dformat_002dprefix_002dRmd-1">mp-chunk-format-prefix-Rmd</a></td><td valign="top"><a href="#mp_002dchunk_002dformat_002dprefix_002dorg">mp-chunk-format-prefix-org</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-mp_002dchunk_002dformat_002dprefix_002dRnw-1">mp-chunk-format-prefix-Rnw</a></td><td valign="top"><a href="#mp_002dchunk_002dname_002dprefix_002dRmd">mp-chunk-name-prefix-Rmd</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-mp_002dchunk_002dheading_002dlevel-1">mp-chunk-heading-level</a></td><td valign="top"><a href="#mp_002dchunk_002dcontent_002dsuffix_002dR">mp-chunk-content-suffix-R</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-mp_002dchunk_002dheading_002dlevel_002dprefix-1">mp-chunk-heading-level-prefix</a></td><td valign="top"><a href="#defvar_002dlocal">7. defvar-local</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-mp_002dchunk_002dheading_002dlevel_002dsuffix-1">mp-chunk-heading-level-suffix</a></td><td valign="top"><a href="#mp_002dchunk_002dheading_002dlevel_002dprefix">mp-chunk-heading-level-prefix</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-mp_002dchunk_002dname_002dprefix-1">mp-chunk-name-prefix</a></td><td valign="top"><a href="#mp_002dchunk_002dheading_002dlevel_002dsuffix">mp-chunk-heading-level-suffix</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-mp_002dchunk_002dname_002dprefix_002dorg-1">mp-chunk-name-prefix-org</a></td><td valign="top"><a href="#mp_002dchunk_002dname_002dprefix_002dRnw">mp-chunk-name-prefix-Rnw</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-mp_002dchunk_002dname_002dprefix_002dR-1">mp-chunk-name-prefix-R</a></td><td valign="top"><a href="#mp_002dR_002dchunks_002dnew_002dR">mp-R-chunks-new-R</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-mp_002dchunk_002dname_002dprefix_002dRmd-1">mp-chunk-name-prefix-Rmd</a></td><td valign="top"><a href="#mp_002dchunk_002dname_002dprefix_002dorg">mp-chunk-name-prefix-org</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-mp_002dchunk_002dname_002dprefix_002dRnw-1">mp-chunk-name-prefix-Rnw</a></td><td valign="top"><a href="#defconst">6. defconst</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-mp_002dchunk_002dname_002dsuffix-1">mp-chunk-name-suffix</a></td><td valign="top"><a href="#mp_002dchunk_002dname_002dprefix">mp-chunk-name-prefix</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-mp_002dchunk_002dname_002dsuffix_002dRmd-1">mp-chunk-name-suffix-Rmd</a></td><td valign="top"><a href="#mp_002dchunk_002dname_002dsuffix_002dRnw">mp-chunk-name-suffix-Rnw</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-mp_002dchunk_002dname_002dsuffix_002dRnw-1">mp-chunk-name-suffix-Rnw</a></td><td valign="top"><a href="#mp_002dchunk_002dformat_002dprefix_002dRmd">mp-chunk-format-prefix-Rmd</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-mp_002dchunk_002dset_002dadfixes-1">mp-chunk-set-adfixes</a></td><td valign="top"><a href="#mp_002dfile_002dopen">mp-file-open</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-mp_002dchunk_002dupdate_002dformat-1">mp-chunk-update-format</a></td><td valign="top"><a href="#mp_002dR_002dnew">mp-R-new</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-mp_002dchunks-1">mp-chunks</a></td><td valign="top"><a href="#mp_002dfne">mp-fne</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-mp_002dcommon-1">mp-common</a></td><td valign="top"><a href="#mp-1">mp</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-mp_002dcustom_002dexample-1">mp-custom-example</a></td><td valign="top"><a href="#defun">3. defun</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-mp_002ddd-1">mp-dd</a></td><td valign="top"><a href="#defvar">5. defvar</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-mp_002ddf-1">mp-df</a></td><td valign="top"><a href="#mp_002dchunks">mp-chunks</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-mp_002dentwiner-1">mp-entwiner</a></td><td valign="top"><a href="#mp_002dfunction_002dsequence">mp-function-sequence</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-mp_002dexample-1">mp-example</a></td><td valign="top"><a href="#mp_002dcustom_002dexample">mp-custom-example</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-mp_002dexample_002dfile_002dname-1">mp-example-file-name</a></td><td valign="top"><a href="#defcustom">4. defcustom</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-mp_002dfile_002ddisplay-1">mp-file-display</a></td><td valign="top"><a href="#mp_002dR_002dchunk_002dR_002dcitations">mp-R-chunk-R-citations</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-mp_002dfile_002dname_002dextensions-1">mp-file-name-extensions</a></td><td valign="top"><a href="#mp_002dtimeout">mp-timeout</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-mp_002dfile_002dopen-1">mp-file-open</a></td><td valign="top"><a href="#mp_002dfile_002ddisplay">mp-file-display</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-mp_002dfn-1">mp-fn</a></td><td valign="top"><a href="#mp_002ddf">mp-df</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-mp_002dfnb-1">mp-fnb</a></td><td valign="top"><a href="#mp_002ddd">mp-dd</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-mp_002dfne-1">mp-fne</a></td><td valign="top"><a href="#mp_002dfnb">mp-fnb</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-mp_002dfunction_002dsequence-1">mp-function-sequence</a></td><td valign="top"><a href="#mp_002dfile_002dname_002dextensions">mp-file-name-extensions</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-mp_002dinitialize-1">mp-initialize</a></td><td valign="top"><a href="#mp_002dexample">mp-example</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-mp_002dR_002dchunk_002ddefaults_002dR_002dpkg-1">mp-R-chunk-defaults-R-pkg</a></td><td valign="top"><a href="#mp_002dchunk_002dheading_002dlevel">mp-chunk-heading-level</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-mp_002dR_002dchunk_002dR_002dcitations-1">mp-R-chunk-R-citations</a></td><td valign="top"><a href="#mp_002dchunk_002dupdate_002dformat">mp-chunk-update-format</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-mp_002dR_002dchunks_002dnew_002dR-1">mp-R-chunks-new-R</a></td><td valign="top"><a href="#mp_002dentwiner">mp-entwiner</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-mp_002dR_002dentwiner-1">mp-R-entwiner</a></td><td valign="top"><a href="#mp_002drun">mp-run</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-mp_002dR_002dnew-1">mp-R-new</a></td><td valign="top"><a href="#mp_002dbib">mp-bib</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-mp_002drun-1">mp-run</a></td><td valign="top"><a href="#mp_002dvalid_002dfile_002dname_002dp">mp-valid-file-name-p</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-mp_002dset_002dmode-1">mp-set-mode</a></td><td valign="top"><a href="#mp_002dchunk_002dset_002dadfixes">mp-chunk-set-adfixes</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-mp_002dset_002dmp_002ddd-1">mp-set-mp-dd</a></td><td valign="top"><a href="#mp_002dinitialize">mp-initialize</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-mp_002dtimeout-1">mp-timeout</a></td><td valign="top"><a href="#mp_002dexample_002dfile_002dname">mp-example-file-name</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-mp_002dvalid_002dfile_002dname_002dp-1">mp-valid-file-name-p</a></td><td valign="top"><a href="#mp_002dset_002dmp_002ddd">mp-set-mp-dd</a></td></tr>
+<tr><td colspan="3"> <hr></td></tr>
+<tr><th><a name="Index-1_cp_letter-O">O</a></th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="#index-Other-symbolic-expressions">Other symbolic expressions</a></td><td valign="top"><a href="#Other-symbolic-expressions">8. Other symbolic expressions</a></td></tr>
+<tr><td colspan="3"> <hr></td></tr>
+<tr><th><a name="Index-1_cp_letter-P">P</a></th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="#index-Preamble">Preamble</a></td><td valign="top"><a href="#Preamble">1. Preamble</a></td></tr>
+<tr><td colspan="3"> <hr></td></tr>
+</table>
+<table><tr><th valign="top">Jump to: &nbsp; </th><td><a href="#Index-1_cp_letter-D" class="summary-letter"><b>D</b></a>
+ &nbsp; 
+<a href="#Index-1_cp_letter-M" class="summary-letter"><b>M</b></a>
+ &nbsp; 
+<a href="#Index-1_cp_letter-O" class="summary-letter"><b>O</b></a>
+ &nbsp; 
+<a href="#Index-1_cp_letter-P" class="summary-letter"><b>P</b></a>
+ &nbsp; 
+</td></tr></table>
+<hr size="6">
+<a name="SEC_Contents"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_Contents" title="Table of contents">Contents</a>]</td>
+<td valign="middle" align="left">[<a href="#Index" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<h1>Table of Contents</h1>
+<div class="contents">
+
+<ul class="toc">
+  <li><a name="toc-Preamble-1" href="#Preamble">1. Preamble</a></li>
+  <li><a name="toc-defgroup-1" href="#defgroup">2. defgroup</a>
+  <ul class="toc">
+    <li><a name="toc-mp-1" href="#mp-1">mp</a></li>
+    <li><a name="toc-mp_002dcommon" href="#mp_002dcommon">mp-common</a></li>
+  </ul></li>
+  <li><a name="toc-defun-1" href="#defun">3. defun</a>
+  <ul class="toc">
+    <li><a name="toc-mp_002dcustom_002dexample" href="#mp_002dcustom_002dexample">mp-custom-example</a></li>
+    <li><a name="toc-mp_002dexample" href="#mp_002dexample">mp-example</a></li>
+    <li><a name="toc-mp_002dinitialize" href="#mp_002dinitialize">mp-initialize</a></li>
+    <li><a name="toc-mp_002dset_002dmp_002ddd" href="#mp_002dset_002dmp_002ddd">mp-set-mp-dd</a></li>
+    <li><a name="toc-mp_002dvalid_002dfile_002dname_002dp" href="#mp_002dvalid_002dfile_002dname_002dp">mp-valid-file-name-p</a></li>
+    <li><a name="toc-mp_002drun" href="#mp_002drun">mp-run</a></li>
+    <li><a name="toc-mp_002dR_002dentwiner" href="#mp_002dR_002dentwiner">mp-R-entwiner</a></li>
+    <li><a name="toc-mp_002dbib" href="#mp_002dbib">mp-bib</a></li>
+    <li><a name="toc-mp_002dR_002dnew" href="#mp_002dR_002dnew">mp-R-new</a></li>
+    <li><a name="toc-mp_002dchunk_002dupdate_002dformat" href="#mp_002dchunk_002dupdate_002dformat">mp-chunk-update-format</a></li>
+    <li><a name="toc-mp_002dR_002dchunk_002dR_002dcitations" href="#mp_002dR_002dchunk_002dR_002dcitations">mp-R-chunk-R-citations</a></li>
+    <li><a name="toc-mp_002dfile_002ddisplay" href="#mp_002dfile_002ddisplay">mp-file-display</a></li>
+    <li><a name="toc-mp_002dfile_002dopen" href="#mp_002dfile_002dopen">mp-file-open</a></li>
+    <li><a name="toc-mp_002dchunk_002dset_002dadfixes" href="#mp_002dchunk_002dset_002dadfixes">mp-chunk-set-adfixes</a></li>
+    <li><a name="toc-mp_002dset_002dmode" href="#mp_002dset_002dmode">mp-set-mode</a></li>
+  </ul></li>
+  <li><a name="toc-defcustom-1" href="#defcustom">4. defcustom</a>
+  <ul class="toc">
+    <li><a name="toc-mp_002dexample_002dfile_002dname" href="#mp_002dexample_002dfile_002dname">mp-example-file-name</a></li>
+    <li><a name="toc-mp_002dtimeout" href="#mp_002dtimeout">mp-timeout</a></li>
+    <li><a name="toc-mp_002dfile_002dname_002dextensions" href="#mp_002dfile_002dname_002dextensions">mp-file-name-extensions</a></li>
+    <li><a name="toc-mp_002dfunction_002dsequence" href="#mp_002dfunction_002dsequence">mp-function-sequence</a></li>
+    <li><a name="toc-mp_002dentwiner" href="#mp_002dentwiner">mp-entwiner</a></li>
+    <li><a name="toc-mp_002dR_002dchunks_002dnew_002dR" href="#mp_002dR_002dchunks_002dnew_002dR">mp-R-chunks-new-R</a></li>
+    <li><a name="toc-mp_002dchunk_002dname_002dprefix_002dR" href="#mp_002dchunk_002dname_002dprefix_002dR">mp-chunk-name-prefix-R</a></li>
+    <li><a name="toc-mp_002dchunk_002dformat_002dprefix_002dR" href="#mp_002dchunk_002dformat_002dprefix_002dR">mp-chunk-format-prefix-R</a></li>
+    <li><a name="toc-mp_002dchunk_002dcontent_002dsuffix_002dR" href="#mp_002dchunk_002dcontent_002dsuffix_002dR">mp-chunk-content-suffix-R</a></li>
+    <li><a name="toc-mp_002dchunk_002dheading_002dlevel" href="#mp_002dchunk_002dheading_002dlevel">mp-chunk-heading-level</a></li>
+    <li><a name="toc-mp_002dR_002dchunk_002ddefaults_002dR_002dpkg" href="#mp_002dR_002dchunk_002ddefaults_002dR_002dpkg">mp-R-chunk-defaults-R-pkg</a></li>
+  </ul></li>
+  <li><a name="toc-defvar-1" href="#defvar">5. defvar</a>
+  <ul class="toc">
+    <li><a name="toc-mp_002ddd" href="#mp_002ddd">mp-dd</a></li>
+    <li><a name="toc-mp_002dfnb" href="#mp_002dfnb">mp-fnb</a></li>
+    <li><a name="toc-mp_002dfne" href="#mp_002dfne">mp-fne</a></li>
+    <li><a name="toc-mp_002dchunks" href="#mp_002dchunks">mp-chunks</a></li>
+    <li><a name="toc-mp_002ddf" href="#mp_002ddf">mp-df</a></li>
+    <li><a name="toc-mp_002dfn" href="#mp_002dfn">mp-fn</a></li>
+  </ul></li>
+  <li><a name="toc-defconst-1" href="#defconst">6. defconst</a>
+  <ul class="toc">
+    <li><a name="toc-mp_002dchunk_002dname_002dprefix_002dRnw" href="#mp_002dchunk_002dname_002dprefix_002dRnw">mp-chunk-name-prefix-Rnw</a></li>
+    <li><a name="toc-mp_002dchunk_002dname_002dprefix_002dorg" href="#mp_002dchunk_002dname_002dprefix_002dorg">mp-chunk-name-prefix-org</a></li>
+    <li><a name="toc-mp_002dchunk_002dname_002dprefix_002dRmd" href="#mp_002dchunk_002dname_002dprefix_002dRmd">mp-chunk-name-prefix-Rmd</a></li>
+    <li><a name="toc-mp_002dchunk_002dformat_002dprefix_002dRnw" href="#mp_002dchunk_002dformat_002dprefix_002dRnw">mp-chunk-format-prefix-Rnw</a></li>
+    <li><a name="toc-mp_002dchunk_002dformat_002dprefix_002dorg" href="#mp_002dchunk_002dformat_002dprefix_002dorg">mp-chunk-format-prefix-org</a></li>
+    <li><a name="toc-mp_002dchunk_002dformat_002dprefix_002dRmd" href="#mp_002dchunk_002dformat_002dprefix_002dRmd">mp-chunk-format-prefix-Rmd</a></li>
+    <li><a name="toc-mp_002dchunk_002dname_002dsuffix_002dRnw" href="#mp_002dchunk_002dname_002dsuffix_002dRnw">mp-chunk-name-suffix-Rnw</a></li>
+    <li><a name="toc-mp_002dchunk_002dname_002dsuffix_002dRmd" href="#mp_002dchunk_002dname_002dsuffix_002dRmd">mp-chunk-name-suffix-Rmd</a></li>
+    <li><a name="toc-mp_002dchunk_002dcontent_002dsuffix_002dRnw" href="#mp_002dchunk_002dcontent_002dsuffix_002dRnw">mp-chunk-content-suffix-Rnw</a></li>
+    <li><a name="toc-mp_002dchunk_002dcontent_002dsuffix_002dRmd" href="#mp_002dchunk_002dcontent_002dsuffix_002dRmd">mp-chunk-content-suffix-Rmd</a></li>
+    <li><a name="toc-mp_002dchunk_002dcontent_002dsuffix_002dorg" href="#mp_002dchunk_002dcontent_002dsuffix_002dorg">mp-chunk-content-suffix-org</a></li>
+  </ul></li>
+  <li><a name="toc-defvar_002dlocal-1" href="#defvar_002dlocal">7. defvar-local</a>
+  <ul class="toc">
+    <li><a name="toc-mp_002dchunk_002dheading_002dlevel_002dprefix" href="#mp_002dchunk_002dheading_002dlevel_002dprefix">mp-chunk-heading-level-prefix</a></li>
+    <li><a name="toc-mp_002dchunk_002dheading_002dlevel_002dsuffix" href="#mp_002dchunk_002dheading_002dlevel_002dsuffix">mp-chunk-heading-level-suffix</a></li>
+    <li><a name="toc-mp_002dchunk_002dname_002dprefix" href="#mp_002dchunk_002dname_002dprefix">mp-chunk-name-prefix</a></li>
+    <li><a name="toc-mp_002dchunk_002dname_002dsuffix" href="#mp_002dchunk_002dname_002dsuffix">mp-chunk-name-suffix</a></li>
+    <li><a name="toc-mp_002dchunk_002dformat_002dprefix" href="#mp_002dchunk_002dformat_002dprefix">mp-chunk-format-prefix</a></li>
+    <li><a name="toc-mp_002dchunk_002dcontent_002dsuffix" href="#mp_002dchunk_002dcontent_002dsuffix">mp-chunk-content-suffix</a></li>
+  </ul></li>
+  <li><a name="toc-Other-symbolic-expressions-1" href="#Other-symbolic-expressions">8. Other symbolic expressions</a></li>
+  <li><a name="toc-Index-1" href="#Index">Index</a></li>
+</ul>
+</div>
+<hr size="1">
+<a name="SEC_About"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">Top</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_Contents" title="Table of contents">Contents</a>]</td>
+<td valign="middle" align="left">[<a href="#Index" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<h1>About This Document</h1>
+<p>
+  This document was generated by <em>cd</em> on <em>January 4, 2022</em> using <a href="http://www.nongnu.org/texi2html/"><em>texi2html 1.82</em></a>.
+</p>
+<p>
+  The buttons in the navigation panels have the following meaning:
+</p>
+<table border="1">
+  <tr>
+    <th> Button </th>
+    <th> Name </th>
+    <th> Go to </th>
+    <th> From 1.2.3 go to</th>
+  </tr>
+  <tr>
+    <td align="center"> [ &lt; ] </td>
+    <td align="center">Back</td>
+    <td>Previous section in reading order</td>
+    <td>1.2.2</td>
+  </tr>
+  <tr>
+    <td align="center"> [ &gt; ] </td>
+    <td align="center">Forward</td>
+    <td>Next section in reading order</td>
+    <td>1.2.4</td>
+  </tr>
+  <tr>
+    <td align="center"> [ &lt;&lt; ] </td>
+    <td align="center">FastBack</td>
+    <td>Beginning of this chapter or previous chapter</td>
+    <td>1</td>
+  </tr>
+  <tr>
+    <td align="center"> [ Up ] </td>
+    <td align="center">Up</td>
+    <td>Up section</td>
+    <td>1.2</td>
+  </tr>
+  <tr>
+    <td align="center"> [ &gt;&gt; ] </td>
+    <td align="center">FastForward</td>
+    <td>Next chapter</td>
+    <td>2</td>
+  </tr>
+  <tr>
+    <td align="center"> [Top] </td>
+    <td align="center">Top</td>
+    <td>Cover (top) of document</td>
+    <td> &nbsp; </td>
+  </tr>
+  <tr>
+    <td align="center"> [Contents] </td>
+    <td align="center">Contents</td>
+    <td>Table of contents</td>
+    <td> &nbsp; </td>
+  </tr>
+  <tr>
+    <td align="center"> [Index] </td>
+    <td align="center">Index</td>
+    <td>Index</td>
+    <td> &nbsp; </td>
+  </tr>
+  <tr>
+    <td align="center"> [ ? ] </td>
+    <td align="center">About</td>
+    <td>About (help)</td>
+    <td> &nbsp; </td>
+  </tr>
+</table>
+
+<p>
+  where the <strong> Example </strong> assumes that the current position is at <strong> Subsubsection One-Two-Three </strong> of a document of the following structure:
+</p>
+
+<ul>
+  <li> 1. Section One
+    <ul>
+      <li>1.1 Subsection One-One
+        <ul>
+          <li>...</li>
+        </ul>
+      </li>
+      <li>1.2 Subsection One-Two
+        <ul>
+          <li>1.2.1 Subsubsection One-Two-One</li>
+          <li>1.2.2 Subsubsection One-Two-Two</li>
+          <li>1.2.3 Subsubsection One-Two-Three &nbsp; &nbsp;
+            <strong>&lt;== Current Position </strong></li>
+          <li>1.2.4 Subsubsection One-Two-Four</li>
+        </ul>
+      </li>
+      <li>1.3 Subsection One-Three
+        <ul>
+          <li>...</li>
+        </ul>
+      </li>
+      <li>1.4 Subsection One-Four</li>
+    </ul>
+  </li>
+</ul>
+
+<hr size="1">
+<p>
+ <font size="-1">
+  This document was generated by <em>cd</em> on <em>January 4, 2022</em> using <a href="http://www.nongnu.org/texi2html/"><em>texi2html 1.82</em></a>.
+ </font>
+ <br>
+
+</p>
+</body>
+</html>
